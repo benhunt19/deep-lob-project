@@ -3,3 +3,6 @@ Scripts/
 Include/
 share/
 data/
+__pycache__/
+**/__pycache__/
+**.pyc

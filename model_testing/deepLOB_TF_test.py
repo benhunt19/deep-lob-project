@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # train
     model = deepLOB_TF(trainX_CNN.shape[1:], n_hiddens)
     
-    model.fit(
+    model.train(
         trainX_CNN,
         trainY_CNN,
         validation_data=(valX_CNN, valY_CNN), 

@@ -78,13 +78,12 @@ class deepLOB_TF(BaseModel):
             loss='categorical_crossentropy', # Review
             metrics=['accuracy']
         )
-
         return model
 
     def summary(self):
         self.model.summary()
 
-    def fit(self, *args, **kwargs):
+    def train(self, *args, **kwargs):
         return self.model.fit(*args, **kwargs)
 
     def predict(self, *args, **kwargs):
