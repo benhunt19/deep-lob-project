@@ -12,7 +12,7 @@ class DataUtils:
     """
     def __init__(self):
         self.fileList = None            # Array of file names
-        self.data = None                 # The raw data from the file
+        self.data = None                # The raw data from the file
         self.x = None                   # This will be the returned features
         self.y = None                   # This will be the returned labels
         
@@ -33,29 +33,18 @@ class DataUtils:
         pass
     
     def runDataProcss(self):
-        # ticker: str,
-        # input_path: str,
-        # output_path: str,
-        # logs_path: str,
-        # horizons: list[int],
-        # normalization_window: int,
-        # time_index: str = "seconds",
-        # features: str = "orderbooks",
-        # scaling: bool = True,
         process_data(
-            ticker='TSLA',
             input_path=f'{PROJECT_ROOT}/{RAW_DATA_PATH}',
             output_path=f'{PROJECT_ROOT}/{PROCESSED_DATA_PATH}',
             logs_path=f'{PROJECT_ROOT}/{DATA_PROCESS_LOGS}',
             horizons=[100],
             normalization_window=1,
+            archive=True
         )
+    def createDataSet(self):
+        pass
 
 
 if __name__ == "__main__":
     util = DataUtils()
-    fileNames = util.getRawFileNames(f'{PROJECT_ROOT}/{RAW_DATA_PATH}', filter='orderbook')
-    print(fileNames)
-    util.getData(util.fileList[0])
-    print(util.data.shape)
     util.runDataProcss()

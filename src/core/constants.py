@@ -5,6 +5,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 
 # Data locations
 RAW_DATA_PATH = 'data/raw/'
+RAW_ARCIVE_DATA_PATH = 'data/raw/archive'
 PROCESSED_DATA_PATH = 'data/processed'
 DEMO_DATA_PATH = 'data/demo'
 DATA_PROCESS_LOGS = 'data/logs'

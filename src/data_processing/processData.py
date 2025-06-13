@@ -5,6 +5,8 @@ import torch.nn as nn
 from datetime import datetime
 from tqdm import tqdm
 from torch.utils import data
+import os
+import shutil
 
 import glob
 import re
@@ -13,15 +15,17 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
-
+# To remove
 def prepare_x(data):
     df1 = data[:40, :].T
     return np.array(df1)
 
+# To remove
 def get_label(data):
     lob = data[-5:, :].T
     return lob
 
+# To remove
 def data_classification(X, Y, T):
     [N, D] = X.shape
     df = np.array(X)
@@ -32,6 +36,7 @@ def data_classification(X, Y, T):
         dataX[i - T] = df[i - T:i, :]
     return dataX.reshape(dataX.shape + (1,)), dataY
 
+# To remove
 def prepare_x_y(data, k, T):
     x = prepare_x(data)
     y = get_label(data)
@@ -40,7 +45,7 @@ def prepare_x_y(data, k, T):
     y = to_categorical(y, 3)
     return x, y
 
-
+# To remove
 class Dataset(data.Dataset):
     """Characterizes a dataset for PyTorch"""
     def __init__(self, data, k, num_classes, T):
@@ -69,7 +74,7 @@ class Dataset(data.Dataset):
         """Generates samples of data"""
         return self.x[index], self.y[index]
 
-# A function to encapsulate the training loop
+# To remove and remake
 def batch_gd(model, criterion, optimizer, train_loader, test_loader, epochs, device='cpu'):
     
     train_losses = np.zeros(epochs)
@@ -129,9 +134,9 @@ def batch_gd(model, criterion, optimizer, train_loader, test_loader, epochs, dev
 
 
 ### process_data from LOBFrame ###
-
+# To remaster
 def process_data(
-        ticker: str,
+        # ticker: str,
         input_path: str,
         output_path: str,
         logs_path: str,
@@ -140,6 +145,7 @@ def process_data(
         time_index: str = "seconds",
         features: str = "orderbooks",
         scaling: bool = True,
+        archive: bool = True
 ) -> None:
     """
     Function to pre-process LOBSTER data. The data must be stored in the input_path directory as 'daily message LOB' and 'orderbook' files.
@@ -188,7 +194,6 @@ def process_data(
     """
     
     print("Processing data")
-    print(ticker)
     print(input_path)
 
     csv_file_list = glob.glob(
@@ -232,9 +237,12 @@ def process_data(
     mean_df = pd.DataFrame()
     mean2_df = pd.DataFrame()
     nsamples_df = pd.DataFrame()
-
+    
     for orderbook_name in csv_orderbook:
-        print(orderbook_name)
+        print('orderbook_name',orderbook_name )
+        
+        ticker = orderbook_name.split('\\')[-1].split('_')[0]
+        print("TICKER:", ticker)
 
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
@@ -510,6 +518,15 @@ def process_data(
             nsamples_df = pd.concat(
                 [nsamples_df, orderbook_nsamples_df], ignore_index=True
             )
+            
+            # Archive normalization data
+            if archive:
+                if not os.path.exists(f"{input_path}/archive"):
+                    os.makedirs(f"{input_path}/archive")
+                shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_name.split('\\')[-1]}")
+                shutil.move(f"{message_name}", f"{input_path}/archive/{message_name.split('\\')[-1]}")
+                logs.append("Moved to archive")
+    
             continue
         else:
             z_mean_df = pd.DataFrame(
@@ -529,9 +546,9 @@ def process_data(
             z_stdev_df.index = df_orderbook.index
             if scaling is True:
                 # print("Orderbook size 4.4", df_orderbook)
-                # df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
+                df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
                 print("Orderbook size 4.5", df_orderbook)
-                print("I HAVE REMOVED THE SCALING STEP - FIX THIS")
+                # print("I HAVE REMOVED THE SCALING STEP - FIX THIS")
 
             # Roll forward by dropping first rows and adding most recent mean and mean2.
             mean_df = mean_df.iloc[1:, :]
@@ -577,13 +594,26 @@ def process_data(
         print("Orderbook size 6: ", len(df_orderbook))
 
         # Save processed files.
-        output_name = f"{output_path}/{ticker}_{features}_{str(date.date())}"
+        output_name = f"{output_path}/{ticker}/{ticker}_{features}_{str(date.date())}"
         print("Saving")
         # print(df_orderbook)
+        # Check for file path
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        
         df_orderbook.to_csv(f"{output_name}.csv", header=True, index=False)
         print('output_name', output_name)
-
+        
+        # Move file to archive
+        if archive:
+            if not os.path.exists(f"{input_path}/archive"):
+                os.makedirs(f"{input_path}/archive")
+            shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_name.split('\\')[-1]}")
+            shutil.move(f"{message_name}", f"{input_path}/archive/{message_name.split('\\')[-1]}")
+            logs.append("Moved to archive")
+        
         logs.append(f"{orderbook_name} completed.")
+        logs.append(f"{message_name} completed.")
 
     print(f"Data preprocessing loop finished. SCALING: {str(scaling)}.")
 
