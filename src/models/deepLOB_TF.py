@@ -4,9 +4,9 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input, LSTM, Reshape, Conv2D, MaxPooling2D, LeakyReLU, concatenate)
 from tensorflow.keras.optimizers import Adam
 
-from models.baseModel import BaseModel
+from src.models.baseModel import BaseModel
 
-class deepLOB_TF(BaseModel):
+class DeepLOB_TF(BaseModel):
     """
     Description:
     This is the original deepLOB model build with Tensor Flow

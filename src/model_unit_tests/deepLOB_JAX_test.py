@@ -1,5 +1,5 @@
 import jax
-from models.deepLOB_JAX import DeepLOB_JAX
+from src.models.deepLOB_JAX import DeepLOB_JAX
 import jax.numpy as jnp
 
 if __name__ == "__main__":

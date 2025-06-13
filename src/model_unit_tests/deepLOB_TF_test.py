@@ -1,14 +1,15 @@
 import numpy as np
 import tensorflow as tf
+import torch as torch
 
-from models.deepLOB_TF import deepLOB_TF
-
-from data_processing.processData import prepare_x_y, Dataset, batch_gd
+from src.models.deepLOB_TF import DeepLOB_TF
+from src.data_processing.processData import prepare_x_y, Dataset, batch_gd
+from src.core.constants import DEMO_DATA_PATH, PROJECT_ROOT
 
 if __name__ == "__main__":
     
     # please change the data_path to your local path
-    data_path = '../data/demo'
+    data_path = PROJECT_ROOT + '/' + DEMO_DATA_PATH
     test_lim = 20_000
     dec_data = np.loadtxt(data_path + '/Train_Dst_NoAuction_DecPre_CF_7.txt')[:,:test_lim]
     print(dec_data.shape)
@@ -42,10 +43,16 @@ if __name__ == "__main__":
     
     n_hiddens = 64
     
-    print(trainX_CNN.shape)
+    print('trainX_CNN.shape', trainX_CNN.shape)
+    print('trainX_CNN.shape', trainX_CNN.shape)
     
     # train
-    model = deepLOB_TF(trainX_CNN.shape[1:], n_hiddens)
+    model = DeepLOB_TF(trainX_CNN.shape[1:], n_hiddens)
+    
+    # Test to see if this works with torch tensors
+    trainX_CNN = torch.from_numpy(trainX_CNN)
+    trainY_CNN = torch.from_numpy(trainY_CNN)
+    
     
     model.train(
         trainX_CNN,

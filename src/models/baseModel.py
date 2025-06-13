@@ -3,7 +3,7 @@ import numpy as np
 class BaseModel(ABC):
     """
     Description:
-        This is the base model that all other models inherit from
+        This is the base model that all other models inherit from, essentially the abstract class with contract instructions
     """
     def __init__(self):
         self.name = 'BaseClass'

@@ -5,7 +5,7 @@ from flax import linen as nn
 import optax
 from typing import Tuple
 
-from models.baseModel import BaseModel
+from src.models.baseModel import BaseModel
 
 class _DeepLOB_JAX(nn.Module):
     """

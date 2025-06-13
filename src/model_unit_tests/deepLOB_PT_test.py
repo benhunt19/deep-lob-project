@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from data_processing.processData import prepare_x_y, Dataset, batch_gd
+from src.data_processing.processData import prepare_x_y, Dataset, batch_gd
 
 if __name__ == "__main__":
     # please change the data_path to your local path
@@ -49,9 +49,9 @@ if __name__ == "__main__":
         print(x.shape, y.shape)
         break
     
-    from models.deepLOB_PT import deepLOB_PT
+    from src.models.deepLOB_PT import DeepLOB_PT
     
-    model = deepLOB_PT(y_len = dataset_train.num_classes)
+    model = DeepLOB_PT(y_len = dataset_train.num_classes)
     # model = torch.compile(model)
     # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     device = 'cpu'

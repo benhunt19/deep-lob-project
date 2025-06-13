@@ -11,7 +11,7 @@ import torch.optim as optim
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-class deepLOB_PT(nn.Module):
+class DeepLOB_PT(nn.Module):
     """
     Description:
     This is the original deepLOB model build with PyRotch
