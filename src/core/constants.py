@@ -12,3 +12,6 @@ DATA_PROCESS_LOGS = 'data/logs'
 
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000
+
+# LOB Simulator Path
+LOB_SIMULATOR_PATH = r"C:\Users\benhu\UCL\Term 3\HSBC\cpp-lob-simulator\build\Release"
