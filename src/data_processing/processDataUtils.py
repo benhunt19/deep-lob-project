@@ -39,11 +39,12 @@ class DataUtils:
             logs_path=f'{PROJECT_ROOT}/{DATA_PROCESS_LOGS}',
             horizons=[100],
             normalization_window=1,
-            archive=True
+            archive=True,
+            scaling=False
         )
+        
     def createDataSet(self):
         pass
-
 
 if __name__ == "__main__":
     util = DataUtils()

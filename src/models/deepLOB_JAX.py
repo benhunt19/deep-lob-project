@@ -2,10 +2,15 @@ import jax
 from jax import jit
 import jax.numpy as jnp
 from flax import linen as nn
-import optax
+from flax import serialization
+from flax.training import checkpoints
 from typing import Tuple
+from pathlib import Path
 
 from src.models.baseModel import BaseModel
+
+from src.core.generalUtils import weightLocation
+
 
 class _DeepLOB_JAX(nn.Module):
     """
@@ -80,8 +85,10 @@ class _DeepLOB_JAX(nn.Module):
         return nn.softmax(logits)
 
 class DeepLOB_JAX(BaseModel):
-    def __init__(self, input_shape: Tuple[int, int, int], num_lstm_units: int):
+    def __init__(self, input_shape: Tuple[int, int, int] = (100, 40, 1), num_lstm_units: int = 64):
         super().__init__()
+        self.name = "deepLOB_JAX"
+        self.weightsFileFormat = ".msgpack"
         self.input_shape = input_shape
         self.num_lstm_units = num_lstm_units
         self.model_def = _DeepLOB_JAX(self.input_shape, self.num_lstm_units)
@@ -101,3 +108,12 @@ class DeepLOB_JAX(BaseModel):
         # Inference: no dropout rng needed
         rngs = {"dropout": jax.random.PRNGKey(1)} 
         return self.jit_model(self.params, x, rngs=rngs)
+    
+    def saveWeights(self):
+        # checkpoints.save_checkpoint(ckpt_dir=weightLocation(self), target=self.params)
+        Path(weightLocation(self)).write_bytes(serialization.to_bytes(self.params))
+        
+        
+if __name__ == "__main__":
+    model = DeepLOB_JAX()
+    model.saveWeights()

@@ -1,26 +1,26 @@
 import torch
-import torch.nn.functional as F
-from torch.utils import data
-from torchinfo import summary
 import torch.nn as nn
-import torch.optim as optim
+
+from src.models.baseModel import BaseModel
+
+from src.core.generalUtils import weightLocation
+
 
 ## https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
 
 ## Review
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
 
-class DeepLOB_PT(nn.Module):
+class DeepLOB_PT(nn.Module, BaseModel):
     """
     Description:
-    This is the original deepLOB model build with PyRotch
-    https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
+        This is the original deepLOB model build with PyRotch
+        https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
     """
-    def __init__(self, y_len : int = 3):
+    def __init__(self):
         super().__init__()
-        self.y_len = y_len              # Label options - 3
-        self.name = 'deepLOB_TF'        
+        self.name = 'deepLOB_PT'  
+        self.weightsFileFormat = "pth"
         
         # convolution blocks
         self.conv1 = nn.Sequential(
@@ -84,14 +84,19 @@ class DeepLOB_PT(nn.Module):
         
         # lstm layers
         self.lstm = nn.LSTM(input_size=192, hidden_size=64, num_layers=1, batch_first=True)
-        self.fc1 = nn.Linear(64, self.y_len)
+        self.fc1 = nn.Linear(64, 3)
         
-        # self.model = torch.compile(self)
-        # print("Model compiled")
+    def forward(self, x) -> torch.tensor:
+        # Accept input as (batch, height, width, channels) or (height, width, channels)
+        if x.ndim == 3:
+            # Single sample, add batch dimension
+            x = x.unsqueeze(0)
+        if x.shape[-1] == 1:
+            # Move channels to second dimension: (batch, channels, height, width)
+            x = x.permute(0, 3, 1, 2)
+        else:
+            raise ValueError("Input must have shape (batch, height, width, 1) or (height, width, 1)")
 
-    def forward(self, x):
-        # h0: (number of hidden layers, batch size, hidden size)
-        # print("x from forward", x)
         h0 = torch.zeros(1, x.shape[0], 64).to(device)
         c0 = torch.zeros(1, x.shape[0], 64).to(device)
     
@@ -104,8 +109,6 @@ class DeepLOB_PT(nn.Module):
         x_inp3 = self.inp3(x)  
         
         x = torch.cat((x_inp1, x_inp2, x_inp3), dim=1)
-        
-        # x = torch.transpose(x, 1, 2) # Was commented out
         x = x.permute(0, 2, 1, 3)
         x = torch.reshape(x, (-1, x.shape[1], x.shape[2]))
         
@@ -115,3 +118,22 @@ class DeepLOB_PT(nn.Module):
         forecast_y = torch.softmax(x, dim=1)
         
         return forecast_y
+    
+    def predict(self, x) -> torch.tensor:
+        """
+        Runs a forward pass in evaluation mode (no gradients, no dropout).
+        Args:
+            x (torch.Tensor): Input tensor of shape [batch, channels, height, width]
+        Returns:
+            torch.Tensor: Model predictions (probabilities)
+        """
+        self.eval()
+        with torch.no_grad():
+            return self.forward(x)
+    
+    def saveWeights(self):
+        torch.save(self.state_dict(), weightLocation(self))
+        
+if __name__ == "__main__":
+    model = DeepLOB_PT()
+    model.saveWeights()

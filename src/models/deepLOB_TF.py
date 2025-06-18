@@ -5,22 +5,24 @@ from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input,
 from tensorflow.keras.optimizers import Adam
 
 from src.models.baseModel import BaseModel
+from src.core.generalUtils import weightLocation
 
 class DeepLOB_TF(BaseModel):
     """
     Description:
-    This is the original deepLOB model build with Tensor Flow
-    https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
+        This is the original deepLOB model build with Tensor Flow
+        https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
     
     Parameters:
         shape (tuple): Shape of input data
-        number_of_lstm (int): Number of LSTM
+        number_of_lstm (int): Number of LSTM in LSTM component
     """
-    def __init__(self, shape, number_of_lstm):
-        self.shape = shape                       # Shape of the input data
-        self.number_of_lstm = number_of_lstm     # Number of LSTM
-        self.model = self._build_model()         # Build the model
-        self.name = 'deepLOB_TF'                 # Model name
+    def __init__(self, shape : tuple = (100, 40, 1), number_of_lstm = 64):
+        self.shape = shape                                                  # Shape of the input data
+        self.number_of_lstm = number_of_lstm                                # Number of LSTM
+        self.model = self._build_model()                                    # Build the model
+        self.name = 'deepLOB_TF'                                            # Model name
+        self.weightsFileFormat = 'keras'                                    # File format for saving weights
 
     def _build_model(self):
         input_lmd = Input(shape=self.shape)
@@ -75,19 +77,25 @@ class DeepLOB_TF(BaseModel):
         adam = Adam(0.0001)
         model.compile(
             optimizer=adam,
-            loss='categorical_crossentropy', # Review
+            loss='categorical_crossentropy',
             metrics=['accuracy']
         )
         return model
-
-    def summary(self):
-        self.model.summary()
 
     def train(self, *args, **kwargs):
         return self.model.fit(*args, **kwargs)
 
     def predict(self, *args, **kwargs):
-        return self.model.predict(*args, **kwargs)
+        return self.model.predict(verbose=0, *args, **kwargs)
+    
+    def saveWeights(self) -> None:
+        self.model.save(weightLocation(self))
 
+    # Review
     def evaluate(self, *args, **kwargs):
         return self.model.evaluate(*args, **kwargs)
+    
+
+if __name__ == "__main__":
+    model = DeepLOB_TF()
+    model.saveWeights()

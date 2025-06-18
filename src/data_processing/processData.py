@@ -579,10 +579,12 @@ def process_data(
         df_orderbook = df_orderbook.drop(["mid_price"], axis=1)
         pattern = r"\d{4}-\d{2}-\d{2}"
         match = re.search(pattern, orderbook_name)
-        date_temp = match.group()
-        df_orderbook.seconds = df_orderbook.apply(
-            lambda row: get_datetime_from_seconds(row["seconds"], date_temp), axis=1
-        )
+        
+        # Removed to keep seconds in second format
+        # date_temp = match.group()
+        # df_orderbook.seconds = df_orderbook.apply(
+        #     lambda row: get_datetime_from_seconds(row["seconds"], date_temp), axis=1
+        # )
         
         print("Orderbook size 5: ", len(df_orderbook))
         # print(df_orderbook)
@@ -594,14 +596,16 @@ def process_data(
         print("Orderbook size 6: ", len(df_orderbook))
 
         # Save processed files.
-        output_name = f"{output_path}/{ticker}/{ticker}_{features}_{str(date.date())}"
+        scaled_unscapled = 'scaled' if scaling else 'unscaled'
+        file_location = f"{output_path}/{ticker}/{scaled_unscapled}"
+        output_name = f"{file_location}/{ticker}_{features}_{str(date.date())}"
         print("Saving")
         # print(df_orderbook)
         # Check for file path
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        if not os.path.exists(file_location):
+            os.makedirs(file_location)
         
-        df_orderbook.to_csv(f"{output_name}.csv", header=True, index=False)
+        df_orderbook.to_csv(f"{output_name}.csv", header=False, index=False)
         print('output_name', output_name)
         
         # Move file to archive

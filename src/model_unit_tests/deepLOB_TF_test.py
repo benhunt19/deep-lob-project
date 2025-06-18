@@ -53,17 +53,15 @@ if __name__ == "__main__":
     trainX_CNN = torch.from_numpy(trainX_CNN)
     trainY_CNN = torch.from_numpy(trainY_CNN)
     
-    
     model.train(
-        trainX_CNN,
-        trainY_CNN,
-        validation_data=(valX_CNN, valY_CNN), 
+        x=trainX_CNN,
+        y=trainY_CNN,
         epochs=10,
         batch_size=128,
-        verbose=10,
         callbacks=[model_checkpoint_callback]
     )
     
     model.model.load_weights(checkpoint_filepath)
+    print("The shape of testX_CNN is ", testX_CNN.shape)
     pred = model.predict(testX_CNN)
     print(pred)
