@@ -10,6 +10,13 @@ PROCESSED_DATA_PATH = 'data/processed'
 DEMO_DATA_PATH = 'data/demo'
 DATA_PROCESS_LOGS = 'data/logs'
 
+# Data Types
+SCALED = 'scaled'
+UNSCALED = 'unscaled'
+
+# Weights location
+WEIGHTS_PATH = 'weights'
+
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000
 

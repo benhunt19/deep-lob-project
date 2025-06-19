@@ -16,6 +16,7 @@ class _DeepLOB_JAX(nn.Module):
     """
     Description:
         This under the hood for DeepLOB_JAX, it is the deepLOB architecture that forms the model
+        Dont use this model durectly
     """
     input_shape: Tuple[int, int, int]
     num_lstm_units: int
@@ -88,7 +89,7 @@ class DeepLOB_JAX(BaseModel):
     def __init__(self, input_shape: Tuple[int, int, int] = (100, 40, 1), num_lstm_units: int = 64):
         super().__init__()
         self.name = "deepLOB_JAX"
-        self.weightsFileFormat = ".msgpack"
+        self.weightsFileFormat = "msgpack"
         self.input_shape = input_shape
         self.num_lstm_units = num_lstm_units
         self.model_def = _DeepLOB_JAX(self.input_shape, self.num_lstm_units)
@@ -99,6 +100,7 @@ class DeepLOB_JAX(BaseModel):
         # JIT the apply function
         self.jit_model = jit(self.model_def.apply)
 
+    # BIG REVIEW REQUIRED
     def train(self, x, train: bool = True):
         # Provide dropout rng if training
         rngs = {"dropout": jax.random.PRNGKey(1)} if train else None

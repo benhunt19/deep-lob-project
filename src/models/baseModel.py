@@ -10,13 +10,15 @@ class BaseModel(ABC):
         self.weightsFileFormat = 'h5'       # Extension for saving weights
     
     @abstractmethod
-    def train(self, x : np.ndarray, y : np.ndarray):
+    def train(self, x : np.ndarray, y : np.ndarray, batchSize : int, numEpoch : int):
         """
         Description:
             The method to fit the model to the training data
         Parameters:
             x (ndarray or tensor): The features of the data to train
             y (ndarray or tensor): The values or labels of the data to train
+            batchSize (int): The size of each training batch
+            numEpoch (int): The number of epoch's to repeat training on
         """
         pass
     

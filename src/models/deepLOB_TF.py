@@ -4,6 +4,8 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input, LSTM, Reshape, Conv2D, MaxPooling2D, LeakyReLU, concatenate)
 from tensorflow.keras.optimizers import Adam
 
+from torch import tensor
+
 from src.models.baseModel import BaseModel
 from src.core.generalUtils import weightLocation
 
@@ -82,14 +84,22 @@ class DeepLOB_TF(BaseModel):
         )
         return model
 
-    def train(self, *args, **kwargs):
-        return self.model.fit(*args, **kwargs)
+    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int):
+        return self.model.fit(
+            x=x,
+            y=y,
+            epochs=numEpoch,
+            batch_size=batchSize
+        )
 
     def predict(self, *args, **kwargs):
         return self.model.predict(verbose=0, *args, **kwargs)
     
     def saveWeights(self) -> None:
         self.model.save(weightLocation(self))
+    
+    def loadFromWeights(self, weightsPath) -> None:
+        self.model.load_weights(weightsPath)
 
     # Review
     def evaluate(self, *args, **kwargs):

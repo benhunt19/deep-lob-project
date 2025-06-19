@@ -15,6 +15,10 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
+from src.core.constants import SCALED, UNSCALED
+from src.core.generalUtils import processedDataLocation
+
+
 # To remove
 def prepare_x(data):
     df1 = data[:40, :].T
@@ -49,7 +53,6 @@ def prepare_x_y(data, k, T):
 class Dataset(data.Dataset):
     """Characterizes a dataset for PyTorch"""
     def __init__(self, data, k, num_classes, T):
-        """Initialization""" 
         self.k = k
         self.num_classes = num_classes
         self.T = T
@@ -136,7 +139,6 @@ def batch_gd(model, criterion, optimizer, train_loader, test_loader, epochs, dev
 ### process_data from LOBFrame ###
 # To remaster
 def process_data(
-        # ticker: str,
         input_path: str,
         output_path: str,
         logs_path: str,
@@ -596,8 +598,7 @@ def process_data(
         print("Orderbook size 6: ", len(df_orderbook))
 
         # Save processed files.
-        scaled_unscapled = 'scaled' if scaling else 'unscaled'
-        file_location = f"{output_path}/{ticker}/{scaled_unscapled}"
+        file_location = processedDataLocation(ticker, scaling)
         output_name = f"{file_location}/{ticker}_{features}_{str(date.date())}"
         print("Saving")
         # print(df_orderbook)

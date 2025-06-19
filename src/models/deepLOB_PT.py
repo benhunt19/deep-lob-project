@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from torch import tensor
+from torch.utils.data import TensorDataset, DataLoader
 
 from src.models.baseModel import BaseModel
 
@@ -11,17 +13,15 @@ from src.core.generalUtils import weightLocation
 ## Review
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class DeepLOB_PT(nn.Module, BaseModel):
+class _DeepLOB_PT(nn.Module):
     """
     Description:
-        This is the original deepLOB model build with PyRotch
+        This is the original deepLOB model build with PyRotch, we are using it as the base mode for DeepLOB_PT
         https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
+        -> DO NOT USE THIS MODEL DIRECTLY, USE THE WRAPPER CLASS DeepLOB_PT DEFINED BELOW
     """
     def __init__(self):
         super().__init__()
-        self.name = 'deepLOB_PT'  
-        self.weightsFileFormat = "pth"
-        
         # convolution blocks
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(1,2), stride=(1,2)),
@@ -118,7 +118,39 @@ class DeepLOB_PT(nn.Module, BaseModel):
         forecast_y = torch.softmax(x, dim=1)
         
         return forecast_y
-    
+        
+class DeepLOB_PT(BaseModel):
+    """
+    Description:
+        Wrapper class around _DeepLOB_PT. Use this model.
+    """
+    def __init__(self):
+        super().__init__()
+        self.name = 'deepLOB_PT'  
+        self.weightsFileFormat = "pth"
+        self.model = _DeepLOB_PT()
+        
+    def train(self, x : tensor, y : tensor, batchSize : int, numEpoch : int, learningRate : float = 1e-3):
+        self.model.to(device)
+        self.model.train()
+        x, y = x.to(device), y.to(device)
+        dataset = TensorDataset(x, y)
+        loader = DataLoader(dataset, batch_size=batchSize, shuffle=True)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learningRate)
+        criterion = nn.CrossEntropyLoss()
+
+        for epoch in range(numEpoch):
+            total_loss = 0
+            for xb, yb in loader:
+                optimizer.zero_grad()
+                preds = self.model.forward(xb)
+                loss = criterion(preds, yb)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item() * xb.size(0)
+            avg_loss = total_loss / len(dataset)
+            print(f"Epoch {epoch+1}/{numEpoch}, Loss: {avg_loss:.4f}")
+
     def predict(self, x) -> torch.tensor:
         """
         Runs a forward pass in evaluation mode (no gradients, no dropout).
@@ -127,12 +159,12 @@ class DeepLOB_PT(nn.Module, BaseModel):
         Returns:
             torch.Tensor: Model predictions (probabilities)
         """
-        self.eval()
+        self.model.eval()
         with torch.no_grad():
-            return self.forward(x)
+            return self.model.forward(x)
     
     def saveWeights(self):
-        torch.save(self.state_dict(), weightLocation(self))
+        torch.save(self.model.state_dict(), weightLocation(self))
         
 if __name__ == "__main__":
     model = DeepLOB_PT()

@@ -3,7 +3,7 @@ import tensorflow as tf
 import torch as torch
 
 from src.models.deepLOB_TF import DeepLOB_TF
-from src.data_processing.processData import prepare_x_y, Dataset, batch_gd
+from src.data_processing.processData import prepare_x_y
 from src.core.constants import DEMO_DATA_PATH, PROJECT_ROOT
 
 if __name__ == "__main__":
@@ -56,9 +56,9 @@ if __name__ == "__main__":
     model.train(
         x=trainX_CNN,
         y=trainY_CNN,
-        epochs=10,
-        batch_size=128,
-        callbacks=[model_checkpoint_callback]
+        numEpoch=10,
+        batchSize=128,
+        # callbacks=[model_checkpoint_callback]
     )
     
     model.model.load_weights(checkpoint_filepath)

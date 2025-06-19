@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import time
 
-# from src.data_processing.processData import prepare_x_y, Dataset, batch_gd
 from src.models.deepLOB_PT import DeepLOB_PT
 
 if __name__ == "__main__":
@@ -26,16 +25,19 @@ if __name__ == "__main__":
     
         # For a single sample:
     model = DeepLOB_PT()
-    sample = torch.randn(100, 40, 1)
-    
-    output = model.predict(sample)
+
     
     
     # For a batch:
-    batch = torch.randn(32, 100, 40, 1)
-    print(batch.shape)
+    x = torch.randn(1000, 100, 40, 1)
+    y = torch.randn(1000, 3)
+    print(x.shape)
     start = time.time()
-    output = model.predict(batch)
+    output = model.train(x=x, y=y, numEpoch=4, batchSize=64)
     end = time.time()
-    print(f"{end - start:.10f}")
+    print(f"{end - start:.10f} seconds")
+    
+    sample = torch.randn(100, 40, 1)
+    output = model.predict(sample)
+    
     print(output)
