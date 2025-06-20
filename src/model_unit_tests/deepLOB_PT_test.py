@@ -10,7 +10,6 @@ if __name__ == "__main__":
     data_path = '../../data/demo'
     test_lim = 100_000
     dec_data = np.loadtxt(data_path + '/Train_Dst_NoAuction_DecPre_CF_7.txt')[:,:test_lim]
-    print(dec_data.shape)
     dec_train = dec_data[:, :int(np.floor(dec_data.shape[1] * 0.6))]
     dec_val = dec_data[:, int(np.floor(dec_data.shape[1] * 0.6)):]
 
@@ -25,12 +24,10 @@ if __name__ == "__main__":
     
         # For a single sample:
     model = DeepLOB_PT()
-
-    
     
     # For a batch:
-    x = torch.randn(1000, 100, 40, 1)
-    y = torch.randn(1000, 3)
+    x = torch.randn(3500, 100, 40, 1)
+    y = torch.randn(3500, 3)
     print(x.shape)
     start = time.time()
     output = model.train(x=x, y=y, numEpoch=4, batchSize=64)

@@ -22,3 +22,8 @@ LOBSTER_PRICE_SCALE_FACTOR = 10_000
 
 # LOB Simulator Path
 LOB_SIMULATOR_PATH = r"C:\Users\benhu\UCL\Term 3\HSBC\cpp-lob-simulator\build\Release"
+
+# Model run types
+TEST = "TEST"
+TRAIN = "TRAIN"
+VALIDATE = "VALIDATE"

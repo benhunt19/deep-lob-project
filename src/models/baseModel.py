@@ -8,6 +8,7 @@ class BaseModel(ABC):
     def __init__(self):
         self.name = 'BaseClass'             # Model name
         self.weightsFileFormat = 'h5'       # Extension for saving weights
+        self.requiresTensor = True          # Does the model require a tensor as opposed to a np ndarray
     
     @abstractmethod
     def train(self, x : np.ndarray, y : np.ndarray, batchSize : int, numEpoch : int):

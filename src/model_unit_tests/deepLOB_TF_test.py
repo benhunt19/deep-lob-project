@@ -44,7 +44,8 @@ if __name__ == "__main__":
     n_hiddens = 64
     
     print('trainX_CNN.shape', trainX_CNN.shape)
-    print('trainX_CNN.shape', trainX_CNN.shape)
+    print('trainY_CNN.shape', trainY_CNN.shape)
+    print(trainY_CNN[:10])
     
     # train
     model = DeepLOB_TF(trainX_CNN.shape[1:], n_hiddens)

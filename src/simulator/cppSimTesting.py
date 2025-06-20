@@ -10,7 +10,7 @@ import time
 # File paths and number of orders to load
 file_location = r'C:\Users\benhu\UCL\Term 3\HSBC\data\large\data_tqap\CSCO_2015-01-01_2015-03-31_10\output-2015\0\0\2\CSCO_2015-01-02_34200000_57600000_message_10.csv'
 file_location2 = r'C:\Users\benhu\UCL\Term 3\HSBC\deep-lob-project\data\processed\CSCO\unscaled\CSCO_orderbooks_2015-01-05.csv'
-num_orders = 10_000
+num_orders = 500
 # Global asyncio queue shared between C++ producer and Python consumer
 queue = asyncio.Queue()
 
@@ -38,12 +38,12 @@ def work(value):
         
         start_time = time.perf_counter()
         final_array = np.stack(arr)
-        # tensor = torch.tensor(final_array, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
-        tensor = jnp.array(final_array).reshape(1, 100, 40, 1)  # match expected input shape
-        print(tensor.shape)
+        tensor = torch.tensor(final_array, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
+        # tensor = jnp.array(final_array).reshape(1, 100, 40, 1)  # match expected input shape
+        # print(tensor.shape)
         # model.predict(tensor, verbose=0)
-        # prediction = model2.predict(tensor)
-        prediction = model3.predict(tensor)
+        prediction = model2.predict(tensor)
+        # prediction = model3.predict(tensor)
         end_time = time.perf_counter()
         print('prediction', prediction)
         print(f"Processing forward pass, took {end_time - start_time:.10f} seconds")

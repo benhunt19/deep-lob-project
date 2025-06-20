@@ -1,4 +1,7 @@
 import os
+from datetime import datetime
+import random
+import string
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED
 
@@ -24,3 +27,19 @@ def processedDataLocation(ticker : str, scaling : bool):
     """
     scaled_unscaled = SCALED if scaling else UNSCALED
     return f"{PROJECT_ROOT}/{PROCESSED_DATA_PATH}/{ticker}/{scaled_unscaled}"
+
+def runID(length=8):
+    """
+    Description:
+        Create a run ID for each run on a model within the test / tran farmeworks
+    """
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+def nameModelRun(type : str, runID : str):
+    """
+    Description:
+        Name generic model run with a consistent name
+    Parameters:
+        type (str): The type of run (TRAIN, TEST, VALIDATION)
+    """
+    return f"{type}_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{runID}"

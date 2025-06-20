@@ -140,7 +140,6 @@ def batch_gd(model, criterion, optimizer, train_loader, test_loader, epochs, dev
 # To remaster
 def process_data(
         input_path: str,
-        output_path: str,
         logs_path: str,
         horizons: list[int],
         normalization_window: int,
@@ -183,20 +182,15 @@ def process_data(
         ticker (str): The ticker to be considered.
         input_path (str): The path where the order book and message book files are stored, order book files have shape (:, 4*levels):
                        ["ASKp1", "ASKs1", "BIDp1",  "BIDs1", ..., "ASKp10", "ASKs10", "BIDp10",  "BIDs10"].
-        output_path (str): The path where we wish to save the processed datasets.
         logs_path (str): The path where we wish to save the logs.
         time_index (str): The time-index to use ("seconds" or "datetime").
         horizons (list): Forecasting horizons for labels.
         normalization_window (int): Window for rolling z-score normalization.
         features (str): Whether to return 'orderbooks' or 'orderflows'.
         scaling (bool): Whether to apply rolling z-score normalization.
-
-    Returns:
-        None.
     """
     
-    print("Processing data")
-    print(input_path)
+    print(f"Checking CSV files from: {input_path}")
 
     csv_file_list = glob.glob(
         f"{input_path}/*.csv"
@@ -244,7 +238,6 @@ def process_data(
         print('orderbook_name',orderbook_name )
         
         ticker = orderbook_name.split('\\')[-1].split('_')[0]
-        print("TICKER:", ticker)
 
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
@@ -588,21 +581,14 @@ def process_data(
         #     lambda row: get_datetime_from_seconds(row["seconds"], date_temp), axis=1
         # )
         
-        print("Orderbook size 5: ", len(df_orderbook))
-        # print(df_orderbook)
-
         # Drop elements which cannot be used for training.
         df_orderbook = df_orderbook.dropna()
         df_orderbook.drop_duplicates(inplace=True, keep='last', subset='seconds')
         
-        print("Orderbook size 6: ", len(df_orderbook))
-
         # Save processed files.
         file_location = processedDataLocation(ticker, scaling)
         output_name = f"{file_location}/{ticker}_{features}_{str(date.date())}"
         print("Saving")
-        # print(df_orderbook)
-        # Check for file path
         if not os.path.exists(file_location):
             os.makedirs(file_location)
         
