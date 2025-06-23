@@ -1,4 +1,6 @@
 import numpy as np
+import os
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0" # Suppress warning
 from tensorflow.keras.utils import to_categorical
 import torch
 import torch.nn as nn
@@ -17,6 +19,7 @@ import pandas as pd
 
 from src.core.constants import SCALED, UNSCALED
 from src.core.generalUtils import processedDataLocation
+import polars as pl
 
 
 # To remove
@@ -242,7 +245,7 @@ def process_data(
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
         try:
-            df_orderbook = pd.read_csv(orderbook_name, header=None)
+            df_orderbook = pl.read_csv(orderbook_name, has_header=False).to_pandas()
             # print(df_orderbook)
         except:
             logs.append(f"{orderbook_name} skipped. Error: failed to read orderbook.")

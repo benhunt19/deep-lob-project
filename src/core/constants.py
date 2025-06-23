@@ -1,6 +1,6 @@
 import os
 
-# File Locatin Constants
+# File Location Constants
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Data locations
@@ -27,3 +27,9 @@ LOB_SIMULATOR_PATH = r"C:\Users\benhu\UCL\Term 3\HSBC\cpp-lob-simulator\build\Re
 TEST = "TEST"
 TRAIN = "TRAIN"
 VALIDATE = "VALIDATE"
+
+# Model Label Modes
+AUTO = 'auto'
+
+# Global logger name
+GLOBAL_LOGGER = "global_logger"

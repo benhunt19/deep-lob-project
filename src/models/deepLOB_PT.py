@@ -89,10 +89,12 @@ class _DeepLOB_PT(nn.Module):
     def forward(self, x) -> torch.tensor:
         # Accept input as (batch, height, width, channels) or (height, width, channels)
         if x.ndim == 3:
-            # Single sample, add batch dimension
             x = x.unsqueeze(0)
+        # If shape is (batch, 40, 100, 1), transpose to (batch, 100, 40, 1)
+        # REVIEW!
+        if x.shape[1] == 40 and x.shape[2] == 100:
+            x = x.permute(0, 2, 1, 3)
         if x.shape[-1] == 1:
-            # Move channels to second dimension: (batch, channels, height, width)
             x = x.permute(0, 3, 1, 2)
         else:
             raise ValueError("Input must have shape (batch, height, width, 1) or (height, width, 1)")
@@ -109,8 +111,8 @@ class _DeepLOB_PT(nn.Module):
         x_inp3 = self.inp3(x)  
         
         x = torch.cat((x_inp1, x_inp2, x_inp3), dim=1)
-        x = x.permute(0, 2, 1, 3)
-        x = torch.reshape(x, (-1, x.shape[1], x.shape[2]))
+        x = x.permute(0, 2, 1, 3).contiguous()
+        x = x.view(x.size(0), x.size(1), -1)
         
         x, _ = self.lstm(x, (h0, c0))
         x = x[:, -1, :]

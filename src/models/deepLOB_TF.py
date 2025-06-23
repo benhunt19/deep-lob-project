@@ -1,3 +1,5 @@
+import os
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0" # Suppress warning
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.models import Model

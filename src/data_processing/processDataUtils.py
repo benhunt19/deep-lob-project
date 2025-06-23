@@ -1,7 +1,3 @@
-import pandas as pd
-import polars as pl
-from glob import glob
-
 from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS
 from src.data_processing.processData import process_data
 
@@ -21,7 +17,7 @@ class ProcessDataUtils:
             horizons=[100],
             normalization_window=1,
             archive=True,
-            scaling=False
+            scaling=True
         )
         
 if __name__ == "__main__":

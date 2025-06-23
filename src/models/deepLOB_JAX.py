@@ -6,6 +6,7 @@ from flax import serialization
 from flax.training import checkpoints
 from typing import Tuple
 from pathlib import Path
+import optax
 
 from src.models.baseModel import BaseModel
 
@@ -114,7 +115,18 @@ class DeepLOB_JAX(BaseModel):
     def saveWeights(self):
         # checkpoints.save_checkpoint(ckpt_dir=weightLocation(self), target=self.params)
         Path(weightLocation(self)).write_bytes(serialization.to_bytes(self.params))
-        
+
+    def loss_fn(self, params, model_def, x, y):
+        logits = model_def.apply(params, x, rngs={"dropout": jax.random.PRNGKey(0)})
+        loss = optax.softmax_cross_entropy(logits, y).mean()
+        return loss
+
+    @jax.jit
+    def train_step(self, params, model_def, x, y, optimizer, opt_state):
+        grads = jax.grad(self.loss_fn)(params, model_def, x, y)
+        updates, opt_state = optimizer.update(grads, opt_state)
+        params = optax.apply_updates(params, updates)
+        return params, opt_state
         
 if __name__ == "__main__":
     model = DeepLOB_JAX()
