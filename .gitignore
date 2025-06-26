@@ -1,8 +1,8 @@
 Lib/
-Scripts/
-Include/
+Include/*
 share/
-data/
+data/*
+!data/.gitkeep
 __pycache__/
 **/__pycache__/
 **.pyc

@@ -57,8 +57,8 @@ def work(value):
         arr = []
         
 # Set up OrderBook instance and load data
-ob = ls.OrderBook()
-ob.getSnapshotsFromCSV(file_location2, num_orders)
+ob = ls.Simulator(file_location2, num_orders)
+# ob.getSnapshotsFromCSV(file_location2, num_orders)
 
-ob.snapShotPlayBackFunctional(work)
-print("Line after snapShotPlayBackFunctional")
+ob.simulateOrders(work)
+print("Line after simulate")
