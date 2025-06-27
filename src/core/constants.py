@@ -33,3 +33,19 @@ AUTO = 'auto'
 
 # Global logger name
 GLOBAL_LOGGER = "global_logger"
+
+if __name__ == "__main__":
+    print("PROJECT_ROOT:", PROJECT_ROOT)
+    print("RAW_DATA_PATH:", RAW_DATA_PATH)
+    print("PROCESSED_DATA_PATH:", PROCESSED_DATA_PATH)
+    print("DATA_PROCESS_LOGS:", DATA_PROCESS_LOGS)
+    print("WEIGHTS_PATH:", WEIGHTS_PATH)
+    print("LOBSTER_PRICE_SCALE_FACTOR:", LOBSTER_PRICE_SCALE_FACTOR)
+    print("LOB_SIMULATOR_PATH:", LOB_SIMULATOR_PATH)
+    print("SCALED:", SCALED)
+    print("UNSCALED:", UNSCALED)
+    print("TEST:", TEST)
+    print("TRAIN:", TRAIN)
+    print("VALIDATE:", VALIDATE)
+    print("AUTO:", AUTO)
+    print("GLOBAL_LOGGER:", GLOBAL_LOGGER)

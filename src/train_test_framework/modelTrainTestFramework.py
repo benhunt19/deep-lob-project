@@ -21,7 +21,7 @@ class ModelTrainTestFramework:
         if log:
             self.initLogger()
         
-    def trainModel(self, model, meta : dict) -> None:
+    def trainModel(self, model, meta : dict, run_id : str = "") -> None:
         """
         Description:
             Create dataset and train model on data
@@ -44,6 +44,7 @@ class ModelTrainTestFramework:
             numEpoch=meta['numEpoch'],
             batchSize=meta['batchSize']
         )
+        model.saveWeights(run_id=run_id)
             
     def run(self, metas : list[dict] = None) -> None:
         """
@@ -59,7 +60,7 @@ class ModelTrainTestFramework:
         # Run for each meta
         for meta in metas:
             # Generate id for run
-            id = runID()
+            run_id = runID()
             # Apply defaults to meta if not explicitly stated
             meta = self.applyMetaDefaults(meta=meta)
             model = meta['model']()
@@ -68,7 +69,7 @@ class ModelTrainTestFramework:
             if TRAIN in meta['steps']:
                 if self.logger is not None:
                     self.logger.info("Started training...")
-                self.trainModel(model, meta)
+                self.trainModel(model, meta, run_id=run_id)
             if VALIDATE in meta['steps']:
                 pass
             if TEST in meta['steps']:
@@ -102,12 +103,12 @@ if __name__ == "__main__":
     metas = [
         {
             'model': DeepLOB_PT,
-            'numEpoch': 6,
-            'ticker': 'TSLA',
+            'numEpoch': 20,
+            'ticker': 'AAPL',
             'steps' : [TRAIN],
             'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 200_000
+            'rowLim': 1_500_000
         }
     ]
     mttf = ModelTrainTestFramework(metas).run()

@@ -20,6 +20,7 @@ import pandas as pd
 from src.core.constants import SCALED, UNSCALED
 from src.core.generalUtils import processedDataLocation
 import polars as pl
+from pathlib import Path
 
 
 # To remove
@@ -240,7 +241,8 @@ def process_data(
     for orderbook_name in csv_orderbook:
         print('orderbook_name',orderbook_name )
         
-        ticker = orderbook_name.split('\\')[-1].split('_')[0]
+        ticker = Path(orderbook_name).stem.split('_')[0]
+        print("Processing ticker:", ticker)
 
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
@@ -521,8 +523,10 @@ def process_data(
             if archive:
                 if not os.path.exists(f"{input_path}/archive"):
                     os.makedirs(f"{input_path}/archive")
-                shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_name.split('\\')[-1]}")
-                shutil.move(f"{message_name}", f"{input_path}/archive/{message_name.split('\\')[-1]}")
+                orderbook_ticker_archive = Path(orderbook_name).name
+                messages_ticker_archive = Path(message_name).name
+                shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_ticker_archive}")
+                shutil.move(f"{message_name}", f"{input_path}/archive/{messages_ticker_archive}")
                 logs.append("Moved to archive")
     
             continue
@@ -589,21 +593,32 @@ def process_data(
         df_orderbook.drop_duplicates(inplace=True, keep='last', subset='seconds')
         
         # Save processed files.
-        file_location = processedDataLocation(ticker, scaling)
-        output_name = f"{file_location}/{ticker}_{features}_{str(date.date())}"
-        print("Saving")
-        if not os.path.exists(file_location):
-            os.makedirs(file_location)
-        
-        df_orderbook.to_csv(f"{output_name}.csv", header=False, index=False)
-        print('output_name', output_name)
+        # Get the processed data directory as a Path object
+        file_location = Path(processedDataLocation(ticker, scaling))
+        print(f"Processed data location: {file_location}")
+
+        # If file_location is not absolute, make it relative to your project root
+        if not file_location.is_absolute():
+            project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
+            file_location = project_root / file_location
+
+        # Compose the output file name
+        output_name = file_location / f"{ticker}_{features}_{str(date.date())}.csv"
+
+        # Create directory if it doesn't exist
+        file_location.mkdir(parents=True, exist_ok=True)
+
+        # Save the CSV in the processed data directory
+        df_orderbook.to_csv(output_name, header=False, index=False)
         
         # Move file to archive
         if archive:
             if not os.path.exists(f"{input_path}/archive"):
                 os.makedirs(f"{input_path}/archive")
-            shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_name.split('\\')[-1]}")
-            shutil.move(f"{message_name}", f"{input_path}/archive/{message_name.split('\\')[-1]}")
+            orderbook_ticker_archive = Path(orderbook_name).name
+            messages_ticker_archive = Path(message_name).name
+            shutil.move(f"{orderbook_name}", f"{input_path}/archive/{orderbook_ticker_archive}")
+            shutil.move(f"{message_name}", f"{input_path}/archive/{messages_ticker_archive}")
             logs.append("Moved to archive")
         
         logs.append(f"{orderbook_name} completed.")

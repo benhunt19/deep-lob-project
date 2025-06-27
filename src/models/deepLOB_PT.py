@@ -134,6 +134,7 @@ class DeepLOB_PT(BaseModel):
         
     def train(self, x : tensor, y : tensor, batchSize : int, numEpoch : int, learningRate : float = 1e-3):
         self.model.to(device)
+        print("Moved model to device:", device)
         self.model.train()
         x, y = x.to(device), y.to(device)
         dataset = TensorDataset(x, y)
@@ -165,8 +166,8 @@ class DeepLOB_PT(BaseModel):
         with torch.no_grad():
             return self.model.forward(x)
     
-    def saveWeights(self):
-        torch.save(self.model.state_dict(), weightLocation(self))
+    def saveWeights(self, run_id: str = "") -> None:
+        torch.save(self.model.state_dict(), weightLocation(self, run_id=run_id))
         
 if __name__ == "__main__":
     model = DeepLOB_PT()

@@ -5,7 +5,7 @@ import string
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED
 
-def weightLocation(model):
+def weightLocation(model, run_id=""):
     """
     Description:
         Single location for defining where model weights are stored
@@ -15,7 +15,7 @@ def weightLocation(model):
     filePath = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/{model.name}"
     if not os.path.exists(filePath):
         os.makedirs(filePath)
-    return f"{filePath}/{model.name}.{model.weightsFileFormat}"
+    return f"{filePath}/{model.name}_{run_id}.{model.weightsFileFormat}"
 
 def processedDataLocation(ticker : str, scaling : bool):
     """
@@ -35,11 +35,11 @@ def runID(length=8):
     """
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-def nameModelRun(type : str, runID : str):
+def nameModelRun(runType : str, runID : str):
     """
     Description:
         Name generic model run with a consistent name
     Parameters:
         type (str): The type of run (TRAIN, TEST, VALIDATION)
     """
-    return f"{type}_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{runID}"
+    return f"{runType}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{runID}"
