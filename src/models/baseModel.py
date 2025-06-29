@@ -38,7 +38,7 @@ class BaseModel(ABC):
         pass
 
     # @abstractmethod
-    def loadFromWeights(self, weightsPath):
+    def loadFromWeights(self, weightsPath: str) -> None:
         pass
     
     def __str__(self):

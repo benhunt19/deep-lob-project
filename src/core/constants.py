@@ -17,6 +17,9 @@ UNSCALED = 'unscaled'
 # Weights location
 WEIGHTS_PATH = 'weights'
 
+# Results location
+RESULTS_PATH = 'results'
+
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000
 

@@ -1,11 +1,14 @@
 import logging
 from pprint import pprint
+import numpy as np
+import gc
+import json
 
 from src.core.generalUtils import runID
 from src.routers.modelRouter import *
-from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER
+from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH
 from src.loaders.dataLoader import CustomDataLoader
-from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD
+from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 
 class ModelTrainTestFramework:
     """
@@ -21,7 +24,7 @@ class ModelTrainTestFramework:
         if log:
             self.initLogger()
         
-    def trainModel(self, model, meta : dict, run_id : str = "") -> None:
+    def trainModel(self, model, x: np.ndarray, y: np.ndarray, meta : dict, run_id : str = "") -> None:
         """
         Description:
             Create dataset and train model on data
@@ -29,15 +32,6 @@ class ModelTrainTestFramework:
             model: Model to run 
             meta 
         """
-        cdl = CustomDataLoader(
-            ticker=meta['ticker'],
-            scaling=meta['scaling'],
-            horizon=100,
-            threshold=meta['threshold'],
-            maxFiles=meta['maxFiles'],
-            rowLim=meta['rowLim']
-        )
-        x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
         model.train(
             x=x,
             y=y,
@@ -45,6 +39,9 @@ class ModelTrainTestFramework:
             batchSize=meta['batchSize']
         )
         model.saveWeights(run_id=run_id)
+        # Free memory after training
+        del x, y
+        gc.collect()
             
     def run(self, metas : list[dict] = None) -> None:
         """
@@ -56,24 +53,70 @@ class ModelTrainTestFramework:
         
         if metas is None and self.metas is not None:
             metas = self.metas
-            
+        
         # Run for each meta
         for meta in metas:
             # Generate id for run
             run_id = runID()
+            
             # Apply defaults to meta if not explicitly stated
             meta = self.applyMetaDefaults(meta=meta)
             model = meta['model']()
             pprint(meta)
             
+            # results
+            resultsStore = {
+                'run_id': run_id,
+                'meta': meta
+            }
+            
+            # No need to clone as the model isn't used again as is
+            resultsStore['meta']['model'] = str(model.name)
+            
+            cdl = CustomDataLoader(
+                ticker=meta['ticker'],
+                scaling=meta['scaling'],
+                horizon=100,
+                threshold=meta['threshold'],
+                maxFiles=meta['maxFiles'],
+                rowLim=meta['rowLim'],
+                trainTestSplit=meta['trainTestSplit']
+            )
+            
             if TRAIN in meta['steps']:
                 if self.logger is not None:
                     self.logger.info("Started training...")
-                self.trainModel(model, meta, run_id=run_id)
-            if VALIDATE in meta['steps']:
-                pass
+                x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
+                self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
+                # Data deleted in trainModel, but ensure cdl doesn't hold references
+                cdl.x = None
+                cdl.y = None
+                gc.collect()
+            
             if TEST in meta['steps']:
-                pass
+                if TRAIN not in meta['steps']:
+                    # Need to run full process as not run in above
+                    cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
+                x_test, y_test = cdl.getTestData()
+                preds = model.predict(x = x_test)
+                correct = (preds.argmax(axis=1) == y_test.argmax(axis=1)).sum()
+                total = y_test.shape[0]
+                accuracy = correct / total 
+                print(f"Test Accuracy: {accuracy:.4f}")
+                # Free test data memory
+                del x_test, y_test, preds
+                gc.collect()
+                resultsStore['accuracy'] = float(accuracy)
+
+            # Save resultsStore as JSON
+            results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{run_id}.json"
+            with open(results_path, "w") as f:
+                json.dump(resultsStore, f, indent=4)
+            
+            # Explicitly delete CustomDataLoader and model to free memory
+            del cdl
+            del model
+            gc.collect()
     
     def initLogger(self):
         self.logger = logging.getLogger(GLOBAL_LOGGER)
@@ -97,18 +140,39 @@ class ModelTrainTestFramework:
                 ValueError(f"{key} not in meta, please add")
             elif key not in meta and value != REQUIRED_FIELD:
                 meta[key] = value
+        # Apply default split if there is testing
+        if TEST in meta['steps']:
+            meta['trainTestSplit'] = DEFAULT_TEST_TRAIN_SPLIT
         return meta
         
 if __name__ == "__main__":
     metas = [
         {
             'model': DeepLOB_PT,
-            'numEpoch': 20,
-            'ticker': 'AAPL',
-            'steps' : [TRAIN],
+            'numEpoch': 1,
+            'ticker': 'NVDA',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
             'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 1_500_000
+            'rowLim': 1_000,
+            'lookForwardHorizon': 20
+        },
+        {
+            'model': DeepLOB_PT,
+            'numEpoch': 1,
+            'ticker': 'AAPL',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.75,
+            'maxFiles': 2,
+            'threshold': AUTO,
+            'rowLim': 10_000,
+            'lookForwardHorizon': 500
         }
     ]
-    mttf = ModelTrainTestFramework(metas).run()
+    
+    # results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{123}.json"
+    # with open(results_path, "w") as f:
+    #     json.dump(metas, f, indent=4)
+    
+    mttf = ModelTrainTestFramework(metas, log=True).run()

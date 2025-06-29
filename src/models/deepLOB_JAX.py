@@ -10,7 +10,7 @@ import optax
 
 from src.models.baseModel import BaseModel
 
-from src.core.generalUtils import weightLocation
+from src.core.generalUtils import weightLocation, nameModelRun
 
 
 class _DeepLOB_JAX(nn.Module):
@@ -112,9 +112,9 @@ class DeepLOB_JAX(BaseModel):
         rngs = {"dropout": jax.random.PRNGKey(1)} 
         return self.jit_model(self.params, x, rngs=rngs)
     
-    def saveWeights(self):
+    def saveWeights(self, run_id):
         # checkpoints.save_checkpoint(ckpt_dir=weightLocation(self), target=self.params)
-        Path(weightLocation(self)).write_bytes(serialization.to_bytes(self.params))
+        Path(weightLocation(self, runName=nameModelRun(runID=run_id))).write_bytes(serialization.to_bytes(self.params))
 
     def loss_fn(self, params, model_def, x, y):
         logits = model_def.apply(params, x, rngs={"dropout": jax.random.PRNGKey(0)})

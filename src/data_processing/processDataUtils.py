@@ -21,5 +21,4 @@ class ProcessDataUtils:
         )
         
 if __name__ == "__main__":
-    util = ProcessDataUtils()
-    util.runDataProcss()
+    util = ProcessDataUtils.runDataProcss()

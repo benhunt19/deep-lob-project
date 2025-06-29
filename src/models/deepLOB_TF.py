@@ -9,7 +9,7 @@ from tensorflow.keras.optimizers import Adam
 from torch import tensor
 
 from src.models.baseModel import BaseModel
-from src.core.generalUtils import weightLocation
+from src.core.generalUtils import weightLocation, nameModelRun
 
 class DeepLOB_TF(BaseModel):
     """
@@ -97,8 +97,9 @@ class DeepLOB_TF(BaseModel):
     def predict(self, *args, **kwargs):
         return self.model.predict(verbose=0, *args, **kwargs)
     
-    def saveWeights(self) -> None:
-        self.model.save(weightLocation(self))
+    def saveWeights(self, run_id : str = "") -> None:
+        name = nameModelRun(runID=run_id)
+        self.model.save(weightLocation(self, name))
     
     def loadFromWeights(self, weightsPath) -> None:
         self.model.load_weights(weightsPath)

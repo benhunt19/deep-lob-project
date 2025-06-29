@@ -6,6 +6,7 @@ from glob import glob
 from tqdm import tqdm
 import torch
 import scipy.stats
+from math import floor
 
 # import pyspark
 # from pyspark.sql import SparkSession
@@ -25,29 +26,34 @@ class CustomDataLoader:
         self, 
         ticker : str,                   # Ticker name
         scaling : bool,                 # True for scaled, False for unscaled, decides if we use the scaled or unscaled processed data
-        horizon : int = 100,            # Horizon length
+        horizon : int = 100,            # Horizon length looking backwards, essentially the window
         maxFiles : int = None,          # Maximum number of files to concatenate into one file
         threshold: float = 30,          # Midpoint Change over horizon length, could also be AUTO
-        rowLim: int = None              # The row limit number for
+        rowLim: int = None,             # The row limit number for
+        trainTestSplit : float = None,  # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
+        lookForwardHorizon :int = 10    # The number of events to look forward after for labelling (prediction horizon)
     ):
         self.ticker = ticker
-        self.scaling = scaling            # Use scaled data or not
+        self.scaling = scaling 
         self.horizon = horizon
         self.threshold = threshold
         self.rowLim = rowLim
         self.maxFiles = maxFiles
+        self.trainTestSplit = trainTestSplit
+        self.lookForwardHorizon = lookForwardHorizon
         
-        # Require in class
-        self.fileLocations = None
-        self.x = None
-        self.y = None 
+        # Required in class
+        self.fileLocations = None   # Array of file locations
+        self.x = None               # Training data
+        self.y = None               # Training Labels
+        self.x_test = None          # Test data
+        self.y_test = None          # Test labels
 
     def getFileLocations(self, dataLocation : str = None) -> list[str]:
         """
         Description:
             Get file locations for ticker
         """
-        # print("Getting file locations...")
         if dataLocation is None:
             dataLocation = processedDataLocation(self.ticker, self.scaling)
             
@@ -92,7 +98,7 @@ class CustomDataLoader:
             np.ndarray: shape (batchSize, horizon, features, 1) -> (batchSize, 100, 40, 1)
         """
         # Set row limit
-        self.rowLim = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon
+        self.rowLim = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
 
         arr = self.globalFrame.to_numpy()  # shape (total_rows, features)
 
@@ -115,25 +121,24 @@ class CustomDataLoader:
         Description:
             Finds the feature labels from the raw LOB data
         """
-        # Create the y labels from the far
-        
         # ASKp1, ASKs1, BIDp1, BIDs1, ...
         
         ask1Col = 0; bid1Col = 2
         
-        self.rowLim  = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon
+        self.rowLim  = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
             
         df = self.globalFrame.values  # Convert DataFrame to NumPy array for fast indexing
         horizon = self.horizon
         
         rowLim = min(self.rowLim, len(df) - horizon)
 
-        # Vectorized slicing or df columns
-        startAsk = df[0:rowLim, ask1Col]
-        endAsk   = df[horizon:horizon + rowLim, ask1Col]
-        startBid = df[0:rowLim, bid1Col]
-        endBid   = df[horizon:horizon + rowLim, bid1Col]
-
+        # For each window, get the last ask/bid in the window as the "start"
+        # and the ask/bid at lookForwardHorizon after the window as the "end"
+        startAsk = df[self.horizon - 1 : self.horizon - 1 + rowLim, ask1Col]
+        endAsk   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, ask1Col]
+        startBid = df[self.horizon - 1 : self.horizon - 1 + rowLim, bid1Col]
+        endBid   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, bid1Col]
+        
         startMid = (startAsk + startBid) / 2
         endMid   = (endAsk + endBid) / 2
         diff = (endMid - startMid)
@@ -157,18 +162,50 @@ class CustomDataLoader:
         # Stack the one-hot encoded labels
         self.y = np.stack([down, neutral, up], axis=1)
         
+        # Debug: Print offsets for first 5 samples
+        # for i in range(5):
+        #     start_idx = self.horizon - 1 + i
+        #     end_idx = self.horizon - 1 + self.lookForwardHorizon + i
+        #     print(f"Sample {i}:")
+        #     print(f"  startAsk (row {start_idx}): {df[start_idx, ask1Col]}")
+        #     print(f"  endAsk   (row {end_idx}): {df[end_idx, ask1Col]}")
+        #     print(f"  startBid (row {start_idx}): {df[start_idx, bid1Col]}")
+        #     print(f"  endBid   (row {end_idx}): {df[end_idx, bid1Col]}")
+        #     print("---")
+        #     print(f"  label (one-hot): {self.y[i]}")
+
         return self.y
+    
+    def splitDataTrainTest(self):
+        """
+        Description:
+            Split the data into test and train if the flag has been enabled
+        """
+        length = floor(len(self.x) * self.trainTestSplit)
+        self.x_test = self.x[length:]
+        self.y_test = self.y[length:]
+        self.x = self.x[:length]
+        self.y = self.y[:length]
+        print(f"Train set size: {len(self.x)}, Test set size: {len(self.x_test)}")
 
     def xyToTensor(self):
         """
         Description:
             Turn the features and labels into a pytorch tensor
         """
-        assert self.x is not None, "Please ensure there are features, run self.dataFrameToFeatures()"
-        assert self.y is not None, "Please ensure there are labels, run self.dataFrameToLabelsRaw()"
+        assert self.x is not None, "Please ensure there are test features, run self.dataFrameToFeatures()"
+        assert self.y is not None, "Please ensure there are train labels, run self.dataFrameToLabelsRaw()"
+        
+        if self.trainTestSplit is not None:
+            assert self.x_test is not None, "Please ensure there is test data, run self.dataFrameToFeatures()  and self.splitDataTrainTest()"
+            assert self.y_test is not None, "Please ensure there are labels, run self.dataFrameToLabelsRaw()  and self.splitDataTrainTest()"
     
         self.x = torch.tensor(self.x, dtype=torch.float32)
         self.y = torch.tensor(self.y, dtype=torch.float32)
+        
+        if self.trainTestSplit is not None:
+            self.x_test = torch.tensor(self.x_test, dtype=torch.float32)
+            self.y_test = torch.tensor(self.y_test, dtype=torch.float32)
     
     def runFullProcessReturnXY(self, tensor : bool = False) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -179,10 +216,14 @@ class CustomDataLoader:
         self.getDataFromFiles()
         self.dataFrameToFeatures()
         self.dataFrameToLabelsRaw()
+        if self.trainTestSplit is not None:
+            self.splitDataTrainTest()
         if tensor:
             self.xyToTensor()
         return self.x, self.y
-        
+    
+    def getTestData(self):
+        return self.x_test, self.y_test
 
 if __name__ == "__main__":
     cdl = CustomDataLoader(
@@ -190,9 +231,12 @@ if __name__ == "__main__":
         scaling=True,
         horizon=100,
         threshold=AUTO,
-        maxFiles=1,
-        rowLim=None
+        maxFiles=2,
+        rowLim=None,
+        trainTestSplit=0.8,
+        lookForwardHorizon=500
     )
-    x, y = cdl.runFullProcessReturnXY(tensor=True)
-    print(x.shape)
-    print(y.shape)
+    cdl.getFileLocations()
+    cdl.getDataFromFiles()
+    cdl.dataFrameToFeatures()
+    cdl.dataFrameToLabelsRaw()

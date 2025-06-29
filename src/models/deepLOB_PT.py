@@ -5,7 +5,7 @@ from torch.utils.data import TensorDataset, DataLoader
 
 from src.models.baseModel import BaseModel
 
-from src.core.generalUtils import weightLocation
+from src.core.generalUtils import weightLocation, nameModelRun
 
 
 ## https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
@@ -144,15 +144,19 @@ class DeepLOB_PT(BaseModel):
 
         for epoch in range(numEpoch):
             total_loss = 0
+            correct = 0
             for xb, yb in loader:
                 optimizer.zero_grad()
                 preds = self.model.forward(xb)
+                correct += (preds.argmax(dim=1) == yb.argmax(dim=1)).sum().item()
                 loss = criterion(preds, yb)
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item() * xb.size(0)
             avg_loss = total_loss / len(dataset)
-            print(f"Epoch {epoch+1}/{numEpoch}, Loss: {avg_loss:.4f}")
+            avg_correct = correct / len(dataset)
+            print(f"Epoch {epoch+1}/{numEpoch}, Loss: {avg_loss:.4f}, Correct: {avg_correct:.4f}")
+            
 
     def predict(self, x) -> torch.tensor:
         """
@@ -167,7 +171,12 @@ class DeepLOB_PT(BaseModel):
             return self.model.forward(x)
     
     def saveWeights(self, run_id: str = "") -> None:
-        torch.save(self.model.state_dict(), weightLocation(self, run_id=run_id))
+        fileName = nameModelRun(run_id)
+        torch.save(self.model.state_dict(), weightLocation(self, runName=fileName))
+        
+    def loadFromWeights(self, weightsPath : str) -> None:
+        self.model.load_state_dict(torch.load(weightsPath, map_location=device))
+        self.model.to(device)
         
 if __name__ == "__main__":
     model = DeepLOB_PT()
