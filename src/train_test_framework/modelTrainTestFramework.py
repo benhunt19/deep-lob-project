@@ -98,7 +98,7 @@ class ModelTrainTestFramework:
                     # Need to run full process as not run in above
                     cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                 x_test, y_test = cdl.getTestData()
-                preds = model.predict(x = x_test)
+                preds = model.predict(x = x_test, y = y_test)
                 correct = (preds.argmax(axis=1) == y_test.argmax(axis=1)).sum()
                 total = y_test.shape[0]
                 accuracy = correct / total 
@@ -148,26 +148,92 @@ class ModelTrainTestFramework:
 if __name__ == "__main__":
     metas = [
         {
+            'model': DeepLOB_TF,
+            'numEpoch': 5,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 5
+        },
+        {
+            'model': DeepLOB_TF,
+            'numEpoch': 5,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 100_000,
+            'lookForwardHorizon': 10
+        },
+        {
+            'model': DeepLOB_TF,
+            'numEpoch': 5,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 100_000,
+            'lookForwardHorizon': 20
+        },
+        {
             'model': DeepLOB_PT,
-            'numEpoch': 1,
-            'ticker': 'NVDA',
+            'numEpoch': 20,
+            'ticker': 'AMZN',
             'steps' : [TRAIN, TEST],
             'trainTestSplit': 0.8,
             'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 1_000,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 20
+        },
+        {
+            'model': DeepLOB_PT,
+            'numEpoch': 20,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 2,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 30
+        },
+        {
+            'model': DeepLOB_PT,
+            'numEpoch': 10,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.75,
+            'maxFiles': 2,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 50
+        },
+        {
+            'model': DeepLOB_PT,
+            'numEpoch': 1,
+            'ticker': 'AMZN',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.75,
+            'maxFiles': 2,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
             'lookForwardHorizon': 20
         },
         {
             'model': DeepLOB_PT,
             'numEpoch': 1,
-            'ticker': 'AAPL',
+            'ticker': 'AMZN',
             'steps' : [TRAIN, TEST],
             'trainTestSplit': 0.75,
             'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 10_000,
-            'lookForwardHorizon': 500
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 50
         }
     ]
     

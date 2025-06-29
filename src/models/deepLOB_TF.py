@@ -7,6 +7,7 @@ from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input,
 from tensorflow.keras.optimizers import Adam
 
 from torch import tensor
+import gc
 
 from src.models.baseModel import BaseModel
 from src.core.generalUtils import weightLocation, nameModelRun
@@ -22,6 +23,7 @@ class DeepLOB_TF(BaseModel):
         number_of_lstm (int): Number of LSTM in LSTM component
     """
     def __init__(self, shape : tuple = (100, 40, 1), number_of_lstm = 64):
+        super().__init__()
         self.shape = shape                                                  # Shape of the input data
         self.number_of_lstm = number_of_lstm                                # Number of LSTM
         self.model = self._build_model()                                    # Build the model
@@ -87,15 +89,20 @@ class DeepLOB_TF(BaseModel):
         return model
 
     def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int):
-        return self.model.fit(
+        self.model.fit(
             x=x,
             y=y,
             epochs=numEpoch,
             batch_size=batchSize
         )
+        del x, y
+        gc.collect()
 
-    def predict(self, *args, **kwargs):
-        return self.model.predict(verbose=0, *args, **kwargs)
+    def predict(self, x : tensor, y : tensor = None):
+        res = self.model.predict(x=x, verbose=0)
+        del x
+        gc.collect()
+        return res
     
     def saveWeights(self, run_id : str = "") -> None:
         name = nameModelRun(runID=run_id)
@@ -103,12 +110,7 @@ class DeepLOB_TF(BaseModel):
     
     def loadFromWeights(self, weightsPath) -> None:
         self.model.load_weights(weightsPath)
-
-    # Review
-    def evaluate(self, *args, **kwargs):
-        return self.model.evaluate(*args, **kwargs)
     
-
 if __name__ == "__main__":
     model = DeepLOB_TF()
     model.saveWeights()

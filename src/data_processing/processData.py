@@ -209,7 +209,7 @@ def process_data(
     ]  # Get the list of all the message files in the input_path directory.
     csv_message.sort()  # Sort the list of message files.
     
-    print('csv_orderbook', csv_orderbook)
+    # print('csv_orderbook', csv_orderbook)
 
     # Check if exactly half of the files are order book and exactly half are messages.
     assert len(csv_message) == len(csv_orderbook)
@@ -239,10 +239,10 @@ def process_data(
     nsamples_df = pd.DataFrame()
     
     for orderbook_name in csv_orderbook:
-        print('orderbook_name',orderbook_name )
+        # print('orderbook_name',orderbook_name )
         
         ticker = Path(orderbook_name).stem.split('_')[0]
-        print("Processing ticker:", ticker)
+        # print("Processing ticker:", ticker)
 
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
@@ -271,7 +271,7 @@ def process_data(
             feature_names  # Rename the columns of the orderbook dataframe.
         )
         
-        print("Orderbook size 1: ", len(df_orderbook))
+        # print("Orderbook size 1: ", len(df_orderbook))
         # print(df_orderbook)
 
         # Divide prices by 10000.
@@ -287,7 +287,7 @@ def process_data(
         match = re.findall(r"\d{4}-\d{2}-\d{2}", orderbook_name)[-1]
         date = datetime.strptime(match, "%Y-%m-%d")
         
-        print("Orderbook size 2: ", len(df_orderbook))
+        # print("Orderbook size 2: ", len(df_orderbook))
         # print(df_orderbook)
 
         # Read message files and keep a record of problematic files.
@@ -336,7 +336,7 @@ def process_data(
         df_orderbook = df_orderbook.drop(trading_halts_index)
         df_message = df_message.drop(trading_halts_index)
         
-        print("Orderbook size 3: ", len(df_orderbook))
+        # print("Orderbook size 3: ", len(df_orderbook))
         # print(df_orderbook)
 
         # Remove crossed quotes.
@@ -376,7 +376,7 @@ def process_data(
             df_message = df_message.loc[
                 (df_message["seconds"] >= 34200) & (df_message["seconds"] <= 57600)
                 ]
-            print("Orderbook size 4: ", len(df_orderbook))
+            # print("Orderbook size 4: ", len(df_orderbook))
             # print(df_orderbook)
             # Drop first and last 10 minutes of trading using seconds.
             market_open_seconds = market_open * 60 * 60 + 10 * 60
@@ -472,7 +472,7 @@ def process_data(
 
             # Remove all price-volume features and add in orderflow.
             df_orderbook = df_orderbook.drop(feature_names, axis=1).iloc[1:, :]
-            print("In order flows")
+            # print("In order flows")
             mid_seconds_columns = list(df_orderbook.columns)
             feature_names_raw = ["ASK_OF", "BID_OF"]
             feature_names = []
@@ -549,7 +549,7 @@ def process_data(
             if scaling is True:
                 # print("Orderbook size 4.4", df_orderbook)
                 df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
-                print("Orderbook size 4.5", df_orderbook)
+                # print("Orderbook size 4.5", df_orderbook)
                 # print("I HAVE REMOVED THE SCALING STEP - FIX THIS")
 
             # Roll forward by dropping first rows and adding most recent mean and mean2.

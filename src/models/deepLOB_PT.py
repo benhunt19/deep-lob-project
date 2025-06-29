@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch import tensor
 from torch.utils.data import TensorDataset, DataLoader
+import gc
 
 from src.models.baseModel import BaseModel
 
@@ -156,19 +157,39 @@ class DeepLOB_PT(BaseModel):
             avg_loss = total_loss / len(dataset)
             avg_correct = correct / len(dataset)
             print(f"Epoch {epoch+1}/{numEpoch}, Loss: {avg_loss:.4f}, Correct: {avg_correct:.4f}")
+        
+        del x, y  # remove reference to tensor on GPU
+        gc.collect()  # force Python garbage collection
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()  # release unused GPU memory back to the OS
             
 
-    def predict(self, x) -> torch.tensor:
+    def predict(self, x, y = None, batch_size: int = 128) -> torch.tensor:
         """
-        Runs a forward pass in evaluation mode (no gradients, no dropout).
+        Runs a forward pass in evaluation mode (no gradients, no dropout), processing in batches to avoid OOM.
         Args:
-            x (torch.Tensor): Input tensor of shape [batch, channels, height, width]
+            x (torch.Tensor): Input tensor of shape [batch, height, width, channels]
+            batch_size (int): Batch size for prediction
         Returns:
             torch.Tensor: Model predictions (probabilities)
         """
         self.model.eval()
+        preds_list = []
+        x = x.to(device)
+        if y is not None:
+            y = y.to(device)
         with torch.no_grad():
-            return self.model.forward(x)
+            for i in range(0, x.shape[0], batch_size):
+                xb = x[i:i+batch_size]
+                preds = self.model.forward(xb)
+                preds_list.append(preds.cpu())
+        del x  # remove reference to tensor on GPU
+        gc.collect()  # force Python garbage collection
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()  # release unused GPU memory back to the OS
+
+        preds = torch.cat(preds_list, dim=0)
+        return preds
     
     def saveWeights(self, run_id: str = "") -> None:
         fileName = nameModelRun(run_id)
