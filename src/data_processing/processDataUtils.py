@@ -1,4 +1,4 @@
-from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS
+from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS
 from src.data_processing.processData import process_data
 
 class ProcessDataUtils:
@@ -10,15 +10,48 @@ class ProcessDataUtils:
         pass
     
     @staticmethod
-    def runDataProcss():
-        process_data(
-            input_path=f'{PROJECT_ROOT}/{RAW_DATA_PATH}',
-            logs_path=f'{PROJECT_ROOT}/{DATA_PROCESS_LOGS}',
-            horizons=[100],
-            normalization_window=1,
-            archive=True,
-            scaling=True
-        )
+    def runDataProcss(
+        input_path=f'{PROJECT_ROOT}/{RAW_DATA_PATH}',
+        logs_path=f'{PROJECT_ROOT}/{DATA_PROCESS_LOGS}',
+        horizons=[100],
+        normalization_window=1,
+        archive=True,
+        scaling=True,
+        features=ORDERBOOKS
+    ):
+        # Just process orderbooks
+        if features == ORDERBOOKS:
+            process_data(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=archive,
+                scaling=scaling,
+                features=ORDERBOOKS
+            )
+        elif features == ORDERFLOWS:
+            # First process ORDERBOOKS
+            process_data(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=False,
+                scaling=scaling,
+                features=ORDERBOOKS,
+            )
+            # Then process the orderflows
+            process_data(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=archive,
+                scaling=scaling,
+                features=ORDERFLOWS,
+            )
+         
         
 if __name__ == "__main__":
-    util = ProcessDataUtils.runDataProcss()
+    util = ProcessDataUtils.runDataProcss(features=ORDERFLOWS)

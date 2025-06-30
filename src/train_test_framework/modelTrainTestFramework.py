@@ -6,7 +6,7 @@ import json
 
 from src.core.generalUtils import runID
 from src.routers.modelRouter import *
-from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH
+from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 
@@ -61,7 +61,7 @@ class ModelTrainTestFramework:
             
             # Apply defaults to meta if not explicitly stated
             meta = self.applyMetaDefaults(meta=meta)
-            model = meta['model']()
+            model = meta['model'](**meta['modelKwargs'])
             pprint(meta)
             
             # results
@@ -80,7 +80,8 @@ class ModelTrainTestFramework:
                 threshold=meta['threshold'],
                 maxFiles=meta['maxFiles'],
                 rowLim=meta['rowLim'],
-                trainTestSplit=meta['trainTestSplit']
+                trainTestSplit=meta['trainTestSplit'],
+                representation=meta['representation']
             )
             
             if TRAIN in meta['steps']:
@@ -149,92 +150,19 @@ if __name__ == "__main__":
     metas = [
         {
             'model': DeepLOB_TF,
+            'modelKwargs': {
+                'shape': (100, 40, 1)
+            },
             'numEpoch': 5,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 5
-        },
-        {
-            'model': DeepLOB_TF,
-            'numEpoch': 5,
-            'ticker': 'AMZN',
+            'ticker': 'NFLX',
             'steps' : [TRAIN, TEST],
             'trainTestSplit': 0.8,
             'maxFiles': 4,
             'threshold': AUTO,
             'rowLim': 100_000,
-            'lookForwardHorizon': 10
+            'lookForwardHorizon': 5,
+            'representation': ORDERBOOKS
         },
-        {
-            'model': DeepLOB_TF,
-            'numEpoch': 5,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 100_000,
-            'lookForwardHorizon': 20
-        },
-        {
-            'model': DeepLOB_PT,
-            'numEpoch': 20,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 2,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 20
-        },
-        {
-            'model': DeepLOB_PT,
-            'numEpoch': 20,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 2,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 30
-        },
-        {
-            'model': DeepLOB_PT,
-            'numEpoch': 10,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.75,
-            'maxFiles': 2,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 50
-        },
-        {
-            'model': DeepLOB_PT,
-            'numEpoch': 1,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.75,
-            'maxFiles': 2,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 20
-        },
-        {
-            'model': DeepLOB_PT,
-            'numEpoch': 1,
-            'ticker': 'AMZN',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.75,
-            'maxFiles': 2,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 50
-        }
     ]
     
     # results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{123}.json"

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.core.constants import TEST, TRAIN, VALIDATE, AUTO
+from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, ORDERBOOKS, ORDERFLOWS
 
 @dataclass
 class MetaKeys:
@@ -15,6 +15,8 @@ class MetaKeys:
     ROW_LIM: 'rowLim' 
     TEST_TRAIN_SPLIT: 'trainTestSplit'
     LOOK_FORWARD_HORIZON: 'lookForwardHorizon'
+    REPRESENTATION: 'representation'
+    MODEL_KWARGS: 'modelKwargs'
     
 # Required field constatnt
 REQUIRED_FIELD = 'REQUIRED_FIELD'
@@ -22,6 +24,7 @@ REQUIRED_FIELD = 'REQUIRED_FIELD'
 # Required fields for meta
 META_DEFAULTS = {
     'model': REQUIRED_FIELD,
+    'modelKwargs' :{},
     'numEpoch': 5,
     'batchSize': 64,
     'ticker': REQUIRED_FIELD,
@@ -31,7 +34,8 @@ META_DEFAULTS = {
     'threshold': AUTO,
     'rowLim': 1_000_000,
     'trainTestSplit': None,
-    'lookForwardHorizon': 10
+    'lookForwardHorizon': 10,
+    'representation': ORDERFLOWS,
 }
 
 # Defaults if missing test train split

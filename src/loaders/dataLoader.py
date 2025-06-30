@@ -11,7 +11,7 @@ from math import floor
 # import pyspark
 # from pyspark.sql import SparkSession
 
-from src.core.constants import AUTO
+from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS
 from src.core.generalUtils import processedDataLocation
 
 # Some data specific constants
@@ -24,14 +24,16 @@ class CustomDataLoader:
     """
     def __init__(
         self, 
-        ticker : str,                   # Ticker name
-        scaling : bool,                 # True for scaled, False for unscaled, decides if we use the scaled or unscaled processed data
-        horizon : int = 100,            # Horizon length looking backwards, essentially the window
-        maxFiles : int = None,          # Maximum number of files to concatenate into one file
-        threshold: float = 30,          # Midpoint Change over horizon length, could also be AUTO
-        rowLim: int = None,             # The row limit number for
-        trainTestSplit : float = None,  # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
-        lookForwardHorizon :int = 10    # The number of events to look forward after for labelling (prediction horizon)
+        ticker : str,                       # Ticker name
+        scaling : bool,                     # True for scaled, False for unscaled, decides if we use the scaled or unscaled processed data
+        horizon : int = 100,                # Horizon length looking backwards, essentially the window
+        maxFiles : int = None,              # Maximum number of files to concatenate into one file
+        threshold: float = 30,              # Midpoint Change over horizon length, could also be AUTO
+        rowLim: int = None,                 # The row limit number for
+        trainTestSplit : float = None,      # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
+        lookForwardHorizon :int = 10,       # The number of events to look forward after for labelling (prediction horizon)
+        representation: str = ORDERBOOKS    # The order book representation, 'orderbooks', 'orderflows'
+        
     ):
         self.ticker = ticker
         self.scaling = scaling 
@@ -41,6 +43,9 @@ class CustomDataLoader:
         self.maxFiles = maxFiles
         self.trainTestSplit = trainTestSplit
         self.lookForwardHorizon = lookForwardHorizon
+        self.representation = representation
+        
+        assert self.representation in [ORDERBOOKS, ORDERFLOWS], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS})'
         
         # Required in class
         self.fileLocations = None   # Array of file locations
@@ -52,10 +57,10 @@ class CustomDataLoader:
     def getFileLocations(self, dataLocation : str = None) -> list[str]:
         """
         Description:
-            Get file locations for ticker
+            Get file locations for ticker, this is ORDERBOOK representation
         """
         if dataLocation is None:
-            dataLocation = processedDataLocation(self.ticker, self.scaling)
+            dataLocation = processedDataLocation(self.ticker, self.scaling, representation=ORDERBOOKS)
             
         self.fileLocations = glob(dataLocation + f"/{self.ticker}*.csv")
         
@@ -90,17 +95,35 @@ class CustomDataLoader:
             
         return self.globalFrame
 
-    def dataFrameToFeatures(self) -> np.ndarray:
+    def getOrderFlowsFromFiles(self):
+        """
+        Description:
+            Custom process to handle orderflow representation, usual process required to run first
+        """
+        locations = processedDataLocation(self.ticker, self.scaling, representation=ORDERFLOWS)
+        fileLocations = self.getFileLocations(locations)
+        frame = self.getDataFromFiles(fileLocations)
+        self.dataFrameToFeatures(alternativeFrame=frame)
+
+    def dataFrameToFeatures(self, alternativeFrame : pd.DataFrame = None) -> np.ndarray:
         """
         Description:
             Turn data into a model 'runnable' dataset, this is the self.x values (features) that are passed into the models
+        Parameters:
+            alternativeFrame (pd.DataFrame): Process an alternative dataframe to globlFrame
         Returns:
             np.ndarray: shape (batchSize, horizon, features, 1) -> (batchSize, 100, 40, 1)
         """
+        
+        if alternativeFrame is not None:
+            frame = alternativeFrame
+        else:
+            frame = self.globalFrame
+        
         # Set row limit
-        self.rowLim = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
+        self.rowLim = self.rowLim if self.rowLim is not None else len(frame) - self.horizon - self.lookForwardHorizon
 
-        arr = self.globalFrame.to_numpy()  # shape (total_rows, features)
+        arr = frame.to_numpy()  # shape (total_rows, features)
 
         # Create sliding windows of shape (rowLim, horizon, features)
         windows = sliding_window_view(arr, window_shape=(self.horizon), axis=0)  # (total_rows-horizon+1, horizon, features)
@@ -162,18 +185,6 @@ class CustomDataLoader:
         # Stack the one-hot encoded labels
         self.y = np.stack([down, neutral, up], axis=1)
         
-        # Debug: Print offsets for first 5 samples
-        # for i in range(5):
-        #     start_idx = self.horizon - 1 + i
-        #     end_idx = self.horizon - 1 + self.lookForwardHorizon + i
-        #     print(f"Sample {i}:")
-        #     print(f"  startAsk (row {start_idx}): {df[start_idx, ask1Col]}")
-        #     print(f"  endAsk   (row {end_idx}): {df[end_idx, ask1Col]}")
-        #     print(f"  startBid (row {start_idx}): {df[start_idx, bid1Col]}")
-        #     print(f"  endBid   (row {end_idx}): {df[end_idx, bid1Col]}")
-        #     print("---")
-        #     print(f"  label (one-hot): {self.y[i]}")
-
         return self.y
     
     def splitDataTrainTest(self):
@@ -214,8 +225,15 @@ class CustomDataLoader:
         """
         self.getFileLocations()
         self.getDataFromFiles()
-        self.dataFrameToFeatures()
+        
+        if self.representation == ORDERBOOKS:
+            self.dataFrameToFeatures()    
+        
         self.dataFrameToLabelsRaw()
+        
+        if self.representation == ORDERFLOWS:
+            self.getOrderFlowsFromFiles()
+        
         if self.trainTestSplit is not None:
             self.splitDataTrainTest()
         if tensor:
@@ -227,16 +245,16 @@ class CustomDataLoader:
 
 if __name__ == "__main__":
     cdl = CustomDataLoader(
-        ticker='TSLA',
+        ticker='NFLX',
         scaling=True,
         horizon=100,
         threshold=AUTO,
         maxFiles=2,
         rowLim=None,
         trainTestSplit=0.8,
-        lookForwardHorizon=500
+        lookForwardHorizon=20,
+        representation=ORDERFLOWS
     )
-    cdl.getFileLocations()
-    cdl.getDataFromFiles()
-    cdl.dataFrameToFeatures()
-    cdl.dataFrameToLabelsRaw()
+    cdl.runFullProcessReturnXY(tensor=True)
+    print(cdl.x.shape)
+    print(cdl.y.shape)

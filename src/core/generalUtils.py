@@ -3,7 +3,7 @@ from datetime import datetime
 import random
 import string
 
-from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED
+from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
 
 def weightLocation(model, runName : str = ""):
     """
@@ -17,16 +17,17 @@ def weightLocation(model, runName : str = ""):
         os.makedirs(filePath)
     return f"{filePath}/{model.name}_{runName}.{model.weightsFileFormat}"
 
-def processedDataLocation(ticker : str, scaling : bool):
+def processedDataLocation(ticker : str, scaling : bool, representation: str = ORDERBOOKS):
     """
     Description:
         Single definion of processed data and the location that its stored
     Parameters:
         ticker (str): The name of the stock ticker
         scaling (bool): Is the data scaled or unnscaled
+        representation (str): The LOB representation ('orderbooks', 'orderflows',...)
     """
     scaled_unscaled = SCALED if scaling else UNSCALED
-    return f"{PROJECT_ROOT}/{PROCESSED_DATA_PATH}/{ticker}/{scaled_unscaled}"
+    return f"{PROJECT_ROOT}/{PROCESSED_DATA_PATH}/{ticker}/{representation}/{scaled_unscaled}"
 
 def runID(length=8):
     """

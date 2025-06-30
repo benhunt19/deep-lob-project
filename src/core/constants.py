@@ -14,6 +14,10 @@ DATA_PROCESS_LOGS = 'data/logs'
 SCALED = 'scaled'
 UNSCALED = 'unscaled'
 
+# Orderbook representations
+ORDERBOOKS = 'orderbooks'
+ORDERFLOWS = 'orderflows'
+
 # Weights location
 WEIGHTS_PATH = 'weights'
 

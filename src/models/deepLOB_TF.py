@@ -48,7 +48,11 @@ class DeepLOB_TF(BaseModel):
         conv_first1 = Conv2D(32, (4, 1), padding='same')(conv_first1)
         conv_first1 = LeakyReLU(alpha=0.01)(conv_first1)
 
-        conv_first1 = Conv2D(32, (1, 10))(conv_first1)
+        if self.shape[1] == 20:
+            conv_first1 = Conv2D(32, (1, 5))(conv_first1) # needed if using orderflows, need to add logic
+        else:
+            conv_first1 = Conv2D(32, (1, 10))(conv_first1)
+        
         conv_first1 = LeakyReLU(alpha=0.01)(conv_first1)
         conv_first1 = Conv2D(32, (4, 1), padding='same')(conv_first1)
         conv_first1 = LeakyReLU(alpha=0.01)(conv_first1)
