@@ -17,6 +17,8 @@ class MetaKeys:
     LOOK_FORWARD_HORIZON: 'lookForwardHorizon'
     REPRESENTATION: 'representation'
     MODEL_KWARGS: 'modelKwargs'
+    START_DATE: 'startDate'
+    TRAIN_DAYS: 'trainDays'
     
 # Required field constatnt
 REQUIRED_FIELD = 'REQUIRED_FIELD'
@@ -36,6 +38,8 @@ META_DEFAULTS = {
     'trainTestSplit': None,
     'lookForwardHorizon': 10,
     'representation': ORDERFLOWS,
+    'startDate': AUTO,
+    'trainDays': 3
 }
 
 # Defaults if missing test train split

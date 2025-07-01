@@ -54,15 +54,21 @@ class CustomDataLoader:
         self.x_test = None          # Test data
         self.y_test = None          # Test labels
 
-    def getFileLocations(self, dataLocation : str = None) -> list[str]:
+    def getFileLocations(self, dataLocation : str = None, date : str = None) -> list[str]:
         """
         Description:
             Get file locations for ticker, this is ORDERBOOK representation
+        Parameters:
+            dataLocation (str): The location of the date to look up (optional)
+            date (str): A filter on the file locations if provided (optional)
         """
         if dataLocation is None:
             dataLocation = processedDataLocation(self.ticker, self.scaling, representation=ORDERBOOKS)
             
         self.fileLocations = glob(dataLocation + f"/{self.ticker}*.csv")
+                
+        if date is not None:
+            self.fileLocations = list(filter(lambda location: date in location, self.fileLocations))
         
         assert self.fileLocations is not None and len(self.fileLocations) > 0, f"No files found at {dataLocation}"
         
@@ -162,6 +168,13 @@ class CustomDataLoader:
         startBid = df[self.horizon - 1 : self.horizon - 1 + rowLim, bid1Col]
         endBid   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, bid1Col]
         
+        # Ensure all arrays are the same length by truncating to the minimum length
+        min_len = min(len(startAsk), len(endAsk), len(startBid), len(endBid))
+        startAsk = startAsk[:min_len]
+        endAsk = endAsk[:min_len]
+        startBid = startBid[:min_len]
+        endBid = endBid[:min_len]
+        
         startMid = (startAsk + startBid) / 2
         endMid   = (endAsk + endBid) / 2
         diff = (endMid - startMid)
@@ -218,12 +231,15 @@ class CustomDataLoader:
             self.x_test = torch.tensor(self.x_test, dtype=torch.float32)
             self.y_test = torch.tensor(self.y_test, dtype=torch.float32)
     
-    def runFullProcessReturnXY(self, tensor : bool = False) -> tuple[np.ndarray, np.ndarray]:
+    def runFullProcessReturnXY(self, tensor : bool = False, date : str = None) -> tuple[np.ndarray, np.ndarray]:
         """
         Descrition:
             Run full process
+        Parameters:
+            tensor (bool): Does the data need to be transformed into a tensor for the model to work
+            date (bool): The date of data to retrieve from the process (can be null)
         """
-        self.getFileLocations()
+        self.getFileLocations(date=date)
         self.getDataFromFiles()
         
         if self.representation == ORDERBOOKS:
