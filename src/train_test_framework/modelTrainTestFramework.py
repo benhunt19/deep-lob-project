@@ -142,7 +142,7 @@ class ModelTrainTestFramework:
             elif key not in meta and value != REQUIRED_FIELD:
                 meta[key] = value
         # Apply default split if there is testing
-        if TEST in meta['steps']:
+        if TEST in meta['steps'] and 'trainTestSplit' not in meta:
             meta['trainTestSplit'] = DEFAULT_TEST_TRAIN_SPLIT
         return meta
         

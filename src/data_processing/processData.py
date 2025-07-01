@@ -487,7 +487,12 @@ def process_data(
         file_location.mkdir(parents=True, exist_ok=True)
 
         # Save the CSV in the processed data directory
-        df_orderbook.to_csv(output_name, header=False, index=False)
+        if len(df_orderbook) > 0:
+            df_orderbook.to_csv(output_name, header=False, index=False)
+            print(f"Saving: {fileName}")
+        else:
+            print("Not saved due to zero length dataframe.")
+        # df_orderbook.to_csv(output_name, header=False, index=False)
         print(f"Saving: {fileName}")
         
         # Move file to archive
