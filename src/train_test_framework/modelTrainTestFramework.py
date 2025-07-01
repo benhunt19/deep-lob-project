@@ -3,12 +3,14 @@ from pprint import pprint
 import numpy as np
 import gc
 import json
+from glob import glob
 
-from src.core.generalUtils import runID
+from src.core.generalUtils import runID, processedDataLocation
 from src.routers.modelRouter import *
 from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
+from datetime import datetime, timedelta
 
 class ModelTrainTestFramework:
     """
@@ -81,18 +83,45 @@ class ModelTrainTestFramework:
                 maxFiles=meta['maxFiles'],
                 rowLim=meta['rowLim'],
                 trainTestSplit=meta['trainTestSplit'],
-                representation=meta['representation']
+                representation=meta['representation'],
             )
             
             if TRAIN in meta['steps']:
+                
                 if self.logger is not None:
                     self.logger.info("Started training...")
-                x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
-                self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
-                # Data deleted in trainModel, but ensure cdl doesn't hold references
-                cdl.x = None
-                cdl.y = None
-                gc.collect()
+                
+                startDate = meta['startDate']
+                    
+                # Find the earliest start date automatically
+                if meta['startDate'] == AUTO:
+                    dataLocation = processedDataLocation(meta['ticker'], meta['scaling'], representation=meta['representation'])
+                    fileLocations = glob(dataLocation + f"/{meta['ticker']}*.csv")
+                    
+                    assert len(fileLocations) > 0, "Error attempting to find start date from file names, please check f{dataLocation}"
+                
+                    startDate = fileLocations[0].split('_')[-1].strip('.csv')
+
+                dates = []
+                current_date = datetime.strptime(startDate, "%Y-%m-%d")
+                days_added = 0
+                while days_added < meta['trainDays']:
+                    if current_date.weekday() < 5:  # 0=Monday, ..., 4=Friday
+                        dates.append(current_date.strftime('%Y-%m-%d'))
+                        days_added += 1
+                    current_date += timedelta(days=1)
+                
+                print(dates)
+                
+                # Train model over each day
+                for date in dates:
+                    try:
+                        x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor, date=date)
+                        self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
+                        # Clear memory
+                        cdl.x, cdl.y = None, None, gc.collect()
+                    except Exception as e:
+                        print(e)
             
             if TEST in meta['steps']:
                 if TRAIN not in meta['steps']:
@@ -153,15 +182,17 @@ if __name__ == "__main__":
             'modelKwargs': {
                 'shape': (100, 40, 1)
             },
-            'numEpoch': 5,
+            'numEpoch': 3,
             'ticker': 'NFLX',
             'steps' : [TRAIN, TEST],
             'trainTestSplit': 0.8,
             'maxFiles': 4,
             'threshold': AUTO,
-            'rowLim': 100_000,
+            'rowLim': 1_000_000,
             'lookForwardHorizon': 5,
-            'representation': ORDERBOOKS
+            'representation': ORDERBOOKS,
+            'startDate': AUTO,
+            'trainDays': 5
         },
     ]
     
