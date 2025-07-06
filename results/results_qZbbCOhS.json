@@ -1,0 +1,20 @@
+{
+    "run_id": "qZbbCOhS",
+    "meta": {
+        "model": "deepLOB_TF",
+        "numEpoch": 5,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 100000,
+        "lookForwardHorizon": 20,
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.5121999979019165
+}

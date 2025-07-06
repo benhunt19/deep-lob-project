@@ -1,0 +1,20 @@
+{
+    "run_id": "WyksQd3J",
+    "meta": {
+        "model": "deepLOB_PT",
+        "numEpoch": 10,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 2,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 50,
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.546750009059906
+}

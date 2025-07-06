@@ -1,0 +1,28 @@
+{
+    "run_id": "o6bCwhao",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.9,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 3000000,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.6277066469192505
+}

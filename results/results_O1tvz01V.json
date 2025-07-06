@@ -1,0 +1,20 @@
+{
+    "run_id": "O1tvz01V",
+    "meta": {
+        "model": "deepLOB_PT",
+        "numEpoch": 10,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 2,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 50,
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.4678399860858917
+}

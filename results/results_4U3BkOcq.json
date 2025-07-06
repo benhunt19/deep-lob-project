@@ -1,0 +1,22 @@
+{
+    "run_id": "4U3BkOcq",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 5,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 5,
+        "representation": "orderbooks",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.5753800272941589
+}

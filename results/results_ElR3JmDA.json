@@ -1,0 +1,28 @@
+{
+    "run_id": "ElR3JmDA",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.9,
+        "maxFiles": 5,
+        "threshold": "auto",
+        "rowLim": 450000,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.6044889092445374
+}

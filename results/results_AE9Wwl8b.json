@@ -1,0 +1,30 @@
+{
+    "run_id": "AE9Wwl8b",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 1,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 10,
+        "representation": "orderflows",
+        "startDate": "auto",
+        "trainDays": 5,
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.5566849708557129
+}

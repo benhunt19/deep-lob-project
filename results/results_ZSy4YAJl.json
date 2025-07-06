@@ -1,0 +1,22 @@
+{
+    "run_id": "ZSy4YAJl",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 5,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 200,
+        "representation": "orderbooks",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.3433915674686432
+}
