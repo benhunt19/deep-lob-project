@@ -91,37 +91,40 @@ class ModelTrainTestFramework:
                 if self.logger is not None:
                     self.logger.info("Started training...")
                 
-                startDate = meta['startDate']
+                # startDate = meta['startDate']
                     
                 # Find the earliest start date automatically
-                if meta['startDate'] == AUTO:
-                    dataLocation = processedDataLocation(meta['ticker'], meta['scaling'], representation=meta['representation'])
-                    fileLocations = glob(dataLocation + f"/{meta['ticker']}*.csv")
+                # if meta['startDate'] == AUTO:
+                #     dataLocation = processedDataLocation(meta['ticker'], meta['scaling'], representation=meta['representation'])
+                #     fileLocations = glob(dataLocation + f"/{meta['ticker']}*.csv")
                     
-                    assert len(fileLocations) > 0, "Error attempting to find start date from file names, please check f{dataLocation}"
+                #     assert len(fileLocations) > 0, "Error attempting to find start date from file names, please check f{dataLocation}"
                 
-                    startDate = fileLocations[0].split('_')[-1].strip('.csv')
+                #     startDate = fileLocations[0].split('_')[-1].strip('.csv')
 
-                dates = []
-                current_date = datetime.strptime(startDate, "%Y-%m-%d")
-                days_added = 0
-                while days_added < meta['trainDays']:
-                    if current_date.weekday() < 5:  # 0=Monday, ..., 4=Friday
-                        dates.append(current_date.strftime('%Y-%m-%d'))
-                        days_added += 1
-                    current_date += timedelta(days=1)
+                # dates = []
+                # current_date = datetime.strptime(startDate, "%Y-%m-%d")
+                # days_added = 0
+                # while days_added < meta['trainDays']:
+                #     if current_date.weekday() < 5:  # 0=Monday, ..., 4=Friday
+                #         dates.append(current_date.strftime('%Y-%m-%d'))
+                #         days_added += 1
+                #     current_date += timedelta(days=1)
                 
-                print(dates)
+                # print(dates)
                 
                 # Train model over each day
-                for date in dates:
-                    try:
-                        x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor, date=date)
-                        self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
-                        # Clear memory
-                        cdl.x, cdl.y = None, None, gc.collect()
-                    except Exception as e:
-                        print(e)
+                # for date in dates:
+                try:
+                    print("Runnign training")
+                    x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
+                    print(x)
+                    print(y)
+                    self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
+                    # Clear memory
+                    cdl.x, cdl.y = None, None, gc.collect()
+                except Exception as e:
+                    print(e)
             
             if TEST in meta['steps']:
                 if TRAIN not in meta['steps']:
@@ -180,7 +183,7 @@ if __name__ == "__main__":
         {
             'model': DeepLOB_TF,
             'modelKwargs': {
-                'shape': (100, 40, 1)
+                # 'shape': (100, 40, 1)
             },
             'numEpoch': 3,
             'ticker': 'NFLX',
@@ -191,8 +194,8 @@ if __name__ == "__main__":
             'rowLim': 1_000_000,
             'lookForwardHorizon': 5,
             'representation': ORDERBOOKS,
-            'startDate': AUTO,
-            'trainDays': 5
+            # 'startDate': AUTO,
+            # 'trainDays': 5
         },
     ]
     

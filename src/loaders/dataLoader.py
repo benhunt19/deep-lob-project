@@ -237,9 +237,9 @@ class CustomDataLoader:
             Run full process
         Parameters:
             tensor (bool): Does the data need to be transformed into a tensor for the model to work
-            date (bool): The date of data to retrieve from the process (can be null)
+            date (bool): The date of data to retrieve from the process (can be null) (currently unused)
         """
-        self.getFileLocations(date=date)
+        self.getFileLocations()
         self.getDataFromFiles()
         
         if self.representation == ORDERBOOKS:
