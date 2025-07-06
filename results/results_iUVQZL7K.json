@@ -1,0 +1,22 @@
+{
+    "run_id": "iUVQZL7K",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 5,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 10,
+        "representation": "orderbooks",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.5039049983024597
+}
