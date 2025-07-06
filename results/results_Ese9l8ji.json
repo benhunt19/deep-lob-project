@@ -1,0 +1,28 @@
+{
+    "run_id": "Ese9l8ji",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 5,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.8,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 200,
+        "representation": "orderflows",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.6864349842071533
+}
