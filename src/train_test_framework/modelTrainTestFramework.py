@@ -11,6 +11,7 @@ from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJE
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 from datetime import datetime, timedelta
+from src.train_test_framework.metaMaker import ModelMetaMaker
 
 class ModelTrainTestFramework:
     """
@@ -118,8 +119,6 @@ class ModelTrainTestFramework:
                 try:
                     print("Runnign training")
                     x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
-                    print(x)
-                    print(y)
                     self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
                     # Clear memory
                     cdl.x, cdl.y = None, None, gc.collect()
@@ -179,101 +178,22 @@ class ModelTrainTestFramework:
         return meta
         
 if __name__ == "__main__":
-    metas = [
+    metas = ModelMetaMaker.createMeta(
         {
             'model': DeepLOB_TF,
             'modelKwargs': {
                 # 'shape': (100, 40, 1)
             },
-            'numEpoch': 3,
+            'numEpoch': 5,
             'ticker': 'NFLX',
             'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
+            'trainTestSplit': 0.9,
             'maxFiles': 4,
             'threshold': AUTO,
             'rowLim': 1_000_000,
-            'lookForwardHorizon': 5,
+            'lookForwardHorizon': [5, 10, 20, 50, 100, 200],
             'representation': ORDERBOOKS,
-        },
-        {
-            'model': DeepLOB_TF,
-            'modelKwargs': {
-                # 'shape': (100, 40, 1)
-            },
-            'numEpoch': 3,
-            'ticker': 'NFLX',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 10,
-            'representation': ORDERBOOKS,
-        },
-                        {
-            'model': DeepLOB_TF,
-            'modelKwargs': {
-                # 'shape': (100, 40, 1)
-            },
-            'numEpoch': 3,
-            'ticker': 'NFLX',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 20,
-            'representation': ORDERBOOKS,
-        },
-        {
-            'model': DeepLOB_TF,
-            'modelKwargs': {
-                # 'shape': (100, 40, 1)
-            },
-            'numEpoch': 3,
-            'ticker': 'NFLX',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 50,
-            'representation': ORDERBOOKS,
-        },
-        {
-            'model': DeepLOB_TF,
-            'modelKwargs': {
-                # 'shape': (100, 40, 1)
-            },
-            'numEpoch': 3,
-            'ticker': 'NFLX',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 100,
-            'representation': ORDERBOOKS,
-        },
-        {
-            'model': DeepLOB_TF,
-            'modelKwargs': {
-                # 'shape': (100, 40, 1)
-            },
-            'numEpoch': 3,
-            'ticker': 'NFLX',
-            'steps' : [TRAIN, TEST],
-            'trainTestSplit': 0.8,
-            'maxFiles': 4,
-            'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': 200,
-            'representation': ORDERBOOKS,
-        },
-    ]
-    
-    # results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{123}.json"
-    # with open(results_path, "w") as f:
-    #     json.dump(metas, f, indent=4)
-    
+        }
+    )
+        
     mttf = ModelTrainTestFramework(metas, log=True).run()

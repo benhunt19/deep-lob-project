@@ -1,0 +1,15 @@
+meta:
+  model: ${src.train_test_framework.metaConstants.REQUIRED_FIELD}''
+  modelKwargs: {}
+  numEpoch: 5
+  batchSize: 64
+  ticker: ${src.train_test_framework.metaConstants.REQUIRED_FIELD}
+  steps:
+    - ${src.core.constants.TRAIN}, ${src.core.constants.TEST}
+  maxFiles: 5
+  scaling: true
+  threshold: ${src.core.constants.AUTO}
+  rowLim: 1000000
+  trainTestSplit: null
+  lookForwardHorizon: 10
+  representation: ${src.core.constants.ORDERFLOWS}

@@ -40,3 +40,6 @@ AUTO = 'auto'
 
 # Global logger name
 GLOBAL_LOGGER = "global_logger"
+
+# Hydra config path
+HYDRA_CONFIG_PATH = "src/train_test_framework/config"
