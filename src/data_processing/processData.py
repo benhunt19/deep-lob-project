@@ -492,8 +492,6 @@ def process_data(
             print(f"Saving: {fileName}")
         else:
             print("Not saved due to zero length dataframe.")
-        # df_orderbook.to_csv(output_name, header=False, index=False)
-        print(f"Saving: {fileName}")
         
         # Move file to archive
         if archive:

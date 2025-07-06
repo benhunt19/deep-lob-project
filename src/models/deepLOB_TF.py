@@ -1,6 +1,15 @@
 import os
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0" # Suppress warning
 import tensorflow as tf
+
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+        
 from tensorflow.keras import layers, models
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input, LSTM, Reshape, Conv2D, MaxPooling2D, LeakyReLU, concatenate)
