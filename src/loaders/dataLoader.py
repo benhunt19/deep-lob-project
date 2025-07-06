@@ -257,6 +257,11 @@ class CustomDataLoader:
         return self.x, self.y
     
     def getTestData(self):
+        # Check these are the same length
+        if len(self.x_test) != len(self.y_test):
+            smallest = min(len(self.x_test), len(self.y_test))
+            self.x_test = self.x_test[:smallest]
+            self.y_test = self.y_test[:smallest]
         return self.x_test, self.y_test
 
 if __name__ == "__main__":
