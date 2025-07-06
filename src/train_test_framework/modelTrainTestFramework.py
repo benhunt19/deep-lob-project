@@ -194,8 +194,81 @@ if __name__ == "__main__":
             'rowLim': 1_000_000,
             'lookForwardHorizon': 5,
             'representation': ORDERBOOKS,
-            # 'startDate': AUTO,
-            # 'trainDays': 5
+        },
+        {
+            'model': DeepLOB_TF,
+            'modelKwargs': {
+                # 'shape': (100, 40, 1)
+            },
+            'numEpoch': 3,
+            'ticker': 'NFLX',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 10,
+            'representation': ORDERBOOKS,
+        },
+                        {
+            'model': DeepLOB_TF,
+            'modelKwargs': {
+                # 'shape': (100, 40, 1)
+            },
+            'numEpoch': 3,
+            'ticker': 'NFLX',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 20,
+            'representation': ORDERBOOKS,
+        },
+        {
+            'model': DeepLOB_TF,
+            'modelKwargs': {
+                # 'shape': (100, 40, 1)
+            },
+            'numEpoch': 3,
+            'ticker': 'NFLX',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 50,
+            'representation': ORDERBOOKS,
+        },
+        {
+            'model': DeepLOB_TF,
+            'modelKwargs': {
+                # 'shape': (100, 40, 1)
+            },
+            'numEpoch': 3,
+            'ticker': 'NFLX',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 100,
+            'representation': ORDERBOOKS,
+        },
+        {
+            'model': DeepLOB_TF,
+            'modelKwargs': {
+                # 'shape': (100, 40, 1)
+            },
+            'numEpoch': 3,
+            'ticker': 'NFLX',
+            'steps' : [TRAIN, TEST],
+            'trainTestSplit': 0.8,
+            'maxFiles': 4,
+            'threshold': AUTO,
+            'rowLim': 1_000_000,
+            'lookForwardHorizon': 200,
+            'representation': ORDERBOOKS,
         },
     ]
     
