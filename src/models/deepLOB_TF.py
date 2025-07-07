@@ -37,7 +37,7 @@ class DeepLOB_TF(BaseModel):
         self.number_of_lstm = number_of_lstm                                # Number of LSTM
         self.model = self._build_model()                                    # Build the model
         self.name = 'deepLOB_TF'                                            # Model name
-        self.weightsFileFormat = 'keras'                                    # File format for saving weights
+        self.weightsFileFormat = 'h5'                                       # File format for saving weights
 
     def _build_model(self):
         input_lmd = Input(shape=self.shape)

@@ -1,6 +1,10 @@
 from src.routers.lobSimulatorRouter import lob_simulator as ls
 from src.routers.modelRouter import *
 
+from src.data_processing.resultMetaUtils import getBestIDs
+from src.core.constants import ORDERBOOKS, ORDERFLOWS
+from src.core.generalUtils import getWeightPathFromID
+
 import torch
 import jax.numpy as jnp
 import asyncio
@@ -16,12 +20,17 @@ queue = asyncio.Queue()
 
 n_hiddens = 64
 model = DeepLOB_TF([100, 40, 1], n_hiddens)
-model2 = DeepLOB_PT()
-model3 = DeepLOB_JAX(input_shape=(100, 40, 1), num_lstm_units=64)
+ticker = 'NVDA'
+ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
+weightPath = getWeightPathFromID(ids[0])
+
+model.loadFromWeights(weightPath)
+# model2 = DeepLOB_PT()
+# model3 = DeepLOB_JAX(input_shape=(100, 40, 1), num_lstm_units=64)
 
 ## Quick initial pass to warm the models up!!!
-batch = torch.randn(10, 100, 40, 1)
-model2.predict(batch)
+# batch = torch.randn(10, 100, 40, 1)
+# model2.predict(batch)
 
 arr = []
 cooloff = 100           # number of events to cool off from
@@ -41,8 +50,8 @@ def work(value):
         tensor = torch.tensor(final_array, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
         # tensor = jnp.array(final_array).reshape(1, 100, 40, 1)  # match expected input shape
         # print(tensor.shape)
-        # model.predict(tensor, verbose=0)
-        prediction = model2.predict(tensor)
+        prediction = model.predict(tensor, verbose=0)
+        # prediction = model2.predict(tensor)
         # prediction = model3.predict(tensor)
         end_time = time.perf_counter()
         print('prediction', prediction)
