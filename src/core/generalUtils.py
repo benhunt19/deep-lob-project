@@ -3,6 +3,7 @@ from datetime import datetime
 import random
 import string
 from glob import glob
+import subprocess
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
 
@@ -56,3 +57,16 @@ def getWeightPathFromID(run_id : str) -> list:
     # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
     pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}*"
     return glob(pattern)
+
+def gitAdd(filePath : str):
+    """
+    Description:
+        Stage a file path
+    Parameters:
+        filePath (str): The path of the file to stage
+    """
+    try:
+        result = subprocess.run(["git", "add", filePath], check=True, capture_output=True, text=True)
+        print(f"Staged: {filePath}")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to stage file: {e.stderr}")

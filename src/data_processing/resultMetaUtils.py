@@ -4,6 +4,7 @@ import json
 from glob import glob
 
 from src.core.constants import RESULTS_PATH, PROJECT_ROOT, ORDERBOOKS, ORDERFLOWS
+from src.core.generalUtils import getWeightPathFromID, gitAdd
 
 # Local constant, also used in varios places across the project
 RUN_ID = 'run_id'
@@ -71,6 +72,16 @@ def getBestIDs(ticker : str, sortMetric : str = 'accuracy', **kwargs) -> str:
     df = getFrameFromRun(ticker, sortMetric=sortMetric, **kwargs)
     return list(df[RUN_ID])
 
+def stageBestRunWeights():
+    tickers = frameFromResultMeta()['meta.ticker'].unique()
+    paths = []
+    for ticker in tickers:
+        ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
+        if len(ids) > 0:
+            paths += getWeightPathFromID(ids[0])
+    # Stage
+    for path in paths:
+        gitAdd(path)
+        
 if __name__ == "__main__":
-    df = getBestIDs('AMZN', representation=ORDERFLOWS, rowLim=1000000, lookForwardHorizon=10)
-    print(df)
+    stageBestRunWeights()
