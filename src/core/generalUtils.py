@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import random
 import string
+from glob import glob
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
 
@@ -44,3 +45,14 @@ def nameModelRun(runID : str):
         type (str): The type of run (TRAIN, TEST, VALIDATION)
     """
     return f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{runID}"
+
+def getWeightPathFromID(run_id : str) -> list:
+    """
+    Description:
+        Find weights path based on a run ID
+    Parameters:
+        run_id (str): The ID to find from the weights
+    """
+    # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
+    pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}*"
+    return glob(pattern)
