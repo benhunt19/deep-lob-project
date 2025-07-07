@@ -1,0 +1,22 @@
+{
+    "run_id": "IF7snFsC",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 5,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "trainTestSplit": 0.9,
+        "maxFiles": 4,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "lookForwardHorizon": 200,
+        "representation": "orderbooks",
+        "batchSize": 64,
+        "scaling": true
+    },
+    "accuracy": 0.5338500142097473
+}
