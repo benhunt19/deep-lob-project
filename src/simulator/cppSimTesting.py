@@ -21,10 +21,11 @@ queue = asyncio.Queue()
 n_hiddens = 64
 model = DeepLOB_TF([100, 40, 1], n_hiddens)
 ticker = 'NVDA'
-ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
-weightPath = getWeightPathFromID(ids[0])
+# ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
+weightPaths = getWeightPathFromID('W8OXTqAt') # weights/deepLOB_TF/deepLOB_TF_20250710_152313_W8OXTqAt.h5
+print(weightPaths)
 
-# model.loadFromWeights(weightPath)
+model.loadFromWeights(weightPaths[0])
 # model2 = DeepLOB_PT()
 # model3 = DeepLOB_JAX(input_shape=(100, 40, 1), num_lstm_units=64)
 

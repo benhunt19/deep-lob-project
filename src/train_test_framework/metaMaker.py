@@ -1,8 +1,7 @@
 from src.routers.modelRouter import DeepLOB_PT, DeepLOB_TF, BaseModel
 import copy
-from pprint import pprint
 
-# Resued from https://github.com/benhunt19/data-science-project
+# Based on original from https://github.com/benhunt19/data-science-project
 
 # Constant of keys that are meant to be iterable, potentially use the dataclass here
 IGNORE_KEYS = ['steps', 'modelKwargs']

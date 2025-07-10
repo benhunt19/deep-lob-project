@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import TEST, TRAIN, AUTO, ORDERBOOKS, ORDERFLOWS
 
 @dataclass
 class MetaKeys:
@@ -24,6 +24,7 @@ class MetaKeys:
 REQUIRED_FIELD = 'REQUIRED_FIELD'
 
 # Required fields for meta
+# Other defaults may be added in config/config.yaml
 META_DEFAULTS = {
     'model': REQUIRED_FIELD,
     'modelKwargs' :{},

@@ -10,11 +10,12 @@ from inspect import isclass
 
 from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable
 from src.routers.modelRouter import *
-from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import TEST, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 from src.train_test_framework.metaMaker import ModelMetaMaker
 from src.routers.modelRouter import BaseModel, DeepLOB_PT, DeepLOB_TF, DeepLOB_JAX
+from src.train_test_framework.processMetrics import ProcessMetrics
 
 class ModelTrainTestFramework:
     """
@@ -73,7 +74,8 @@ class ModelTrainTestFramework:
             
             resultsStore = {
                 'run_id': run_id,
-                'meta': meta
+                'datetime': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'meta': meta,
             }
             
             # No need to clone as the model isn't used again as is
@@ -134,20 +136,21 @@ class ModelTrainTestFramework:
                     cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                 x_test, y_test = cdl.getTestData()
                 preds = model.predict(x = x_test, y = y_test)
-                correct = (preds.argmax(axis=1) == y_test.argmax(axis=1)).sum()
-                total = y_test.shape[0]
-                accuracy = correct / total 
-                print(f"Test Accuracy: {accuracy:.4f}")
-                # Free test data memory
+                print(preds)
+                print(y_test)
+                metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
+                print(metrics)
                 del x_test, y_test, preds
                 gc.collect()
-                resultsStore['accuracy'] = float(accuracy)
+                resultsStore['metrics'] = metrics
 
             # Save resultsStore as JSON
             results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{run_id}.json"
             with open(results_path, "w") as f:
                 # If resultsStore is DictConfig, convert to plain dict before saving
                 results_store_dict = makeJsonSerializable(resultsStore)
+                json.dump(results_store_dict, f, indent=4)
+                
                             
             # Explicitly delete CustomDataLoader and model to free memory
             del cdl

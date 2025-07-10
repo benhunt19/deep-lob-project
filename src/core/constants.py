@@ -30,10 +30,10 @@ LOBSTER_PRICE_SCALE_FACTOR = 10_000
 # LOB Simulator Path
 LOB_SIMULATOR_PATH = r"C:\Users\benhu\UCL\Term 3\HSBC\cpp-lob-simulator\build\Release"
 
-# Model run types
+# Process steps
 TEST = "TEST"
 TRAIN = "TRAIN"
-VALIDATE = "VALIDATE"
+PROCESS_DATA = "PROCESS_DATA"
 
 # Model Label Modes, also used for anything AUTOMATIC
 AUTO = 'auto'
@@ -42,4 +42,4 @@ AUTO = 'auto'
 GLOBAL_LOGGER = "global_logger"
 
 # Hydra config path
-HYDRA_CONFIG_PATH = "src/train_test_framework/config"
+HYDRA_CONFIG_PATH = "config"
