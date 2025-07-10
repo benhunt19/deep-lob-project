@@ -127,9 +127,10 @@ class DeepLOB_PT(BaseModel):
     Description:
         Wrapper class around _DeepLOB_PT. Use this model.
     """
+    name = 'deepLOB_PT'
     def __init__(self):
         super().__init__()
-        self.name = 'deepLOB_PT'  
+        self.name = DeepLOB_PT.name  
         self.weightsFileFormat = "pth"
         self.model = _DeepLOB_PT()
         

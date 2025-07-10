@@ -31,12 +31,13 @@ class DeepLOB_TF(BaseModel):
         shape (tuple): Shape of input data
         number_of_lstm (int): Number of LSTM in LSTM component
     """
+    name = 'deepLOB_TF'
     def __init__(self, shape : tuple = (100, 40, 1), number_of_lstm = 64):
         super().__init__()
         self.shape = shape                                                  # Shape of the input data
         self.number_of_lstm = number_of_lstm                                # Number of LSTM
         self.model = self._build_model()                                    # Build the model
-        self.name = 'deepLOB_TF'                                            # Model name
+        self.name = DeepLOB_TF.name                                         # Model name
         self.weightsFileFormat = 'h5'                                       # File format for saving weights
 
     def _build_model(self):

@@ -38,8 +38,6 @@ META_DEFAULTS = {
     'trainTestSplit': None,
     'lookForwardHorizon': 10,
     'representation': ORDERFLOWS,
-    # 'startDate': AUTO,
-    # 'trainDays': 3
 }
 
 # Defaults if missing test train split

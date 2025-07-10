@@ -4,14 +4,17 @@ import numpy as np
 import gc
 import json
 from glob import glob
+from datetime import datetime, timedelta
+from omegaconf import OmegaConf, DictConfig
+from inspect import isclass
 
-from src.core.generalUtils import runID, processedDataLocation
+from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable
 from src.routers.modelRouter import *
 from src.core.constants import TEST, TRAIN, VALIDATE, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
-from datetime import datetime, timedelta
 from src.train_test_framework.metaMaker import ModelMetaMaker
+from src.routers.modelRouter import BaseModel, DeepLOB_PT, DeepLOB_TF, DeepLOB_JAX
 
 class ModelTrainTestFramework:
     """
@@ -64,10 +67,10 @@ class ModelTrainTestFramework:
             
             # Apply defaults to meta if not explicitly stated
             meta = self.applyMetaDefaults(meta=meta)
-            model = meta['model'](**meta['modelKwargs'])
+            modelClass = ModelTrainTestFramework.getModelsFromName(meta['model'])
+            model = modelClass(**meta['modelKwargs'])
             pprint(meta)
             
-            # results
             resultsStore = {
                 'run_id': run_id,
                 'meta': meta
@@ -143,8 +146,9 @@ class ModelTrainTestFramework:
             # Save resultsStore as JSON
             results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{run_id}.json"
             with open(results_path, "w") as f:
-                json.dump(resultsStore, f, indent=4)
-            
+                # If resultsStore is DictConfig, convert to plain dict before saving
+                results_store_dict = makeJsonSerializable(resultsStore)
+                            
             # Explicitly delete CustomDataLoader and model to free memory
             del cdl
             del model
@@ -176,6 +180,26 @@ class ModelTrainTestFramework:
         if TEST in meta['steps'] and 'trainTestSplit' not in meta:
             meta['trainTestSplit'] = DEFAULT_TEST_TRAIN_SPLIT
         return meta
+
+    @staticmethod
+    def getModelsFromName(model) -> BaseModel:
+        """
+        Description:
+            Enable metas to handle strings as parameters
+        Parameters:
+            model (BaseModel or str): If it is a string, it matches the name, else returns the model
+        """
+        if (isclass(model) and issubclass(model, BaseModel)):
+            return model
+        
+        # String case
+        if model.lower() == DeepLOB_TF.name.lower():
+            return DeepLOB_TF
+        elif model.lower() == DeepLOB_PT.name.lower():
+            return DeepLOB_PT
+        elif model.lower() == DeepLOB_JAX.name.lower():
+            return DeepLOB_JAX
+            
         
 if __name__ == "__main__":
     metas = ModelMetaMaker.createMeta(

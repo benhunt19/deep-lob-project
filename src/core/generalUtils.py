@@ -4,6 +4,9 @@ import random
 import string
 from glob import glob
 import subprocess
+from omegaconf import OmegaConf, DictConfig
+import json
+import numpy as np
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
 
@@ -70,3 +73,27 @@ def gitAdd(filePath : str):
         print(f"Staged: {filePath}")
     except subprocess.CalledProcessError as e:
         print(f"Failed to stage file: {e.stderr}")
+        
+def makeJsonSerializable(obj):
+    """
+    Description
+        Recursively convert objects to be JSON serializable.
+        - Converts DictConfigs to dicts
+        - Converts numpy types to Python native types
+    Parameters:
+        Object to convert
+    """
+    if isinstance(obj, DictConfig):
+        obj = OmegaConf.to_container(obj, resolve=True)
+    if isinstance(obj, dict):
+        return {k: makeJsonSerializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [makeJsonSerializable(i) for i in obj]
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj

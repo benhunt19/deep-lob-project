@@ -13,8 +13,8 @@ import time
 
 # File paths and number of orders to load
 file_location = r'C:\Users\benhu\UCL\Term 3\HSBC\data\large\data_tqap\CSCO_2015-01-01_2015-03-31_10\output-2015\0\0\2\CSCO_2015-01-02_34200000_57600000_message_10.csv'
-file_location2 = r'C:\Users\benhu\UCL\Term 3\HSBC\deep-lob-project\data\processed\CSCO\unscaled\CSCO_orderbooks_2015-01-05.csv'
-num_orders = 500
+file_location2 = r'C:\Users\benhu\UCL\Term 3\HSBC\deep-lob-project\data\processed\CSCO\orderbooks\unscaled\CSCO_orderbooks_2015-01-06.csv'
+num_orders = 10_000
 # Global asyncio queue shared between C++ producer and Python consumer
 queue = asyncio.Queue()
 
@@ -24,7 +24,7 @@ ticker = 'NVDA'
 ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
 weightPath = getWeightPathFromID(ids[0])
 
-model.loadFromWeights(weightPath)
+# model.loadFromWeights(weightPath)
 # model2 = DeepLOB_PT()
 # model3 = DeepLOB_JAX(input_shape=(100, 40, 1), num_lstm_units=64)
 
