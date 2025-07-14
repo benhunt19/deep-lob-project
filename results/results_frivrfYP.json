@@ -1,0 +1,45 @@
+{
+    "run_id": "frivrfYP",
+    "datetime": "2025-07-10 15:51:17",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderbooks"
+    },
+    "metrics": {
+        "accuracy": 0.38061149953041845,
+        "precision": 0.38166128889934786,
+        "recall": 0.37851087491552304,
+        "f1": 0.37738871446265493,
+        "confusion_matrix": [
+            [
+                6072,
+                4238,
+                4386
+            ],
+            [
+                6913,
+                7499,
+                4235
+            ],
+            [
+                5571,
+                4335,
+                4666
+            ]
+        ]
+    }
+}

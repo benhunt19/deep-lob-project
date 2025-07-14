@@ -1,0 +1,51 @@
+{
+    "run_id": "6jSm8LGE",
+    "datetime": "2025-07-10 17:48:33",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "AMZN",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 10,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.5965,
+        "precision": 0.5987537789122018,
+        "recall": 0.4633349704963487,
+        "f1": 0.47408876415465273,
+        "confusion_matrix": [
+            [
+                6551,
+                15873,
+                489
+            ],
+            [
+                3782,
+                48083,
+                2672
+            ],
+            [
+                833,
+                16701,
+                5016
+            ]
+        ]
+    }
+}

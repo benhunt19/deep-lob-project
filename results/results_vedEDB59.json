@@ -1,0 +1,51 @@
+{
+    "run_id": "vedEDB59",
+    "datetime": "2025-07-10 17:48:26",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 50,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.624728714524207,
+        "precision": 0.6240768260295502,
+        "recall": 0.6240228965390334,
+        "f1": 0.6231171738466941,
+        "confusion_matrix": [
+            [
+                8446,
+                3683,
+                2567
+            ],
+            [
+                2967,
+                11818,
+                3862
+            ],
+            [
+                2025,
+                2879,
+                9673
+            ]
+        ]
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "run_id": "Ea9zYeZe",
+    "datetime": "2025-07-10 17:51:04",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.50728,
+        "precision": 0.5125568575482049,
+        "recall": 0.5072328259108334,
+        "f1": 0.5088181984075953,
+        "confusion_matrix": [
+            [
+                18665,
+                10106,
+                4436
+            ],
+            [
+                9695,
+                15072,
+                8318
+            ],
+            [
+                5286,
+                11431,
+                16991
+            ]
+        ]
+    }
+}

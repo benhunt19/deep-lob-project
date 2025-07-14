@@ -1,0 +1,51 @@
+{
+    "run_id": "dWjL45az",
+    "datetime": "2025-07-10 17:52:46",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 100,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.621389816360601,
+        "precision": 0.6242210597259392,
+        "recall": 0.6215347406218318,
+        "f1": 0.6201201147660158,
+        "confusion_matrix": [
+            [
+                8216,
+                3728,
+                2752
+            ],
+            [
+                2573,
+                11592,
+                4482
+            ],
+            [
+                1736,
+                2872,
+                9969
+            ]
+        ]
+    }
+}

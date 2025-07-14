@@ -1,0 +1,51 @@
+{
+    "run_id": "pkZvQlyG",
+    "datetime": "2025-07-10 17:39:43",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 10,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.6205550918196995,
+        "precision": 0.6229820691078496,
+        "recall": 0.6184508655500368,
+        "f1": 0.6179098668707447,
+        "confusion_matrix": [
+            [
+                7936,
+                3886,
+                2874
+            ],
+            [
+                2506,
+                12037,
+                4104
+            ],
+            [
+                1709,
+                3104,
+                9764
+            ]
+        ]
+    }
+}

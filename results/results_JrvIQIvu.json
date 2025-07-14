@@ -1,0 +1,45 @@
+{
+    "run_id": "JrvIQIvu",
+    "datetime": "2025-07-10 15:47:12",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 50,
+        "representation": "orderbooks"
+    },
+    "metrics": {
+        "accuracy": 0.15416,
+        "precision": 0.25937199406303296,
+        "recall": 0.3331752513628669,
+        "f1": 0.09009592636232806,
+        "confusion_matrix": [
+            [
+                15224,
+                49,
+                0
+            ],
+            [
+                70034,
+                192,
+                0
+            ],
+            [
+                14435,
+                66,
+                0
+            ]
+        ]
+    }
+}

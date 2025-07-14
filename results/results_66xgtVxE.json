@@ -1,0 +1,51 @@
+{
+    "run_id": "66xgtVxE",
+    "datetime": "2025-07-10 17:44:03",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows"
+    },
+    "metrics": {
+        "accuracy": 0.621431552587646,
+        "precision": 0.6199560622694072,
+        "recall": 0.6200458105487178,
+        "f1": 0.6199747507921711,
+        "confusion_matrix": [
+            [
+                8795,
+                3624,
+                2277
+            ],
+            [
+                3335,
+                11878,
+                3434
+            ],
+            [
+                2337,
+                3134,
+                9106
+            ]
+        ]
+    }
+}

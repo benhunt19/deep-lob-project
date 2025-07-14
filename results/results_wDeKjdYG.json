@@ -1,0 +1,45 @@
+{
+    "run_id": "wDeKjdYG",
+    "datetime": "2025-07-10 15:58:40",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderbooks"
+    },
+    "metrics": {
+        "accuracy": 0.38997,
+        "precision": 0.4351485920775711,
+        "recall": 0.3826084820717069,
+        "f1": 0.3455603513004976,
+        "confusion_matrix": [
+            [
+                9393,
+                22582,
+                1768
+            ],
+            [
+                6594,
+                25371,
+                2490
+            ],
+            [
+                5025,
+                22544,
+                4233
+            ]
+        ]
+    }
+}
