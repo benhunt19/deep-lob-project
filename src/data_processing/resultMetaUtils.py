@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import json
 from glob import glob
+import os
 
 from src.core.constants import RESULTS_PATH, PROJECT_ROOT, ORDERBOOKS, ORDERFLOWS
 from src.core.generalUtils import getWeightPathFromID, gitAdd
@@ -73,6 +74,10 @@ def getBestIDs(ticker : str, sortMetric : str = 'accuracy', **kwargs) -> str:
     return list(df[RUN_ID])
 
 def stageBestRunWeights():
+    """
+    Description:
+        Stage best run weights from training
+    """
     tickers = frameFromResultMeta()['meta.ticker'].unique()
     paths = []
     for ticker in tickers:
@@ -82,6 +87,24 @@ def stageBestRunWeights():
     # Stage
     for path in paths:
         gitAdd(path)
-        
+
+def deleteRunsFromResults(runIDs : list, dryRun : bool = True):
+    f"""
+    Description:
+        Delete result runs from {RESULTS_PATH} folder
+    Parameters:
+
+    """
+    for runID in runIDs:
+        path = glob(f"{PROJECT_ROOT}/{RESULTS_PATH}/*{runID}.json")[0]
+        if os.path.exists(path):
+            if not dryRun:
+                os.remove(path)
+                print(f"{runID} File deleted.")
+            else:
+                print(f"dryRun: True, {runID} would be deleted.")
+        else:
+            print("File not found.")
+            
 if __name__ == "__main__":
     stageBestRunWeights()
