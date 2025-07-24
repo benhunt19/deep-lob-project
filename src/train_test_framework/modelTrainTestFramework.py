@@ -214,7 +214,7 @@ class ModelTrainTestFramework:
 if __name__ == "__main__":
     metas = ModelMetaMaker.createMeta(
         {
-            'model': DeepLOBREG_TF,
+            'model': DeepLOB_TF,
             'modelKwargs': {
                 # 'shape': (100, 40, 1)
             },
@@ -224,10 +224,10 @@ if __name__ == "__main__":
             'trainTestSplit': 0.9,
             'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 100_000,
+            'rowLim': 1_000,
             'lookForwardHorizon': [20],
             'representation': ORDERBOOKS,
-            'labelType': REGRESSION
+            # 'labelType': REGRESSION
         }
     )
         

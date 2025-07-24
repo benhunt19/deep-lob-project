@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.core.constants import TEST, TRAIN, AUTO, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import TEST, TRAIN, AUTO, ORDERBOOKS, ORDERFLOWS, CATEGORICAL
 
 @dataclass
 class MetaKeys:
@@ -39,6 +39,7 @@ META_DEFAULTS = {
     'trainTestSplit': None,
     'lookForwardHorizon': 10,
     'representation': ORDERFLOWS,
+    'labelType': CATEGORICAL
 }
 
 # Defaults if missing test train split
