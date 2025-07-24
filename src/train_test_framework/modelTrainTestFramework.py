@@ -10,7 +10,7 @@ from inspect import isclass
 
 from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable
 from src.routers.modelRouter import *
-from src.core.constants import TEST, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import TEST, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 from src.train_test_framework.metaMaker import ModelMetaMaker
@@ -90,6 +90,7 @@ class ModelTrainTestFramework:
                 rowLim=meta['rowLim'],
                 trainTestSplit=meta['trainTestSplit'],
                 representation=meta['representation'],
+                labelType=meta['labelType']
             )
             
             if TRAIN in meta['steps']:
@@ -138,8 +139,12 @@ class ModelTrainTestFramework:
                 preds = model.predict(x = x_test, y = y_test)
                 print(preds)
                 print(y_test)
-                metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
-                print(metrics)
+                if meta['labelType'] == CATEGORICAL:
+                    metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
+                    print(metrics)
+                elif meta['labelType'] == REGRESSION:
+                    metrics = ProcessMetrics.Regression(predictions=preds, actual=y_test)
+                    print(metrics)
                 del x_test, y_test, preds
                 gc.collect()
                 resultsStore['metrics'] = metrics
@@ -198,6 +203,8 @@ class ModelTrainTestFramework:
         # String case
         if model.lower() == DeepLOB_TF.name.lower():
             return DeepLOB_TF
+        elif model.lower() == DeepLOBREG_TF.name.lower():
+            return DeepLOBREG_TF
         elif model.lower() == DeepLOB_PT.name.lower():
             return DeepLOB_PT
         elif model.lower() == DeepLOB_JAX.name.lower():
@@ -207,19 +214,20 @@ class ModelTrainTestFramework:
 if __name__ == "__main__":
     metas = ModelMetaMaker.createMeta(
         {
-            'model': DeepLOB_TF,
+            'model': DeepLOBREG_TF,
             'modelKwargs': {
                 # 'shape': (100, 40, 1)
             },
-            'numEpoch': 5,
-            'ticker': 'NFLX',
+            'numEpoch': 2,
+            'ticker': 'NVDA',
             'steps' : [TRAIN, TEST],
             'trainTestSplit': 0.9,
-            'maxFiles': 4,
+            'maxFiles': 2,
             'threshold': AUTO,
-            'rowLim': 1_000_000,
-            'lookForwardHorizon': [5, 10, 20, 50, 100, 200],
+            'rowLim': 100_000,
+            'lookForwardHorizon': [20],
             'representation': ORDERBOOKS,
+            'labelType': REGRESSION
         }
     )
         

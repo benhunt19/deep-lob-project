@@ -11,7 +11,7 @@ from math import floor
 # import pyspark
 # from pyspark.sql import SparkSession
 
-from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.core.generalUtils import processedDataLocation
 
 # Some data specific constants
@@ -32,7 +32,8 @@ class CustomDataLoader:
         rowLim: int = None,                 # The row limit number for
         trainTestSplit : float = None,      # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
         lookForwardHorizon :int = 10,       # The number of events to look forward after for labelling (prediction horizon)
-        representation: str = ORDERBOOKS    # The order book representation, 'orderbooks', 'orderflows'
+        representation: str = ORDERBOOKS,   # The order book representation, 'orderbooks', 'orderflows'
+        labelType: str = CATEGORICAL        # The label type, is it a 'REGRESSION' or a 'CATEGORICAL' definition
     ):
         self.ticker = ticker
         self.scaling = scaling 
@@ -43,6 +44,7 @@ class CustomDataLoader:
         self.trainTestSplit = trainTestSplit
         self.lookForwardHorizon = lookForwardHorizon
         self.representation = representation
+        self.labelType = labelType
         
         assert self.representation in [ORDERBOOKS, ORDERFLOWS], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS})'
         
@@ -176,13 +178,30 @@ class CustomDataLoader:
         
         startMid = (startAsk + startBid) / 2
         endMid   = (endAsk + endBid) / 2
-        diff = (endMid - startMid)
+        midChange = (endMid - startMid)
         
         assert isinstance(self.threshold, (float, int)) or self.threshold == AUTO, f"Please check threshold is numeric or {AUTO}"
+
+        if self.labelType == CATEGORICAL:
+            self.y = self.handleCategoricalLabels(midChange=midChange, threshold=self.threshold)
+        elif self.labelType == REGRESSION:
+            self.y = self.handleRegressionLabels(midChange=midChange)
         
-        if self.threshold == AUTO:
+        return self.y
+    
+    @staticmethod
+    def handleCategoricalLabels(midChange : np.array, threshold : float = AUTO):
+        f"""
+        Description:
+            Handle the procesing for creating categorical labels
+        Parameters:
+            midChange (np.array): The diffs between the 
+            threshold (float): The threshold to use for the categorical selection {AUTO} by default, selected by Z score
+        """
+        
+        if threshold == AUTO:
             # Use the z score to scale the data into thirds
-            zscores = scipy.stats.zscore(diff)
+            zscores = scipy.stats.zscore(midChange)
             lower, upper = np.percentile(zscores, [33.33, 66.66])
             threshold = (abs(lower) + abs(upper)) / 2  # Symmetric threshold
             print(f"Auto threshold z-score cutoffs: lower={lower:.3f}, upper={upper:.3f}, using threshold={threshold:.3f}")
@@ -190,14 +209,22 @@ class CustomDataLoader:
             up      = (zscores >  threshold).astype(int)
             neutral = ((down == 0) & (up == 0)).astype(int)
         else:
-            down    = (diff < -self.threshold).astype(int)
-            up      = (diff >  self.threshold).astype(int)
+            down    = (midChange < -threshold).astype(int)
+            up      = (midChange >  threshold).astype(int)
             neutral = ((down == 0) & (up == 0)).astype(int)
 
         # Stack the one-hot encoded labels
-        self.y = np.stack([down, neutral, up], axis=1)
-        
-        return self.y
+        return np.stack([down, neutral, up], axis=1)
+    
+    @staticmethod
+    def handleRegressionLabels(midChange : np.array):
+        """
+        Description:
+            Normalise the mid changes, this will be then passed int
+        Parameters:
+            midChange (np.array): The mid price changes over the specified forward horizon
+        """
+        return (midChange - np.mean(midChange)) / np.std(midChange)
     
     def splitDataTrainTest(self):
         """

@@ -43,3 +43,7 @@ GLOBAL_LOGGER = "global_logger"
 
 # Hydra config path
 HYDRA_CONFIG_PATH = "config"
+
+# Label Type, regression or category
+REGRESSION = "REGRESSION"
+CATEGORICAL = "CATEGORICAL"
