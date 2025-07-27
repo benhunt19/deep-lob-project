@@ -97,31 +97,7 @@ class ModelTrainTestFramework:
                 
                 if self.logger is not None:
                     self.logger.info("Started training...")
-                
-                # startDate = meta['startDate']
                     
-                # Find the earliest start date automatically
-                # if meta['startDate'] == AUTO:
-                #     dataLocation = processedDataLocation(meta['ticker'], meta['scaling'], representation=meta['representation'])
-                #     fileLocations = glob(dataLocation + f"/{meta['ticker']}*.csv")
-                    
-                #     assert len(fileLocations) > 0, "Error attempting to find start date from file names, please check f{dataLocation}"
-                
-                #     startDate = fileLocations[0].split('_')[-1].strip('.csv')
-
-                # dates = []
-                # current_date = datetime.strptime(startDate, "%Y-%m-%d")
-                # days_added = 0
-                # while days_added < meta['trainDays']:
-                #     if current_date.weekday() < 5:  # 0=Monday, ..., 4=Friday
-                #         dates.append(current_date.strftime('%Y-%m-%d'))
-                #         days_added += 1
-                #     current_date += timedelta(days=1)
-                
-                # print(dates)
-                
-                # Train model over each day
-                # for date in dates:
                 try:
                     print("Runnign training")
                     x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
@@ -141,7 +117,9 @@ class ModelTrainTestFramework:
                 print(y_test)
                 if meta['labelType'] == CATEGORICAL:
                     metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
+                    metricsStrength = ProcessMetrics.CategoricalStrength(predictions=preds, actual=y_test)
                     print(metrics)
+                    print(metricsStrength)
                 elif meta['labelType'] == REGRESSION:
                     metrics = ProcessMetrics.Regression(predictions=preds, actual=y_test)
                     print(metrics)

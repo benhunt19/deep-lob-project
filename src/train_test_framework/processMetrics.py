@@ -43,6 +43,30 @@ class ProcessMetrics:
         }
     
     @staticmethod
+    def CategoricalStrength(predictions : np.ndarray = None, actual : np.ndarray = None):
+        """
+        Description:
+            Produce Categorical strength testing, test if there is a reltionship between strength of signal and 
+        Parameters:
+            predictions (np.ndarray): The model predictions
+            actual (np.ndarray): The actual test labels
+        """
+        thresholds = np.linspace(0.4, 1, 7)
+        results = {}
+        y_true = np.argmax(actual, axis=1)
+        for thresh in thresholds:
+            mask = np.max(predictions, axis=1) >= thresh
+            if np.sum(mask) == 0:
+                results[f'accuracy@>{thresh}'] = None
+                results[f'coverage@>{thresh}'] = 0.0
+            else:
+                y_pred = np.argmax(predictions[mask], axis=1)
+                y_t = y_true[mask]
+                results[f'accuracy@>{thresh}'] = accuracy_score(y_t, y_pred)
+                results[f'coverage@>{thresh}'] = len(y_t) / len(y_true)
+        return results
+    
+    @staticmethod
     def Regression(predictions : np.ndarray = None, actual : np.ndarray = None):
         """
         Description:

@@ -14,3 +14,4 @@ rowLim: 1000000
 trainTestSplit: 0.9
 lookForwardHorizon: 10
 representation: 'orderbooks'
+labelType: 'CATEGORICAL'
