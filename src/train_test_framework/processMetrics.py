@@ -100,10 +100,11 @@ class ProcessMetrics:
         """
         thresholds = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
         results = {}
-        y_true = np.sign(actual)
-        y_pred = np.sign(predictions)
+        y_true = np.sign(actual).flatten()
+        y_pred = np.sign(predictions).flatten()
+        predictions_flat = predictions.flatten()
         for thresh in thresholds:
-            mask = np.abs(predictions) >= thresh
+            mask = np.abs(predictions_flat) >= thresh
             if np.sum(mask) == 0:
                 results[f'accuracy@|>{thresh}'] = None
                 results[f'coverage@|>{thresh}'] = 0.0
