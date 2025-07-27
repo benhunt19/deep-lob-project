@@ -51,7 +51,7 @@ class ProcessMetrics:
             predictions (np.ndarray): The model predictions
             actual (np.ndarray): The actual test labels
         """
-        thresholds = np.linspace(0.4, 1, 7)
+        thresholds = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
         results = {}
         y_true = np.argmax(actual, axis=1)
         for thresh in thresholds:
@@ -88,3 +88,27 @@ class ProcessMetrics:
             'MAE': mean_absolute_error(actual, predictions),
             # 'KLD': entropy(actual, predictions, base=2),
         }
+        
+    @staticmethod
+    def RegressionStrength(predictions : np.ndarray = None, actual : np.ndarray = None):
+        """
+        Description:
+            Produce Categorical strength testing, test if there is a reltionship between strength of signal and 
+        Parameters:
+            predictions (np.ndarray): The model predictions
+            actual (np.ndarray): The actual test labels
+        """
+        thresholds = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        results = {}
+        y_true = np.sign(actual)
+        y_pred = np.sign(predictions)
+        for thresh in thresholds:
+            mask = np.abs(predictions) >= thresh
+            if np.sum(mask) == 0:
+                results[f'accuracy@|>{thresh}'] = None
+                results[f'coverage@|>{thresh}'] = 0.0
+                continue
+            acc = accuracy_score(y_true[mask], y_pred[mask])
+            results[f'accuracy@|>{thresh}'] = acc
+            results[f'coverage@|>{thresh}'] = np.mean(mask)
+        return results

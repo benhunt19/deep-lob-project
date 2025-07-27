@@ -122,7 +122,9 @@ class ModelTrainTestFramework:
                     print(metricsStrength)
                 elif meta['labelType'] == REGRESSION:
                     metrics = ProcessMetrics.Regression(predictions=preds, actual=y_test)
+                    metricsStrength = ProcessMetrics.RegressionStrength(predictions=preds, actual=y_test)
                     print(metrics)
+                    print(metricsStrength)
                 del x_test, y_test, preds
                 gc.collect()
                 resultsStore['metrics'] = metrics
