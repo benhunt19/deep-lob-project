@@ -128,6 +128,7 @@ class ModelTrainTestFramework:
                 del x_test, y_test, preds
                 gc.collect()
                 resultsStore['metrics'] = metrics
+                resultsStore['metricsStrength'] = metricsStrength
 
             # Save resultsStore as JSON
             results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{run_id}.json"
