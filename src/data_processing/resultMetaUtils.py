@@ -45,11 +45,11 @@ def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', date : str = No
         kwargs (key=vale): Kwargs to attempt to filter the dataframe by, not case sensitive
     """
     df = frameFromResultMeta()
-    # Rename columns to use only the last part after the dot
-    df.columns = [col.split(".")[-1] for col in df.columns]
+    # Rename columns drop meta.
+    df.columns = [col.replace("meta.", "") for col in df.columns]
     assert len(df.columns) == len(set(df.columns)), "Column names are not unique after renaming (stripping prefixes, eg. meta.xxx)"
     
-    # First chose the stock
+    # First choose the stock
     df = df[df['ticker'] == ticker]
     
     assert len(df) > 0, f"No results found for {ticker} before filtering, please check"
@@ -63,9 +63,10 @@ def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', date : str = No
         
     if date is not None:
         df = df[df[DATETIME_COL].str.startswith(date)]
-    
-    if sortMetric in df.columns:
-        df = df.sort_values(sortMetric, ascending=False)
+        
+    sort_cols = [col for col in df.columns if sortMetric in col]
+    if sort_cols:
+        df = df.sort_values(by=sort_cols[0], ascending=False)
     return df
 
 def getBestIDs(ticker : str, sortMetric : str = 'accuracy', date : str = None, **kwargs) -> str:
