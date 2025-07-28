@@ -1,0 +1,49 @@
+{
+    "run_id": "ad0RIHX3",
+    "datetime": "2025-07-28 11:14:49",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 100000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 5,
+        "representation": "orderflows",
+        "labelType": "REGRESSION"
+    },
+    "metrics": {
+        "MSE": 0.8568562269210815,
+        "R2": -0.005526304244995117,
+        "MAPE": 1044.463134765625,
+        "MAE": 0.571256160736084
+    },
+    "metricsStrength": {
+        "accuracy@|>0.4": 1.0,
+        "coverage@|>0.4": 0.0025,
+        "accuracy@|>0.5": 1.0,
+        "coverage@|>0.5": 0.0012,
+        "accuracy@|>0.6": 1.0,
+        "coverage@|>0.6": 0.0008,
+        "accuracy@|>0.7": 1.0,
+        "coverage@|>0.7": 0.0002,
+        "accuracy@|>0.8": null,
+        "coverage@|>0.8": 0.0,
+        "accuracy@|>0.9": null,
+        "coverage@|>0.9": 0.0
+    }
+}

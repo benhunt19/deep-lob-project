@@ -1,0 +1,66 @@
+{
+    "run_id": "wsWROmVN",
+    "datetime": "2025-07-28 11:07:41",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 3,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 100000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 5,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL"
+    },
+    "metrics": {
+        "accuracy": 0.5072,
+        "precision": 0.522802582307713,
+        "recall": 0.4963467736496691,
+        "f1": 0.497807544463902,
+        "confusion_matrix": [
+            [
+                1638,
+                1082,
+                131
+            ],
+            [
+                1284,
+                2454,
+                578
+            ],
+            [
+                340,
+                1513,
+                980
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5079572925060435,
+        "coverage@>0.4": 0.9928,
+        "accuracy@>0.5": 0.5896067415730337,
+        "coverage@>0.5": 0.356,
+        "accuracy@>0.6": 0.6785252263906857,
+        "coverage@>0.6": 0.1546,
+        "accuracy@>0.7": 0.7479892761394102,
+        "coverage@>0.7": 0.0746,
+        "accuracy@>0.8": 0.7385159010600707,
+        "coverage@>0.8": 0.0283,
+        "accuracy@>0.9": 0.6666666666666666,
+        "coverage@>0.9": 0.0003
+    }
+}
