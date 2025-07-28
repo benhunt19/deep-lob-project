@@ -6,7 +6,7 @@ import os
 import datetime
 
 from src.core.constants import RESULTS_PATH, PROJECT_ROOT, ORDERBOOKS, ORDERFLOWS
-from src.core.generalUtils import getWeightPathFromID, gitAdd
+from src.core.generalUtils import getWeightPathFromID, getResultPathFromID, gitAdd
 
 # Local constant, also used in varios places across the project
 RUN_ID = 'run_id'
@@ -61,7 +61,8 @@ def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', date : str = No
             continue
         df = df.query(f"{key} == @value")
         
-    if date is not None:
+    if date is not None and DATETIME_COL in df.columns:
+        df = df.dropna(subset=[DATETIME_COL])
         df = df[df[DATETIME_COL].str.startswith(date)]
         
     sort_cols = [col for col in df.columns if sortMetric in col]
@@ -97,7 +98,7 @@ def stageBestRunWeights():
     for path in paths:
         gitAdd(path)
 
-def stageRunByDate(date : str = None):
+def stageResultsByDate(date : str = None):
     """
     Description:
         Stage results by date, default todays date
@@ -106,14 +107,16 @@ def stageRunByDate(date : str = None):
     """
     if date is None:
         date = datetime.date.today().strftime("%Y-%m-%d")
-        
+    
     tickers = frameFromResultMeta()['meta.ticker'].unique()
-    paths = []
+    ids = []
     for ticker in tickers:
-        ids = getBestIDs(ticker, date=date)
-        if len(ids) > 0:
-            paths += getWeightPathFromID(ids[0])
-    # Stage
+        df = getFrameFromRun(ticker=ticker,date=date)
+        ids += list(df[RUN_ID])
+    paths = []
+    for id in ids:
+        paths += getResultPathFromID(id)
+        
     for path in paths:
         gitAdd(path)
 
@@ -136,4 +139,4 @@ def deleteRunsFromResults(runIDs : list, dryRun : bool = True):
             print("File not found.")
             
 if __name__ == "__main__":
-    stageRunByDate()
+    stageResultsByDate()

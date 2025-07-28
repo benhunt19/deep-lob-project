@@ -8,7 +8,7 @@ from omegaconf import OmegaConf, DictConfig
 import json
 import numpy as np
 
-from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
 
 def weightLocation(model, runName : str = ""):
     """
@@ -59,6 +59,17 @@ def getWeightPathFromID(run_id : str) -> list:
     """
     # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
     pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}*"
+    return glob(pattern)
+
+def getResultPathFromID(run_id : str) -> list:
+    """
+    Description:
+        Find results json path based on a run ID
+    Parameters:
+        run_id (str): The ID to find from the weights
+    """
+    # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
+    pattern = f"{PROJECT_ROOT}/{RESULTS_PATH}/*{run_id}.json"
     return glob(pattern)
 
 def gitAdd(filePath : str):
