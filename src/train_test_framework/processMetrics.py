@@ -106,10 +106,10 @@ class ProcessMetrics:
         for thresh in thresholds:
             mask = np.abs(predictions_flat) >= thresh
             if np.sum(mask) == 0:
-                results[f'accuracy@|>{thresh}'] = None
-                results[f'coverage@|>{thresh}'] = 0.0
+                results[f'accuracy@>{thresh}'] = None
+                results[f'coverage@>{thresh}'] = 0.0
                 continue
             acc = accuracy_score(y_true[mask], y_pred[mask])
-            results[f'accuracy@|>{thresh}'] = acc
-            results[f'coverage@|>{thresh}'] = np.mean(mask)
+            results[f'accuracy@>{thresh}'] = acc
+            results[f'coverage@>{thresh}'] = np.mean(mask)
         return results

@@ -13,7 +13,7 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
-from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS
 from src.core.generalUtils import processedDataLocation
 import polars as pl
 from pathlib import Path
@@ -27,7 +27,8 @@ def process_data(
         time_index: str = "seconds",
         features: str = ORDERBOOKS,
         scaling: bool = True,
-        archive: bool = True
+        archive: bool = True,
+        ticker = None
 ) -> None:
     """
     Function to pre-process LOBSTER data. The data must be stored in the input_path directory as 'daily message LOB' and 'orderbook' files.
@@ -73,9 +74,18 @@ def process_data(
     
     print(f"Checking CSV files from: {input_path}")
 
-    csv_file_list = glob.glob(
-        f"{input_path}/*.csv"
-    )  # Get the list of all the .csv files in the input_path directory.
+    if ticker is not None:
+        csv_file_list = glob.glob(
+            f"{input_path}/{ticker}*.csv"
+        )  # Get the list of all the .csv files in the input_path directory.
+    else:
+        csv_file_list = glob.glob(
+            f"{input_path}/*.csv"
+        )
+        
+    if csv_file_list is None or len(csv_file_list) < 1:
+        print("There are no csv files for this ticker")
+        return
 
     csv_orderbook = [
         name for name in csv_file_list if "orderbook" in name
@@ -539,7 +549,51 @@ def get_datetime_from_seconds(seconds_after_midnight, date_str):
 
     return dt_datetime
 
+def process_data_per_ticker(
+        input_path: str,
+        logs_path: str,
+        horizons: list[int],
+        normalization_window: int,
+        time_index: str = "seconds",
+        features: str = ORDERBOOKS,
+        scaling: bool = True,
+        archive: bool = True
+) -> None:
+    """
+    Description:
+        Wrapper aroudn 'process_data' so it works with multiple tickers at once
+    Paramaters:
+        See 'process_data'
+    """
+    
+    tickers = set(map(
+        lambda x : x.split('_')[0],
+        glob.glob(f"{input_path}/*.csv")
+    ))
+
+    for ticker in tickers:
+        print(f"Prcessing Ticker: {ticker}")
+        process_data(
+            input_path=input_path,
+            logs_path=logs_path,
+            horizons=horizons,
+            normalization_window=normalization_window,
+            time_index=time_index,
+            features=features,
+            scaling=scaling,
+            archive=archive,
+            ticker=ticker
+        )
 
 
 if __name__ == "__main__":
-    pass
+
+    process_data_per_ticker(
+        input_path=f'{PROJECT_ROOT}/{RAW_DATA_PATH}',
+        logs_path=f'{PROJECT_ROOT}/{DATA_PROCESS_LOGS}',
+        horizons=[100],
+        normalization_window=1,
+        archive=True,
+        scaling=True,
+        features=ORDERBOOKS
+    )

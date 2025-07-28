@@ -64,6 +64,16 @@ class ModelMetaMaker:
                     meta[key] = value
 
         return modelMetas
+    
+    @staticmethod
+    def checkMeta(meta : dict):
+        """
+        Description:
+            Check classic mistakes for input meta
+        Parameters:
+            meta (dict): Meta to check
+        """
+        pass
 
 if __name__ == '__main__':
     

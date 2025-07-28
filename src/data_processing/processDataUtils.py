@@ -1,5 +1,5 @@
 from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS
-from src.data_processing.processData import process_data
+from src.data_processing.processData import process_data, process_data_per_ticker
 
 class ProcessDataUtils:
     """
@@ -21,7 +21,7 @@ class ProcessDataUtils:
     ):
         # Just process orderbooks
         if features == ORDERBOOKS:
-            process_data(
+            process_data_per_ticker(
                 input_path=input_path,
                 logs_path=logs_path,
                 horizons=horizons,
@@ -30,9 +30,10 @@ class ProcessDataUtils:
                 scaling=scaling,
                 features=ORDERBOOKS
             )
+        # Process Orderflows - both flows and books
         elif features == ORDERFLOWS:
             # First process ORDERBOOKS
-            process_data(
+            process_data_per_ticker(
                 input_path=input_path,
                 logs_path=logs_path,
                 horizons=horizons,
@@ -42,7 +43,7 @@ class ProcessDataUtils:
                 features=ORDERBOOKS,
             )
             # Then process the orderflows
-            process_data(
+            process_data_per_ticker(
                 input_path=input_path,
                 logs_path=logs_path,
                 horizons=horizons,
