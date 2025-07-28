@@ -3,12 +3,14 @@ import numpy as np
 import json
 from glob import glob
 import os
+import datetime
 
 from src.core.constants import RESULTS_PATH, PROJECT_ROOT, ORDERBOOKS, ORDERFLOWS
 from src.core.generalUtils import getWeightPathFromID, gitAdd
 
 # Local constant, also used in varios places across the project
 RUN_ID = 'run_id'
+DATETIME_COL = 'datetime'
 
 # Here we are going to define methods that we can use to get the data out of results
 
@@ -32,13 +34,14 @@ def frameFromResultMeta() -> pd.DataFrame:
             df = pd.concat([df, pd.json_normalize(data)], ignore_index=True)
     return df
 
-def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', **kwargs) -> pd.DataFrame:
+def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', date : str = None, **kwargs) -> pd.DataFrame:
     """
     Description:
         Gets a filtered dataframe based on any kwargs, 
     Parameters:
         ticker (str): Ticker of stock to choose
         sortMetric (str): Which metric to use as the 'best' and to sort the data by
+        date (str): yyyy-mm-dd date to filter the metrics from
         kwargs (key=vale): Kwargs to attempt to filter the dataframe by, not case sensitive
     """
     df = frameFromResultMeta()
@@ -57,17 +60,22 @@ def getFrameFromRun(ticker : str, sortMetric : str = 'accuracy', **kwargs) -> pd
             print("key not found in meta, please see metaConstants.py")
             continue
         df = df.query(f"{key} == @value")
+        
+    if date is not None:
+        df = df[df[DATETIME_COL].str.startswith(date)]
     
-    df = df.sort_values(sortMetric, ascending=False)
+    if sortMetric in df.columns:
+        df = df.sort_values(sortMetric, ascending=False)
     return df
 
-def getBestIDs(ticker : str, sortMetric : str = 'accuracy', **kwargs) -> str:
+def getBestIDs(ticker : str, sortMetric : str = 'accuracy', date : str = None, **kwargs) -> str:
     """
     Description:
         Get the best run IDs based on results, filtered by keyword arguments
     Parameters:
         ticker (str): Ticker of stock to choose
         sortMetric (str): Which metric to use as the 'best' and to sort the data by
+        date (str): yyyy-mm-dd date to filter the metrics from
         kwargs (key=vale): Kwargs to attempt to filter the dataframe by, not case sensitive
     """
     df = getFrameFromRun(ticker, sortMetric=sortMetric, **kwargs)
@@ -81,7 +89,27 @@ def stageBestRunWeights():
     tickers = frameFromResultMeta()['meta.ticker'].unique()
     paths = []
     for ticker in tickers:
-        ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
+        ids = ids = getBestIDs(ticker, representation=ORDERBOOKS, rowLim=1000000, lookForwardHorizon=10)
+        if len(ids) > 0:
+            paths += getWeightPathFromID(ids[0])
+    # Stage
+    for path in paths:
+        gitAdd(path)
+
+def stageRunByDate(date : str = None):
+    """
+    Description:
+        Stage results by date, default todays date
+    Parameters:
+        date (str): yyyy-mm-dd date to filter the metrics from
+    """
+    if date is None:
+        date = datetime.date.today().strftime("%Y-%m-%d")
+        
+    tickers = frameFromResultMeta()['meta.ticker'].unique()
+    paths = []
+    for ticker in tickers:
+        ids = getBestIDs(ticker, date=date)
         if len(ids) > 0:
             paths += getWeightPathFromID(ids[0])
     # Stage
@@ -107,4 +135,4 @@ def deleteRunsFromResults(runIDs : list, dryRun : bool = True):
             print("File not found.")
             
 if __name__ == "__main__":
-    stageBestRunWeights()
+    stageRunByDate()
