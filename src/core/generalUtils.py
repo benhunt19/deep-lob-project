@@ -8,7 +8,7 @@ from omegaconf import OmegaConf, DictConfig
 import json
 import numpy as np
 
-from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, NORMALISATION
 
 def weightLocation(model, runName : str = ""):
     """
@@ -33,6 +33,17 @@ def processedDataLocation(ticker : str, scaling : bool, representation: str = OR
     """
     scaled_unscaled = SCALED if scaling else UNSCALED
     return f"{PROJECT_ROOT}/{PROCESSED_DATA_PATH}/{ticker}/{representation}/{scaled_unscaled}"
+
+def normalisationDataLocation(ticker : str, scaling : bool, representation: str = ORDERBOOKS):
+    """
+    Description:
+        Get location of normalisation data, this is a subfolder from the process data location
+    Parameters:
+        ticker (str): The name of the stock ticker
+        scaling (bool): Is the data scaled or unnscaled
+        representation (str): The LOB representation ('orderbooks', 'orderflows',...)
+    """
+    return f"{processedDataLocation(ticker=ticker, scaling=scaling, representation=representation)}/{NORMALISATION}"
 
 def runID(length=8):
     """

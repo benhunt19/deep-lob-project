@@ -34,7 +34,10 @@ def main(config: DictConfig):
             ++representation="{ORDERBOOKS}" or "{ORDERFLOWS}"
         """
 
-        ProcessDataUtils.runDataProcss(features=config.representation)
+        ProcessDataUtils.runDataProcss(
+            features=config.representation,
+            scaling=config.scaling
+        )
 
 if __name__ == "__main__":
     main()

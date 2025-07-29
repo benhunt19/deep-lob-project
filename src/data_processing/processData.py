@@ -13,8 +13,8 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
-from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS
-from src.core.generalUtils import processedDataLocation
+from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS, MEAN_ROW, STD_DEV_ROW
+from src.core.generalUtils import processedDataLocation, normalisationDataLocation
 import polars as pl
 from pathlib import Path
 
@@ -28,7 +28,8 @@ def process_data(
         features: str = ORDERBOOKS,
         scaling: bool = True,
         archive: bool = True,
-        ticker = None
+        ticker = None,
+        save_normalisation = True
 ) -> None:
     """
     Function to pre-process LOBSTER data. The data must be stored in the input_path directory as 'daily message LOB' and 'orderbook' files.
@@ -70,6 +71,7 @@ def process_data(
         normalization_window (int): Window for rolling z-score normalization.
         features (str): Whether to return 'orderbooks' or 'orderflows'.
         scaling (bool): Whether to apply rolling z-score normalization.
+        save_normalisation (bool): Save normalisation data!
     """
     
     print(f"Checking CSV files from: {input_path}")
@@ -434,10 +436,7 @@ def process_data(
             z_mean_df.index = df_orderbook.index
             z_stdev_df.index = df_orderbook.index
             if scaling is True:
-                # print("Orderbook size 4.4", df_orderbook)
                 df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
-                # print("Orderbook size 4.5", df_orderbook)
-                # print("I HAVE REMOVED THE SCALING STEP - FIX THIS")
 
             # Roll forward by dropping first rows and adding most recent mean and mean2.
             mean_df = mean_df.iloc[1:, :]
@@ -481,25 +480,45 @@ def process_data(
         
         # Save processed files.
         # Get the processed data directory as a Path object
+        
         file_location = Path(processedDataLocation(ticker, scaling, representation=features))
-        # print(f"Processed data location: {file_location}")
-
+        
         # If file_location is not absolute, make it relative to your project root
         if not file_location.is_absolute():
             project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
             file_location = project_root / file_location
-
+            
         # Compose the output file name
         fileName = f"{ticker}_{features}_{str(date.date())}.csv"
         output_name = file_location / fileName
-
+        
         # Create directory if it doesn't exist
         file_location.mkdir(parents=True, exist_ok=True)
-
+        
         # Save the CSV in the processed data directory
         if len(df_orderbook) > 0:
             df_orderbook.to_csv(output_name, header=False, index=False)
             print(f"Saving: {fileName}")
+            
+            # Handle saving normalisation
+            if save_normalisation and scaling:
+                print(f"Saving normalisation")
+                normalisation_location = Path(normalisationDataLocation(ticker, scaling, representation=features))
+                project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
+                normalisation_location = project_root / normalisation_location
+                normalisation_output_name = normalisation_location / fileName
+                normalisation_location.mkdir(parents=True, exist_ok=True)
+                z_stdev_df = z_stdev_df.iloc[[0]]
+                z_mean_df = z_mean_df.iloc[[0]]
+
+                # Create dataframe with single rows for std dev and mean
+                data = [None, None]
+                data[STD_DEV_ROW] = z_stdev_df.reset_index(drop=True)
+                data[MEAN_ROW] = z_mean_df.reset_index(drop=True)
+                
+                normalisation_df = pd.concat(data, axis=0)
+                normalisation_df.to_csv(normalisation_output_name, header=False, index=False)
+                
         else:
             print("Not saved due to zero length dataframe.")
         
@@ -557,7 +576,8 @@ def process_data_per_ticker(
         time_index: str = "seconds",
         features: str = ORDERBOOKS,
         scaling: bool = True,
-        archive: bool = True
+        archive: bool = True,
+        save_normalisation=True
 ) -> None:
     """
     Description:
@@ -567,12 +587,12 @@ def process_data_per_ticker(
     """
     
     tickers = set(map(
-        lambda x : x.split('_')[0],
+        lambda x: os.path.basename(x).split('_')[0],
         glob.glob(f"{input_path}/*.csv")
     ))
 
     for ticker in tickers:
-        print(f"Prcessing Ticker: {ticker}")
+        print(f"Processing Ticker: {ticker}")
         process_data(
             input_path=input_path,
             logs_path=logs_path,
@@ -582,7 +602,8 @@ def process_data_per_ticker(
             features=features,
             scaling=scaling,
             archive=archive,
-            ticker=ticker
+            ticker=ticker,
+            save_normalisation=save_normalisation
         )
 
 

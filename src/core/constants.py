@@ -13,6 +13,7 @@ DATA_PROCESS_LOGS = 'data/logs'
 # Data Types
 SCALED = 'scaled'
 UNSCALED = 'unscaled'
+NORMALISATION = 'normalisation'
 
 # Orderbook representations
 ORDERBOOKS = 'orderbooks'
@@ -29,6 +30,10 @@ LOBSTER_PRICE_SCALE_FACTOR = 10_000
 
 # LOB Simulator Path
 LOB_SIMULATOR_PATH = r"C:\Users\benhu\UCL\Term 3\HSBC\cpp-lob-simulator\build\Release"
+
+# Simulator constants
+MEAN_ROW = 0
+STD_DEV_ROW = 1
 
 # Process steps
 TEST = "TEST"
