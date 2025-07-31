@@ -32,6 +32,7 @@ def main(config: DictConfig):
         Process raw data from data/raw folder
             ++steps=["PROCESS_DATA"]
             ++representation="{ORDERBOOKS}" or "{ORDERFLOWS}"
+            ++scaling=True
         """
 
         ProcessDataUtils.runDataProcss(

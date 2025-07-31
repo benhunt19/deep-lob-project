@@ -19,7 +19,7 @@ from torch import tensor
 import gc
 
 from src.models.baseModel import BaseModel
-from src.core.generalUtils import weightLocation, nameModelRun
+from src.core.generalUtils import weightLocation, nameModelRun, exportLocation
 
 class DeepLOB_TF(BaseModel):
     """
@@ -121,6 +121,11 @@ class DeepLOB_TF(BaseModel):
     def saveWeights(self, run_id : str = "") -> None:
         name = nameModelRun(runID=run_id)
         self.model.save(weightLocation(self, name))
+        self.exportWeights(run_id)
+    
+    def exportWeights(self, run_id : str = "") -> None:
+        name = nameModelRun(runID=run_id)
+        self.model.export(exportLocation(self, name))
     
     def loadFromWeights(self, weightsPath) -> None:
         self.model.load_weights(weightsPath)

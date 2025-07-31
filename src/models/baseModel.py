@@ -36,6 +36,12 @@ class BaseModel(ABC):
     @abstractmethod
     def saveWeights(self):
         pass
+    
+    def exportWeights(self):
+        """
+        Alternative to save weights, here we want to save full binaries for use in cpp, mainly for tensorflow
+        """
+        pass
 
     # @abstractmethod
     def loadFromWeights(self, weightsPath: str) -> None:

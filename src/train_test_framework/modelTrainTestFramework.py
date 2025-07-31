@@ -113,8 +113,8 @@ class ModelTrainTestFramework:
                     cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                 x_test, y_test = cdl.getTestData()
                 preds = model.predict(x = x_test, y = y_test)
-                print(preds)
-                print(y_test)
+                # print(preds)
+                # print(y_test)
                 if meta['labelType'] == CATEGORICAL:
                     metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
                     metricsStrength = ProcessMetrics.CategoricalStrength(predictions=preds, actual=y_test)

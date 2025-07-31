@@ -22,6 +22,18 @@ def weightLocation(model, runName : str = ""):
         os.makedirs(filePath)
     return f"{filePath}/{model.name}_{runName}.{model.weightsFileFormat}"
 
+def exportLocation(model, runName : str = ""):
+    """
+    Description:
+        Single location for defining where model weights are stored
+    Parameters:
+        Model (Deep Learning model): The model to get the name from
+    """
+    filePath = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/{model.name}"
+    if not os.path.exists(filePath):
+        os.makedirs(filePath)
+    return f"{filePath}/{model.name}_{runName}"
+
 def processedDataLocation(ticker : str, scaling : bool, representation: str = ORDERBOOKS):
     """
     Description:

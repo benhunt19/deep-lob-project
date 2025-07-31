@@ -195,7 +195,7 @@ class CustomDataLoader:
         Description:
             Handle the procesing for creating categorical labels
         Parameters:
-            midChange (np.array): The diffs between the 
+            midChange (np.array): The diffs between the mide prices at the end of the window and lookForwardHorizon steps later...
             threshold (float): The threshold to use for the categorical selection {AUTO} by default, selected by Z score
         """
         
