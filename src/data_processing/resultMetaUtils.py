@@ -137,6 +137,34 @@ def deleteRunsFromResults(runIDs : list, dryRun : bool = True):
                 print(f"dryRun: True, {runID} would be deleted.")
         else:
             print("File not found.")
-            
+
+def getLiquidityData():
+    # average volume, top 10 levels
+    processed_dir = os.path.join(PROJECT_ROOT, 'data', 'processed')
+    tickers = [name for name in os.listdir(processed_dir) if os.path.isdir(os.path.join(processed_dir, name))]
+    print(tickers)
+    time_col = 0
+    avg_diffs = {}
+    liquidity_stats = {}
+    for ticker in tickers:
+        ob_dir = os.path.join(processed_dir, ticker, 'orderbooks', 'scaled')
+        if os.path.isdir(ob_dir):
+            csv_files = [f for f in os.listdir(ob_dir) if f.endswith('.csv')]
+            if csv_files:
+                first_csv = sorted(csv_files)[0]
+                csv_path = os.path.join(ob_dir, first_csv)
+                df_ob = pd.read_csv(csv_path)
+                # Compute the average difference between consecutive values in column 1 (time)
+                col1 = df_ob.iloc[:, time_col]
+                avg_diff = col1.diff().abs().mean()
+                print(f"Ticker: {ticker}, Average Update difference: {avg_diff}")
+                avg_diffs[ticker] = avg_diff
+        else:
+            print(f"Directory does not exist: {ob_dir}")
+    print(avg_diffs)
+    return avg_diffs
+        
+
 if __name__ == "__main__":
-    stageResultsByDate()
+    # stageResultsByDate()
+    getLiquidityData()
