@@ -13,8 +13,9 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
-from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS, MEAN_ROW, STD_DEV_ROW
-from src.core.generalUtils import processedDataLocation, normalisationDataLocation
+from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS, MEAN_ROW, STD_DEV_ROW
+from src.core.generalUtils import processedDataLocation, normalisationDataLocation, processDataFileNaming
+from src.data_processing.featureUtils import createOrderFlows, createOrderFixedVolume
 import polars as pl
 from pathlib import Path
 
@@ -69,7 +70,7 @@ def process_data(
         time_index (str): The time-index to use ("seconds" or "datetime").
         horizons (list): Forecasting horizons for labels.
         normalization_window (int): Window for rolling z-score normalization.
-        features (str): Whether to return 'orderbooks' or 'orderflows'.
+        features (str): Whether to return 'orderbooks', 'orderflows', 'orderfixedvol'
         scaling (bool): Whether to apply rolling z-score normalization.
         save_normalisation (bool): Save normalisation data!
     """
@@ -224,9 +225,6 @@ def process_data(
                 )
         df_orderbook = df_orderbook.drop(trading_halts_index)
         df_message = df_message.drop(trading_halts_index)
-        
-        # print("Orderbook size 3: ", len(df_orderbook))
-        # print(df_orderbook)
 
         # Remove crossed quotes.
         crossed_quotes_index = df_orderbook[
@@ -265,8 +263,7 @@ def process_data(
             df_message = df_message.loc[
                 (df_message["seconds"] >= 34200) & (df_message["seconds"] <= 57600)
                 ]
-            # print("Orderbook size 4: ", len(df_orderbook))
-            # print(df_orderbook)
+
             # Drop first and last 10 minutes of trading using seconds.
             market_open_seconds = market_open * 60 * 60 + 10 * 60
             market_close_seconds = market_close * 60 * 60 - 10 * 60
@@ -333,52 +330,27 @@ def process_data(
 
         if features == ORDERBOOKS:
             pass
+        
         elif features == ORDERFLOWS:
-            # Compute bid and ask multilevel orderflow.
-            ASK_prices = df_orderbook.loc[:, df_orderbook.columns.str.contains("ASKp")]
-            BID_prices = df_orderbook.loc[:, df_orderbook.columns.str.contains("BIDp")]
-            ASK_sizes = df_orderbook.loc[:, df_orderbook.columns.str.contains("ASKs")]
-            BID_sizes = df_orderbook.loc[:, df_orderbook.columns.str.contains("BIDs")]
-
-            ASK_price_changes = ASK_prices.diff().dropna().to_numpy()
-            BID_price_changes = BID_prices.diff().dropna().to_numpy()
-            ASK_size_changes = ASK_sizes.diff().dropna().to_numpy()
-            BID_size_changes = BID_sizes.diff().dropna().to_numpy()
-
-            ASK_sizes = ASK_sizes.to_numpy()
-            BID_sizes = BID_sizes.to_numpy()
-
-            ASK_OF = (
-                    (ASK_price_changes > 0.0) * (-ASK_sizes[:-1, :])
-                    + (ASK_price_changes == 0.0) * ASK_size_changes
-                    + (ASK_price_changes < 0) * ASK_sizes[1:, :]
-            )
-            BID_OF = (
-                    (BID_price_changes < 0.0) * (-BID_sizes[:-1, :])
-                    + (BID_price_changes == 0.0) * BID_size_changes
-                    + (BID_price_changes > 0) * BID_sizes[1:, :]
-            )
-
-            # Remove all price-volume features and add in orderflow.
-            df_orderbook = df_orderbook.drop(feature_names, axis=1).iloc[1:, :]
-            # print("In order flows")
-            mid_seconds_columns = list(df_orderbook.columns)
-            feature_names_raw = ["ASK_OF", "BID_OF"]
-            feature_names = []
-            for feature_name in feature_names_raw:
-                for i in range(1, levels + 1):
-                    feature_names += [feature_name + str(i)]
-            df_orderbook[feature_names] = np.concatenate([ASK_OF, BID_OF], axis=1)
-
-            # Re-order columns.
-            feature_names_reordered = [[]] * len(feature_names)
-            feature_names_reordered[::2] = feature_names[:levels]
-            feature_names_reordered[1::2] = feature_names[levels:]
-            feature_names = feature_names_reordered
-
-            df_orderbook = df_orderbook[mid_seconds_columns + feature_names]
+            df_orderbook, feature_names = createOrderFlows(orderbook=df_orderbook, levels=levels, feature_names=feature_names)
+        
+        elif features == ORDERFIXEDVOL:
+            if len(df_orderbook) > 0:
+                createOrderFixedVolume(
+                    orderbook=df_orderbook,
+                    num_ticks=30,
+                    ticker=ticker,
+                    scaling=scaling,
+                    features=features,
+                    date=str(date.date())
+                )
+                # early exit here, all handled in createOrderFixedVolume
+                continue
+            else:
+                print("Check data, skipped processing fixed volume due to zero length")
+        
         else:
-            raise ValueError(f"Features must be {ORDERBOOKS} or {ORDERFLOWS}.")
+            raise ValueError(f"Features must be {ORDERBOOKS}, {ORDERFLOWS}, {ORDERFIXEDVOL}")
 
         # Dynamic z-score normalization.
         orderbook_mean_df = pd.DataFrame(
@@ -469,10 +441,6 @@ def process_data(
         match = re.search(pattern, orderbook_name)
         
         # Removed to keep seconds in second format
-        # date_temp = match.group()
-        # df_orderbook.seconds = df_orderbook.apply(
-        #     lambda row: get_datetime_from_seconds(row["seconds"], date_temp), axis=1
-        # )
         
         # Drop elements which cannot be used for training.
         df_orderbook = df_orderbook.dropna()
@@ -481,19 +449,21 @@ def process_data(
         # Save processed files.
         # Get the processed data directory as a Path object
         
-        file_location = Path(processedDataLocation(ticker, scaling, representation=features))
+        # file_location = Path(processedDataLocation(ticker, scaling, representation=features))
         
         # If file_location is not absolute, make it relative to your project root
-        if not file_location.is_absolute():
-            project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
-            file_location = project_root / file_location
+        # if not file_location.is_absolute():
+            # project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
+            # file_location = project_root / file_location
             
         # Compose the output file name
-        fileName = f"{ticker}_{features}_{str(date.date())}.csv"
-        output_name = file_location / fileName
+        # fileName = f"{ticker}_{features}_{str(date.date())}.csv"
+        # output_name = file_location / fileName
         
         # Create directory if it doesn't exist
-        file_location.mkdir(parents=True, exist_ok=True)
+        # file_location.mkdir(parents=True, exist_ok=True)
+        
+        fileName, output_name = processDataFileNaming(ticker=ticker, scaling=scaling, date=str(date.date()), representation=features, extension='.csv')
         
         # Save the CSV in the processed data directory
         if len(df_orderbook) > 0:

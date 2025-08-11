@@ -31,11 +31,11 @@ class SimPrediction:
     labelType : str = CATEGORICAL
 
 def reviewPredictions(
-        predictions : list[SimPrediction],
-        fileName : str,
-        lookForwardHorizon : int,
-        labelType : str, 
-    ) -> None:
+    predictions : list[SimPrediction],
+    fileName : str,
+    lookForwardHorizon : int,
+    labelType : str, 
+    ) -> pd.DataFrame:
     f"""
     Description:
         Review model predictions
@@ -47,12 +47,11 @@ def reviewPredictions(
     """
     
     # Get file from fileName
-    
     orderBook = pl.read_csv(fileName, has_header=False).to_numpy()
-    
     timings = orderBook[:, 0]
     print(timings)
     
+    results = []
     for prediction in predictions:
         # process each prediction
         # Find the number of updates that occur during the time taken for this prediction
@@ -61,13 +60,13 @@ def reviewPredictions(
         # Count how many updates (rows) have a timestamp between start_time (exclusive) and end_time (inclusive)
         updates_during_timetaken = np.sum((timings > start_time) & (timings <= end_time))
         print(f"Prediction at index {prediction.index}: {updates_during_timetaken} updates during timeTaken={prediction.timeTaken}")
-        
-        
-        
-        
-    if labelType == CATEGORICAL:
-        pass
+        results.append({
+            "index": prediction.index,
+            "prediction": prediction.prediction,
+            "timeTaken": prediction.timeTaken,
+            "labelType": prediction.labelType,
+            "updatesDuringTimeTaken": updates_during_timetaken
+        })
     
-    elif labelType == REGRESSION:
-        pass
-    
+    df = pd.DataFrame(results)
+    return df

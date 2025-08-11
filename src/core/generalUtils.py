@@ -7,6 +7,7 @@ import subprocess
 from omegaconf import OmegaConf, DictConfig
 import json
 import numpy as np
+from pathlib import Path
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, NORMALISATION
 
@@ -45,6 +46,34 @@ def processedDataLocation(ticker : str, scaling : bool, representation: str = OR
     """
     scaled_unscaled = SCALED if scaling else UNSCALED
     return f"{PROJECT_ROOT}/{PROCESSED_DATA_PATH}/{ticker}/{representation}/{scaled_unscaled}"
+
+def processDataFileNaming(ticker : str, scaling : bool, date: str, representation: str = ORDERBOOKS, extension: str = '.csv'):
+    """
+    Description:
+        Single definition of processed data file handler and its location.
+    Parameters:
+        ticker (str): The name of the stock ticker.
+        scaling (bool): Is the data scaled or unscaled.
+        date (str): The date for the data file.
+        representation (str): The LOB representation ('orderbooks', 'orderflows',...).
+        extension (str): The file extension (default '.csv').
+    Returns:
+        tuple: (fileName, output_name) where fileName is the name of the file and output_name is the full path.
+    """
+    file_location = Path(processedDataLocation(ticker, scaling, representation=representation))
+    
+    # If file_location is not absolute, make it relative to your project root
+    if not file_location.is_absolute():
+        project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
+        file_location = project_root / file_location
+        
+    # Compose the output file name
+    fileName = f"{ticker}_{representation}_{date}{extension}"
+    output_name = file_location / fileName
+    
+    # Create directory if it doesn't exist
+    file_location.mkdir(parents=True, exist_ok=True)
+    return fileName, output_name
 
 def normalisationDataLocation(ticker : str, scaling : bool, representation: str = ORDERBOOKS):
     """

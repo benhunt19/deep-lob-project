@@ -3,7 +3,7 @@ from src.routers.lobSimulatorRouter import Simulator
 from src.routers.modelRouter import *
 
 from src.data_processing.resultMetaUtils import getBestIDs
-from src.core.constants import ORDERBOOKS, ORDERFLOWS, MEAN_ROW, STD_DEV_ROW, REGRESSION, CATEGORICAL
+from src.core.constants import ORDERBOOKS, ORDERFLOWS, MEAN_ROW, STD_DEV_ROW, REGRESSION, CATEGORICAL, RESULTS_CSVS
 from src.core.generalUtils import getWeightPathFromID, processedDataLocation, normalisationDataLocation, getResultPathFromID
 
 from src.simulator.simUtils import RunGlobals, SimPrediction, reviewPredictions
@@ -21,7 +21,7 @@ import json
 file_location = r'C:\Users\benhu\UCL\Term 3\HSBC\data\large\data_tqap\CSCO_2015-01-01_2015-03-31_10\output-2015\0\0\2\CSCO_2015-01-02_34200000_57600000_message_10.csv'
 file_location2 = r'C:\Users\benhu\UCL\Term 3\HSBC\deep-lob-project\data\processed\AAPL\orderbooks\unscaled\AAPL_orderbooks_2025-06-04.csv'
 normalisation_location =  r'C:\Users\benhu\UCL\Term 3\HSBC\deep-lob-project\data\processed\AAPL\orderbooks\scaled\normalisation\AAPL_orderbooks_2025-06-04.csv'
-num_orders = 1_000
+num_orders = 20_000
 
 normalisation = pd.read_csv(normalisation_location, header=None).to_numpy()
 mean = normalisation[MEAN_ROW]
@@ -113,4 +113,5 @@ if __name__ == "__main__":
     ob = Simulator(file_location2, num_orders)
     ob.startSimulation(work)
     
-    reviewPredictions(predictions=predictions, fileName=file_location2, lookForwardHorizon=lookForwardHorizon, labelType=CATEGORICAL)
+    df = reviewPredictions(predictions=predictions, fileName=file_location2, lookForwardHorizon=lookForwardHorizon, labelType=CATEGORICAL)
+    df.to_csv(f'{RESULTS_CSVS}/pythonSimData.csv', header=True)

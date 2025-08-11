@@ -32,7 +32,7 @@ class CustomDataLoader:
         rowLim: int = None,                 # The row limit number for
         trainTestSplit : float = None,      # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
         lookForwardHorizon :int = 10,       # The number of events to look forward after for labelling (prediction horizon)
-        representation: str = ORDERBOOKS,   # The order book representation, 'orderbooks', 'orderflows'
+        representation: str = ORDERBOOKS,   # The order book representation, 'orderbooks', 'orderflows', 'orderfixedvol'
         labelType: str = CATEGORICAL        # The label type, is it a 'REGRESSION' or a 'CATEGORICAL' definition
     ):
         self.ticker = ticker

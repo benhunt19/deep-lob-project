@@ -18,12 +18,14 @@ NORMALISATION = 'normalisation'
 # Orderbook representations
 ORDERBOOKS = 'orderbooks'
 ORDERFLOWS = 'orderflows'
+ORDERFIXEDVOL = 'orderfixedvol'
 
 # Weights location
 WEIGHTS_PATH = 'weights'
 
 # Results location
 RESULTS_PATH = 'results'
+RESULTS_CSVS = 'results/csv_outputs'
 
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000

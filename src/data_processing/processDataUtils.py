@@ -1,4 +1,4 @@
-from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS
+from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL
 from src.data_processing.processData import process_data, process_data_per_ticker
 
 class ProcessDataUtils:
@@ -51,6 +51,29 @@ class ProcessDataUtils:
                 archive=archive,
                 scaling=scaling,
                 features=ORDERFLOWS,
+            )
+        elif features == ORDERFIXEDVOL:
+            # First process ORDERBOOKS
+            # print("Processing ORDERBOOKS")
+            # process_data_per_ticker(
+            #     input_path=input_path,
+            #     logs_path=logs_path,
+            #     horizons=horizons,
+            #     normalization_window=normalization_window,
+            #     archive=False,
+            #     scaling=scaling,
+            #     features=ORDERBOOKS,
+            # )
+            print("PROCESSING ORDERFIXEDVOL")
+            # Then process the orderfixedvol
+            process_data_per_ticker(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=archive,
+                scaling=scaling,
+                features=ORDERFIXEDVOL,
             )
          
         
