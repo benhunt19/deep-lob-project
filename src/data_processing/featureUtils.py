@@ -5,11 +5,14 @@ from numpy.lib.stride_tricks import sliding_window_view
 from typing import Tuple, List
 import seaborn as sns
 from pathlib import Path
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 from datetime import datetime
 
 
 from src.core.generalUtils import processDataFileNaming
+from src.core.constants import NUMPY_EXTENSION, NUMPY_X_KEY, ORDERFIXEDVOL
 
 # Functions for creating features from data
 
@@ -78,19 +81,27 @@ def createOrderFixedVolume(
     date,
     windowSize=100,
     negativeBids=True,
-    num_ticks : int = 40,
-) -> Tuple[pd.DataFrame, List]:
-    """
+    num_ticks : int = 30,
+) -> None:
+    f"""
     Description:
         Create order fixed volume examples
+    Parameters:
+        orderbook (pd.DataFrame): Orderbook that has been initially been processed by (processData)
+        ticker (str): The ticker string for the required ticker
+        scaling (bool): Are we scaing the input data
+        features (str): Should be {ORDERFIXEDVOL}, required for naming
+        date (str): Required for naming yyyy-mm-dd
+        windowSize (int): How large to make the window (usually 100)
+        negativeBids (bool): Are the bids neagative (with the asks positive)
+        num_ticks (int): How many discrete ticks to have along the 'x-axis' for a datapoint
     """
     # Get new dataframe with tick size
     # create sliding windows
-    rowlim = 10_000
+    rowlim = 100_000
     orderbook = orderbook.iloc[:rowlim, :]
     
     ticks = processTicks(orderbook=orderbook, num_ticks=num_ticks)
-    print('ticks', ticks)
     
     arr = orderbook.values
     
@@ -133,6 +144,13 @@ def createOrderFixedVolume(
                     volumes[row_idx, tick_idx] += ask_price_to_size[tick]
                 if tick in bid_price_to_size:
                     volumes[row_idx, tick_idx] += bid_price_to_size[tick] * negativeBidMultiplier ## Multiply bids by minus one if flag set, to give contrast to asks
+            # Process scaling, divide by mean of entire frame
+            if scaling:
+                volumes_mean = np.mean(np.abs(volumes[volumes != 0])) if np.any(volumes != 0) else 1
+                if volumes_mean != 0:  # Avoid division by zero
+                    volumes /= volumes_mean
+                else:
+                    print(f"Warning: Zero mean volume in window {i}, skipping normalization")
 
         fixed_volumes.append(volumes)
 
@@ -141,30 +159,12 @@ def createOrderFixedVolume(
     # Print the full fixed_volumes array without truncation
     np.set_printoptions(threshold=np.inf, linewidth=np.inf)
     print(fixed_volumes[0])
-    import matplotlib.pyplot as plt
-
-    plt.figure(figsize=(18, 6))
-    # Plot 9 heatmaps, 100 apart
-    num_plots = 9
-    plt.figure(figsize=(24, 18))
-    for idx in range(num_plots):
-        plot_idx = idx * 100
-        if plot_idx < fixed_volumes.shape[0]:
-            plt.subplot(3, 3, idx + 1)
-            sns.heatmap(fixed_volumes[plot_idx], cmap="RdYlGn", center=0, annot=False)
-            plt.title(f"Heatmap of fixed_volumes[{plot_idx}]")
-            plt.xlabel("Tick Index")
-            plt.ylabel("Window Row Index")
-    plt.tight_layout()
-    plt.show()
-    np.set_printoptions(threshold=1000, linewidth=75)  # Reset to default after printing
-    print(fixed_volumes.shape)
     
     print("Saving numpy")
     saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
         
 
-def processTicks(orderbook: pd.DataFrame, num_ticks=40) -> pd.DataFrame:
+def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
     """
     Description:
         Process ticks
@@ -184,17 +184,24 @@ def processTicks(orderbook: pd.DataFrame, num_ticks=40) -> pd.DataFrame:
     print(f"The tick size is {tickSize}")
 
     # Compute midprice for each row
-    best_ask = ASK_prices.min(axis=1)
-    best_bid = BID_prices.max(axis=1)
-    midprice = (best_ask + best_bid) / 2
-
     half_ticks = num_ticks // 2
 
-    # For each row, generate 40 ticks centered at midprice
-    price_levels = np.array([
-        mid + ((np.arange(num_ticks) - half_ticks) * tickSize)
-        for mid in midprice.values
-    ])
+    best_ask = ASK_prices.min(axis=1)
+    best_bid = BID_prices.max(axis=1)
+
+    # For each row, generate price levels:
+    # - The first half (including the midpoint if odd) are at or below best_bid
+    # - The second half are above best_bid, spaced by tickSize
+
+    price_levels = []
+    for bid in best_bid.values:
+        # Lower half: up to and including best_bid
+        lower_levels = bid - np.arange(half_ticks - 1, -1, -1) * tickSize
+        # Upper half: continuing linearly above best_bid
+        upper_levels = bid + np.arange(1, num_ticks - half_ticks + 1) * tickSize
+        levels = np.concatenate([lower_levels, upper_levels])
+        price_levels.append(levels)
+    price_levels = np.array(price_levels)
 
     # Optionally round to int if desired
     price_levels = np.round(price_levels).astype(int)
@@ -210,10 +217,75 @@ def saveNumpy(array: np.ndarray, ticker: str, scaling: bool, features: str, date
         ticker (str): The ticker symbol associated with the data.
         scaling (bool): Indicates whether scaling has been applied to the data.
         features (str): The feature representation used for the data.
+        date (str): String of the date to add to file name
     """
-    extension = '.npz'
-    _, output_name = processDataFileNaming(ticker=ticker, scaling=scaling, representation=features, extension=extension, date=date)
-    np.savez_compressed(output_name, array=array)
+    # NUMPY_EXTENSION is '.npz'
+    # NUMPY_X_KEY is 'x'
+    _, output_name = processDataFileNaming(ticker=ticker, scaling=scaling, representation=features, extension=NUMPY_EXTENSION, date=date)
+    np.savez_compressed(output_name, **{NUMPY_X_KEY: array})
+    
+def plotExamples(fixed_volumes: np.ndarray):
+    """
+    Descripton:
+        Plot example 2d and 3d surfaces, revealing information about the representation
+    Parameters:
+        fixed_volumes (np.ndarray): Data to plot from
+    """
+    plt.figure(figsize=(18, 6))
+    # Plot 9 heatmaps, 100 apart
+    num_plots = 6
+    plt.figure(figsize=(24, 18))
+    for idx in range(num_plots):
+        plot_idx = idx * 600
+        if plot_idx < fixed_volumes.shape[0]:
+            plt.subplot(2, 3, idx + 1)
+            sns.heatmap(fixed_volumes[plot_idx], cmap="RdYlGn", center=0, annot=False)
+            # plt.title(f"Heatmap of fixed_volumes[{plot_idx}]")
+            # plt.xlabel("Tick Index")
+            plt.ylabel("Window Row Index")
+            # plt.xticks([])
+            plt.yticks([])
+            plt.gca().set_xticklabels([])
+    plt.tight_layout(pad=4.0)  # Increase padding between subplots
+    plt.subplots_adjust(top=0.80, bottom=0.05, left=0.05, right=0.95)  # Increase gap above top and below bottom
+    plt.tight_layout()
+    plt.show()
+    np.set_printoptions(threshold=1000, linewidth=75)  # Reset to default after printing
+    print(fixed_volumes.shape)
+    
+    # 3D plot of an example from fixed_volumes (surface)
+    example_idx = 0  # Change this to plot a different example
+    example = fixed_volumes[example_idx]
 
+    fig = plt.figure(figsize=(16, 9))
+    ax = fig.add_subplot(121, projection='3d')
+
+    x = np.arange(example.shape[1])
+    y = np.arange(example.shape[0])
+    X, Y = np.meshgrid(x, y)
+    Z = example
+
+    ax.plot_surface(X, Y, Z, cmap='RdYlGn')
+    ax.set_xlabel('Tick Index')
+    ax.set_ylabel('Window Row Index')
+    ax.set_zlabel('Volume')
+    ax.set_title('3D Surface Plot of an example Fixed Volume')
+
+    # 3D bar plot (vertical bars)
+    ax2 = fig.add_subplot(122, projection='3d')
+    xpos, ypos = X.ravel(), Y.ravel()
+    zpos = np.zeros_like(xpos)
+    dz = Z.ravel()
+    dx = dy = 0.8  # width of the bars
+
+    ax2.bar3d(xpos, ypos, zpos, dx, dy, dz, shade=True, color=plt.cm.RdYlGn((dz - dz.min()) / (np.ptp(dz) + 1e-9)))
+    ax2.set_xlabel('Tick Index')
+    ax2.set_ylabel('Window Row Index')
+    ax2.set_zlabel('Volume')
+    ax2.set_title('3D Bar Plot of an example Fixed Volume')
+
+    plt.tight_layout()
+    plt.show()
+    
 if __name__ == "__main__":
     pass

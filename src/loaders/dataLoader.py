@@ -11,7 +11,7 @@ from math import floor
 # import pyspark
 # from pyspark.sql import SparkSession
 
-from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
+from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL, REGRESSION, CATEGORICAL, NUMPY_EXTENSION, NUMPY_X_KEY
 from src.core.generalUtils import processedDataLocation
 
 # Some data specific constants
@@ -46,7 +46,7 @@ class CustomDataLoader:
         self.representation = representation
         self.labelType = labelType
         
-        assert self.representation in [ORDERBOOKS, ORDERFLOWS], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS})'
+        assert self.representation in [ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS}, {ORDERFIXEDVOL})'
         
         # Required in class
         self.fileLocations = None   # Array of file locations
@@ -55,7 +55,7 @@ class CustomDataLoader:
         self.x_test = None          # Test data
         self.y_test = None          # Test labels
 
-    def getFileLocations(self, dataLocation : str = None, date : str = None) -> list[str]:
+    def getFileLocations(self, dataLocation : str = None, date : str = None, extension : str = '.csv') -> list[str]:
         """
         Description:
             Get file locations for ticker, this is ORDERBOOK representation
@@ -66,7 +66,7 @@ class CustomDataLoader:
         if dataLocation is None:
             dataLocation = processedDataLocation(self.ticker, self.scaling, representation=ORDERBOOKS)
             
-        self.fileLocations = glob(dataLocation + f"/{self.ticker}*.csv")
+        self.fileLocations = glob(dataLocation + f"/{self.ticker}*{extension}")
                 
         if date is not None:
             self.fileLocations = list(filter(lambda location: date in location, self.fileLocations))
@@ -91,6 +91,7 @@ class CustomDataLoader:
         assert fileLocations is not None, "No file Locations provided, run self.getFileLocations()"
         
         # Get DataFrames from the CSVs
+
         print("Extracting data from files...")
         for csv in tqdm(fileLocations):
             df = pl.read_csv(csv, has_header=False).to_pandas()
@@ -99,9 +100,36 @@ class CustomDataLoader:
         self.globalFrame = pd.concat(all_data, axis=0, ignore_index=True)
         if dropCols is not None:
             self.globalFrame.drop(self.globalFrame.columns[dropCols], axis=1, inplace=True)
-            
+
         return self.globalFrame
 
+    def getFeaturesFromFilesDirect(self, fileLocations :list[str] = None):
+        """
+        Description:
+            Get raw data out of a presaved .npz file, already in the correct format
+        
+        """
+        
+        folder = processedDataLocation(self.ticker, self.scaling, representation=ORDERFIXEDVOL)
+        fileLocations = self.getFileLocations(dataLocation=folder, extension= NUMPY_EXTENSION)
+            
+        assert fileLocations is not None, "No file Locations provided, run self.getFileLocations()"
+        
+        print(fileLocations)
+        
+        all_data = []
+        for npz_file in fileLocations:
+            with np.load(npz_file, allow_pickle=True) as data:
+                values = data[NUMPY_X_KEY]
+                # values = np.expand_dims(values, axis=-1)
+                all_data.append(values)
+                
+        self.x = np.concatenate(all_data, axis=0)
+        self.x = np.expand_dims(self.x, axis=-1)  # (batchSize, horizon, features, 1)
+        print("self.x.shape", self.x.shape)
+        return self.x
+            
+        
     def getOrderFlowsFromFiles(self):
         """
         Description:
@@ -265,19 +293,33 @@ class CustomDataLoader:
             tensor (bool): Does the data need to be transformed into a tensor for the model to work
             date (bool): The date of data to retrieve from the process (can be null) (currently unused)
         """
-        self.getFileLocations()
-        self.getDataFromFiles()
+
         
         if self.representation == ORDERBOOKS:
-            self.dataFrameToFeatures()    
-        
-        self.dataFrameToLabelsRaw()
-        
-        if self.representation == ORDERFLOWS:
+            self.getFileLocations()
+            self.getDataFromFiles()
+            self.dataFrameToFeatures()
+            self.dataFrameToLabelsRaw() 
+                
+        elif self.representation == ORDERFLOWS:
+            self.getFileLocations()
+            self.getDataFromFiles()
+            self.dataFrameToLabelsRaw()
             self.getOrderFlowsFromFiles()
+        
+        elif self.representation == ORDERFIXEDVOL:
+            self.getFileLocations()
+            print(self.fileLocations)
+            self.getDataFromFiles()
+            self.dataFrameToLabelsRaw()
+            self.getFeaturesFromFilesDirect()
+        
+        else:
+            raise Exception("Representation not valid")
         
         if self.trainTestSplit is not None:
             self.splitDataTrainTest()
+        
         if tensor:
             self.xyToTensor()
         return self.x, self.y

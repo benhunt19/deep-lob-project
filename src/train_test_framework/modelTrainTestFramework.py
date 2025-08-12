@@ -99,7 +99,7 @@ class ModelTrainTestFramework:
                     self.logger.info("Started training...")
                     
                 try:
-                    print("Runnign training")
+                    print("Running training")
                     x, y = cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                     self.trainModel(model=model, x=x, y=y, meta=meta, run_id=run_id)
                     # Clear memory
@@ -112,6 +112,8 @@ class ModelTrainTestFramework:
                     # Need to run full process as not run in above
                     cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                 x_test, y_test = cdl.getTestData()
+                print('x_test.shape', x_test.shape)
+                print('y_test.shape', y_test.shape)
                 preds = model.predict(x = x_test, y = y_test)
                 # print(preds)
                 # print(y_test)

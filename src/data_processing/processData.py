@@ -449,20 +449,6 @@ def process_data(
         # Save processed files.
         # Get the processed data directory as a Path object
         
-        # file_location = Path(processedDataLocation(ticker, scaling, representation=features))
-        
-        # If file_location is not absolute, make it relative to your project root
-        # if not file_location.is_absolute():
-            # project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
-            # file_location = project_root / file_location
-            
-        # Compose the output file name
-        # fileName = f"{ticker}_{features}_{str(date.date())}.csv"
-        # output_name = file_location / fileName
-        
-        # Create directory if it doesn't exist
-        # file_location.mkdir(parents=True, exist_ok=True)
-        
         fileName, output_name = processDataFileNaming(ticker=ticker, scaling=scaling, date=str(date.date()), representation=features, extension='.csv')
         
         # Save the CSV in the processed data directory

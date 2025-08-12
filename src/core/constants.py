@@ -54,3 +54,7 @@ HYDRA_CONFIG_PATH = "config"
 # Label Type, regression or category
 REGRESSION = "REGRESSION"
 CATEGORICAL = "CATEGORICAL"
+
+# Numpy saved constants
+NUMPY_EXTENSION = '.npz'
+NUMPY_X_KEY = 'x'
