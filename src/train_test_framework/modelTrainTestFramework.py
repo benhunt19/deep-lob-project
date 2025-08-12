@@ -16,6 +16,7 @@ from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD
 from src.train_test_framework.metaMaker import ModelMetaMaker
 from src.routers.modelRouter import BaseModel, DeepLOB_PT, DeepLOB_TF, DeepLOB_JAX
 from src.train_test_framework.processMetrics import ProcessMetrics
+import os
 
 class ModelTrainTestFramework:
     """
@@ -133,7 +134,11 @@ class ModelTrainTestFramework:
                 resultsStore['metricsStrength'] = metricsStrength
 
             # Save resultsStore as JSON
-            results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/results_{run_id}.json"
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/{date_str}/results_{run_id}.json"
+            
+            # Create directory if it doesn't exist
+            os.makedirs(f"{PROJECT_ROOT}/{RESULTS_PATH}/{date_str}", exist_ok=True)
             with open(results_path, "w") as f:
                 # If resultsStore is DictConfig, convert to plain dict before saving
                 results_store_dict = makeJsonSerializable(resultsStore)
