@@ -42,10 +42,13 @@ class DeepLOBREG_TF(DeepLOB_TF):
         conv_first1 = Conv2D(32, (4, 1), padding='same')(conv_first1)
         conv_first1 = LeakyReLU(alpha=0.01)(conv_first1)
 
-        if self.shape[1] == 20:
-            conv_first1 = Conv2D(32, (1, 5))(conv_first1) # needed if using orderflows, need to add logic
+        book_depth = self.shape[1]
+        if book_depth in [20, 40]:
+            kernel_width = 5 if book_depth == 20 else 10
         else:
-            conv_first1 = Conv2D(32, (1, 10))(conv_first1)
+            # For other book depths, use a kernel that covers about 1/4 to 1/3 of the depth
+            kernel_width = max(2, book_depth // 4)
+        conv_first1 = Conv2D(32, (1, kernel_width))(conv_first1)
         
         conv_first1 = LeakyReLU(alpha=0.01)(conv_first1)
         conv_first1 = Conv2D(32, (4, 1), padding='same')(conv_first1)
