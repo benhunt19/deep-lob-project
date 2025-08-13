@@ -1,0 +1,67 @@
+{
+    "run_id": "6winK3a2",
+    "datetime": "2025-08-12 12:59:56",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                30,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 5,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3406065458913022,
+        "precision": 0.33668913763108144,
+        "recall": 0.3389203610614089,
+        "f1": 0.33088893309864736,
+        "confusion_matrix": [
+            [
+                842,
+                851,
+                660
+            ],
+            [
+                1579,
+                1702,
+                1566
+            ],
+            [
+                956,
+                976,
+                859
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3422101069406584,
+        "coverage@>0.4": 0.9546591932739465,
+        "accuracy@>0.5": 0.3473460721868365,
+        "coverage@>0.5": 0.7071364227805025,
+        "accuracy@>0.6": 0.3545694200351494,
+        "coverage@>0.6": 0.4556100490441397,
+        "accuracy@>0.7": 0.34813084112149534,
+        "coverage@>0.7": 0.25703132819537583,
+        "accuracy@>0.8": 0.3320964749536178,
+        "coverage@>0.8": 0.10789710739665699,
+        "accuracy@>0.9": 0.21022727272727273,
+        "coverage@>0.9": 0.01761585426884196
+    }
+}

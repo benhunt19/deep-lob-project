@@ -1,0 +1,66 @@
+{
+    "run_id": "THcWMARU",
+    "datetime": "2025-07-28 19:39:12",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 200000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL"
+    },
+    "metrics": {
+        "accuracy": 0.0522,
+        "precision": 0.017400000000000002,
+        "recall": 0.3333333333333333,
+        "f1": 0.03307356015966546,
+        "confusion_matrix": [
+            [
+                1044,
+                0,
+                0
+            ],
+            [
+                17838,
+                0,
+                0
+            ],
+            [
+                1118,
+                0,
+                0
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": null,
+        "coverage@>0.4": 0.0,
+        "accuracy@>0.5": null,
+        "coverage@>0.5": 0.0,
+        "accuracy@>0.6": null,
+        "coverage@>0.6": 0.0,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "run_id": "vxPBLW7s",
+    "datetime": "2025-07-28 15:32:57",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {},
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 5,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 200000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 5000,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL"
+    },
+    "metrics": {
+        "accuracy": 0.52345,
+        "precision": 0.17448333333333332,
+        "recall": 0.3333333333333333,
+        "f1": 0.22906341965057378,
+        "confusion_matrix": [
+            [
+                0,
+                4640,
+                0
+            ],
+            [
+                0,
+                10469,
+                0
+            ],
+            [
+                0,
+                4891,
+                0
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": null,
+        "coverage@>0.4": 0.0,
+        "accuracy@>0.5": null,
+        "coverage@>0.5": 0.0,
+        "accuracy@>0.6": null,
+        "coverage@>0.6": 0.0,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}
