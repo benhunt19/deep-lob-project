@@ -23,6 +23,9 @@ def main(config: DictConfig):
             ++ticker='["MSFT"]'
             ++numEpoch=3
             ++representation="{ORDERFLOWS}"
+            ++model="deepLOBREG_TF"
+            ++rowLim=100000
+            ++labelType="CATEGORICAL"
         """
 
         runFramework(config=config)
@@ -33,6 +36,7 @@ def main(config: DictConfig):
             ++steps=["PROCESS_DATA"]
             ++representation="{ORDERBOOKS}", "{ORDERFLOWS}, {ORDERFIXEDVOL}, {ORDERVOL}"
             ++scaling=True
+            ++rowLim=250000
         """
 
         ProcessDataUtils.runDataProcss(
