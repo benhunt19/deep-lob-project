@@ -13,9 +13,9 @@ from datetime import datetime, time
 import numpy as np
 import pandas as pd
 
-from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS, MEAN_ROW, STD_DEV_ROW
+from src.core.constants import SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, PROJECT_ROOT, RAW_DATA_PATH, DATA_PROCESS_LOGS, MEAN_ROW, STD_DEV_ROW
 from src.core.generalUtils import processedDataLocation, normalisationDataLocation, processDataFileNaming
-from src.data_processing.featureUtils import createOrderFlows, createOrderFixedVolume
+from src.data_processing.featureUtils import createOrderFlows, createOrderFixedVolume, createOrderVolume
 import polars as pl
 from pathlib import Path
 
@@ -30,7 +30,8 @@ def process_data(
         scaling: bool = True,
         archive: bool = True,
         ticker = None,
-        save_normalisation = True
+        save_normalisation = True,
+        rowLim=None
 ) -> None:
     """
     Function to pre-process LOBSTER data. The data must be stored in the input_path directory as 'daily message LOB' and 'orderbook' files.
@@ -129,10 +130,8 @@ def process_data(
     nsamples_df = pd.DataFrame()
     
     for orderbook_name in csv_orderbook:
-        # print('orderbook_name',orderbook_name )
         
         ticker = Path(orderbook_name).stem.split('_')[0]
-        # print("Processing ticker:", ticker)
 
         # Read orderbook files and keep a record of problematic files.
         df_orderbook = None
@@ -160,9 +159,6 @@ def process_data(
         df_orderbook.columns = (
             feature_names  # Rename the columns of the orderbook dataframe.
         )
-        
-        # print("Orderbook size 1: ", len(df_orderbook))
-        # print(df_orderbook)
 
         # Divide prices by 10000.
         target_columns = [col for col in df_orderbook.columns if "ASKp" in col or "BIDp" in col]
@@ -328,30 +324,13 @@ def process_data(
                 tick_size,
             ]
 
-        if features == ORDERBOOKS:
-            pass
-        
-        elif features == ORDERFLOWS:
-            df_orderbook, feature_names = createOrderFlows(orderbook=df_orderbook, levels=levels, feature_names=feature_names)
-        
-        elif features == ORDERFIXEDVOL:
-            if len(df_orderbook) > 0:
-                createOrderFixedVolume(
-                    orderbook=df_orderbook,
-                    num_ticks=30,
-                    ticker=ticker,
-                    scaling=scaling,
-                    features=features,
-                    date=str(date.date())
-                )
-                # early exit here, all handled in createOrderFixedVolume
-                continue
-            else:
-                print("Check data, skipped processing fixed volume due to zero length")
-        
-        else:
-            raise ValueError(f"Features must be {ORDERBOOKS}, {ORDERFLOWS}, {ORDERFIXEDVOL}")
-
+        if features == ORDERFLOWS:
+            df_orderbook, feature_names = createOrderFlows(
+                orderbook=df_orderbook,
+                levels=levels,
+                feature_names=feature_names
+            )
+            
         # Dynamic z-score normalization.
         orderbook_mean_df = pd.DataFrame(
             df_orderbook[feature_names].mean().values.reshape(-1, len(feature_names)),
@@ -407,7 +386,9 @@ def process_data(
             z_stdev_df = z_stdev_df.loc[z_stdev_df.index.repeat(len(df_orderbook))]
             z_mean_df.index = df_orderbook.index
             z_stdev_df.index = df_orderbook.index
-            if scaling is True:
+            
+            if scaling and features in [ORDERBOOKS, ORDERFLOWS]:
+                print("Applying scaling from process_data")
                 df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
 
             # Roll forward by dropping first rows and adding most recent mean and mean2.
@@ -453,7 +434,42 @@ def process_data(
         
         # Save the CSV in the processed data directory
         if len(df_orderbook) > 0:
-            df_orderbook.to_csv(output_name, header=False, index=False)
+            print(df_orderbook)
+            
+            if features in [ORDERBOOKS, ORDERFLOWS]:
+                df_orderbook.to_csv(output_name, header=False, index=False)
+            
+            elif features == ORDERVOL:
+                if len(df_orderbook) > 0:
+                    createOrderVolume(
+                        orderbook=df_orderbook,
+                        ticker=ticker,
+                        scaling=scaling,
+                        features=features,
+                        date=str(date.date()),
+                        rowLim=rowLim
+                    )
+                else:
+                    print("Check data, skipped processing fixed volume due to zero length")
+            
+            elif features == ORDERFIXEDVOL:
+                if len(df_orderbook) > 0:
+                    createOrderFixedVolume(
+                        orderbook=df_orderbook,
+                        num_ticks=30,
+                        ticker=ticker,
+                        scaling=scaling,
+                        features=features,
+                        date=str(date.date()),
+                        rowLim=rowLim
+                    )
+                else:
+                    print("Check data, skipped processing fixed volume due to zero length")
+            
+            else:
+                raise ValueError(f"Features must be {ORDERBOOKS}, {ORDERFLOWS}, {ORDERVOL}, {ORDERFIXEDVOL}")
+
+            
             print(f"Saving: {fileName}")
             
             # Handle saving normalisation
@@ -533,7 +549,8 @@ def process_data_per_ticker(
         features: str = ORDERBOOKS,
         scaling: bool = True,
         archive: bool = True,
-        save_normalisation=True
+        save_normalisation=True,
+        rowLim=None
 ) -> None:
     """
     Description:
@@ -559,7 +576,8 @@ def process_data_per_ticker(
             scaling=scaling,
             archive=archive,
             ticker=ticker,
-            save_normalisation=save_normalisation
+            save_normalisation=save_normalisation,
+            rowLim=rowLim
         )
 
 

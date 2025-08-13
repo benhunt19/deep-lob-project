@@ -18,6 +18,7 @@ NORMALISATION = 'normalisation'
 # Orderbook representations
 ORDERBOOKS = 'orderbooks'
 ORDERFLOWS = 'orderflows'
+ORDERVOL = 'ordervol'
 ORDERFIXEDVOL = 'orderfixedvol'
 
 # Weights location

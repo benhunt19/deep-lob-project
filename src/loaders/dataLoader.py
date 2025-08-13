@@ -11,7 +11,7 @@ from math import floor
 # import pyspark
 # from pyspark.sql import SparkSession
 
-from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL, REGRESSION, CATEGORICAL, NUMPY_EXTENSION, NUMPY_X_KEY
+from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, REGRESSION, CATEGORICAL, NUMPY_EXTENSION, NUMPY_X_KEY
 from src.core.generalUtils import processedDataLocation
 
 # Some data specific constants
@@ -46,7 +46,7 @@ class CustomDataLoader:
         self.representation = representation
         self.labelType = labelType
         
-        assert self.representation in [ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS}, {ORDERFIXEDVOL})'
+        assert self.representation in [ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL, ORDERVOL], f'representation not valid, please review ({ORDERBOOKS}, {ORDERFLOWS}, {ORDERFIXEDVOL}, {ORDERVOL})'
         
         # Required in class
         self.fileLocations = None   # Array of file locations
@@ -103,14 +103,13 @@ class CustomDataLoader:
 
         return self.globalFrame
 
-    def getFeaturesFromFilesDirect(self, fileLocations :list[str] = None):
+    def getFeaturesFromFilesDirect(self, fileLocations :list[str] = None, representation : str = ORDERVOL):
         """
         Description:
             Get raw data out of a presaved .npz file, already in the correct format
-        
         """
         
-        folder = processedDataLocation(self.ticker, self.scaling, representation=ORDERFIXEDVOL)
+        folder = processedDataLocation(self.ticker, self.scaling, representation=representation)
         fileLocations = self.getFileLocations(dataLocation=folder, extension= NUMPY_EXTENSION)
             
         assert fileLocations is not None, "No file Locations provided, run self.getFileLocations()"
@@ -121,7 +120,6 @@ class CustomDataLoader:
         for npz_file in fileLocations:
             with np.load(npz_file, allow_pickle=True) as data:
                 values = data[NUMPY_X_KEY]
-                # values = np.expand_dims(values, axis=-1)
                 all_data.append(values)
                 
         self.x = np.concatenate(all_data, axis=0)
@@ -129,7 +127,6 @@ class CustomDataLoader:
         print("self.x.shape", self.x.shape)
         return self.x
             
-        
     def getOrderFlowsFromFiles(self):
         """
         Description:
@@ -293,26 +290,25 @@ class CustomDataLoader:
             tensor (bool): Does the data need to be transformed into a tensor for the model to work
             date (bool): The date of data to retrieve from the process (can be null) (currently unused)
         """
-
+        self.getFileLocations()
+        self.getDataFromFiles()
         
         if self.representation == ORDERBOOKS:
-            self.getFileLocations()
-            self.getDataFromFiles()
             self.dataFrameToFeatures()
             self.dataFrameToLabelsRaw() 
                 
         elif self.representation == ORDERFLOWS:
-            self.getFileLocations()
-            self.getDataFromFiles()
             self.dataFrameToLabelsRaw()
             self.getOrderFlowsFromFiles()
         
+        elif self.representation == ORDERVOL:
+            self.dataFrameToLabelsRaw()
+            self.getFeaturesFromFilesDirect(representation=self.representation)
+        
         elif self.representation == ORDERFIXEDVOL:
-            self.getFileLocations()
-            print(self.fileLocations)
             self.getDataFromFiles()
             self.dataFrameToLabelsRaw()
-            self.getFeaturesFromFilesDirect()
+            self.getFeaturesFromFilesDirect(representation=self.representation)
         
         else:
             raise Exception("Representation not valid")
@@ -322,6 +318,7 @@ class CustomDataLoader:
         
         if tensor:
             self.xyToTensor()
+        
         return self.x, self.y
     
     def getTestData(self):

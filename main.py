@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 
 from src.train_test_framework.runFramework import runFramework
 from src.data_processing.processDataUtils import ProcessDataUtils
-from src.core.constants import PROJECT_ROOT, HYDRA_CONFIG_PATH, TRAIN, TEST, PROCESS_DATA, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL
+from src.core.constants import PROJECT_ROOT, HYDRA_CONFIG_PATH, TRAIN, TEST, PROCESS_DATA, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL
 
 @hydra.main(config_path=f"{PROJECT_ROOT}/{HYDRA_CONFIG_PATH}", config_name="config", version_base=None)
 def main(config: DictConfig):
@@ -31,14 +31,15 @@ def main(config: DictConfig):
         f"""
         Process raw data from data/raw folder
             ++steps=["PROCESS_DATA"]
-            ++representation="{ORDERBOOKS}", "{ORDERFLOWS}, {ORDERFIXEDVOL}"
+            ++representation="{ORDERBOOKS}", "{ORDERFLOWS}, {ORDERFIXEDVOL}, {ORDERVOL}"
             ++scaling=True
         """
 
         ProcessDataUtils.runDataProcss(
             features=config.representation,
             scaling=config.scaling,
-            archive=config.archive
+            archive=config.archive,
+            rowLim=config.rowLim
         )
 
 if __name__ == "__main__":

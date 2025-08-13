@@ -1,4 +1,4 @@
-from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS, ORDERFIXEDVOL
+from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL
 from src.data_processing.processData import process_data, process_data_per_ticker
 
 class ProcessDataUtils:
@@ -17,7 +17,8 @@ class ProcessDataUtils:
         normalization_window=1,
         archive=True,
         scaling=True,
-        features=ORDERBOOKS
+        features=ORDERBOOKS,
+        rowLim=None
     ):
         # Just process orderbooks
         if features == ORDERBOOKS:
@@ -28,7 +29,8 @@ class ProcessDataUtils:
                 normalization_window=normalization_window,
                 archive=archive,
                 scaling=scaling,
-                features=ORDERBOOKS
+                features=ORDERBOOKS,
+                rowLim=rowLim
             )
         # Process Orderflows - both flows and books
         elif features == ORDERFLOWS:
@@ -41,6 +43,7 @@ class ProcessDataUtils:
                 archive=False,
                 scaling=scaling,
                 features=ORDERBOOKS,
+                rowLim=rowLim
             )
             # Then process the orderflows
             process_data_per_ticker(
@@ -51,7 +54,35 @@ class ProcessDataUtils:
                 archive=archive,
                 scaling=scaling,
                 features=ORDERFLOWS,
+                rowLim=rowLim
             )
+        
+        elif features == ORDERVOL:
+            # First process ORDERBOOKS
+            # print("Processing ORDERBOOKS")
+            # process_data_per_ticker(
+            #     input_path=input_path,
+            #     logs_path=logs_path,
+            #     horizons=horizons,
+            #     normalization_window=normalization_window,
+            #     archive=False,
+            #     scaling=scaling,
+            #     features=ORDERBOOKS,
+            #     rowLim=rowLim
+            # )
+            print("PROCESSING ORDERVOL")
+            # Then process the orderfixedvol
+            process_data_per_ticker(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=archive,
+                scaling=scaling,
+                features=ORDERVOL,
+                rowLim=rowLim
+            )
+            
         elif features == ORDERFIXEDVOL:
             # First process ORDERBOOKS
             # print("Processing ORDERBOOKS")
@@ -63,6 +94,7 @@ class ProcessDataUtils:
             #     archive=False,
             #     scaling=scaling,
             #     features=ORDERBOOKS,
+            #     rowLim=rowLim
             # )
             print("PROCESSING ORDERFIXEDVOL")
             # Then process the orderfixedvol
@@ -74,6 +106,7 @@ class ProcessDataUtils:
                 archive=archive,
                 scaling=scaling,
                 features=ORDERFIXEDVOL,
+                rowLim=rowLim
             )
          
         

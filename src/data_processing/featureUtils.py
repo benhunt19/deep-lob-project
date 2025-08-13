@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 from src.core.generalUtils import processDataFileNaming
-from src.core.constants import NUMPY_EXTENSION, NUMPY_X_KEY, ORDERFIXEDVOL
+from src.core.constants import NUMPY_EXTENSION, NUMPY_X_KEY, ORDERFIXEDVOL, ORDERVOL, ORDERFLOWS
 
 # Functions for creating features from data
 
@@ -55,8 +55,7 @@ def createOrderFlows(orderbook: pd.DataFrame, levels: int, feature_names) -> Tup
 
     # Remove all price-volume features and add in orderflow.
     orderbook = orderbook.drop(feature_names, axis=1).iloc[1:, :]
-    # print("In order flows")
-    mid_seconds_columns = list(orderbook.columns)
+
     feature_names_raw = ["ASK_OF", "BID_OF"]
     feature_names = []
     for feature_name in feature_names_raw:
@@ -72,6 +71,81 @@ def createOrderFlows(orderbook: pd.DataFrame, levels: int, feature_names) -> Tup
 
     return orderbook, feature_names
 
+# ordervol
+def createOrderVolume(
+    orderbook: pd.DataFrame,
+    ticker: str,
+    scaling: bool,
+    features: str,
+    date,
+    windowSize=100,
+    negativeBids=False,
+    rowLim=None
+) -> None:
+    f"""
+    Description:
+        Create order volume examples
+    Parameters:
+        orderbook (pd.DataFrame): Orderbook that has been initially been processed by (processData)
+        ticker (str): The ticker string for the required ticker
+        scaling (bool): Are we scaing the input data
+        features (str): Should be {ORDERVOL}, required for naming
+        date (str): Required for naming yyyy-mm-dd
+        windowSize (int): How large to make the window (usually 100)
+        negativeBids (bool): Are the bids neagative (with the asks positive)
+    """
+    # Get new dataframe with tick size
+    # create sliding windows
+    if rowLim is not None:
+        orderbook = orderbook.iloc[:rowLim, :]
+    print(orderbook)
+    
+    arr = orderbook.values
+    
+    # Get sliding windows of data, will be 
+    windows = sliding_window_view(arr, window_shape=(windowSize, arr.shape[1]), axis=(0, 1))
+    windows = windows[:, 0, :, :]  # shape: (datasize - windowSize + 1, windowSize, 42)
+    print(f"Windows shape: {windows.shape}")
+    
+    fixed_volumes = []
+    columns = orderbook.columns
+    # Get indexes of relevant columns
+    ask_size_idx = np.array([columns.get_loc(col) for col in columns if "ASKs" in col])
+    bid_size_idx = np.array([columns.get_loc(col) for col in columns if "BIDs" in col])
+    
+    negativeBidMultiplier = -1 if negativeBids else 1
+    
+    for i, window in enumerate(windows):
+
+        # Extract ASK and BID sizes from the snapshot
+        ask_sizes = window[:, ask_size_idx]
+        bid_sizes = window[:, bid_size_idx]
+        
+        # Initialize volumes with the right shape based on orderbook_depth
+        volumes = np.zeros((window.shape[0], ask_sizes.shape[1] + bid_sizes.shape[1]))
+        
+        # Process all rows at once using NumPy operations
+        bid_volumes = bid_sizes * negativeBidMultiplier  # Apply multiplier to all bid sizes
+        
+        # Flip the bid volumes along the second axis (columns) and hstack with ask sizes
+        volumes = np.hstack((np.flip(bid_volumes, axis=1), ask_sizes))
+        
+        if scaling:
+            non_neg = volumes[volumes != 0]
+            mean = np.mean(np.abs(non_neg))
+            volumes = volumes/mean
+
+        fixed_volumes.append(volumes)
+
+    fixed_volumes = np.array(fixed_volumes)
+        
+    # Print the full fixed_volumes array without truncation
+    np.set_printoptions(threshold=np.inf, linewidth=np.inf)
+    print(fixed_volumes[0])
+    
+    print("Saving numpy")
+    saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
+     
 # orderfixedvols
 def createOrderFixedVolume(
     orderbook: pd.DataFrame,
@@ -82,6 +156,7 @@ def createOrderFixedVolume(
     windowSize=100,
     negativeBids=True,
     num_ticks : int = 30,
+    rowLim=None
 ) -> None:
     f"""
     Description:
@@ -95,11 +170,12 @@ def createOrderFixedVolume(
         windowSize (int): How large to make the window (usually 100)
         negativeBids (bool): Are the bids neagative (with the asks positive)
         num_ticks (int): How many discrete ticks to have along the 'x-axis' for a datapoint
+        rowLim (int): Optional limit for the length of the orderbook
     """
     # Get new dataframe with tick size
     # create sliding windows
-    rowlim = 100_000
-    orderbook = orderbook.iloc[:rowlim, :]
+    if rowLim is not None:
+        orderbook = orderbook.iloc[:rowLim, :]
     
     ticks = processTicks(orderbook=orderbook, num_ticks=num_ticks)
     
@@ -162,7 +238,6 @@ def createOrderFixedVolume(
     print("Saving numpy")
     saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
         
-
 def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
     """
     Description:
