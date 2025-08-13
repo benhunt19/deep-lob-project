@@ -145,12 +145,11 @@ def createOrderFixedVolume(
                 if tick in bid_price_to_size:
                     volumes[row_idx, tick_idx] += bid_price_to_size[tick] * negativeBidMultiplier ## Multiply bids by minus one if flag set, to give contrast to asks
             # Process scaling, divide by mean of entire frame
-            if scaling:
-                volumes_mean = np.mean(np.abs(volumes[volumes != 0])) if np.any(volumes != 0) else 1
-                if volumes_mean != 0:  # Avoid division by zero
-                    volumes /= volumes_mean
-                else:
-                    print(f"Warning: Zero mean volume in window {i}, skipping normalization")
+        
+        if scaling:
+            non_neg = volumes[volumes != 0]
+            mean = np.mean(np.abs(non_neg))
+            volumes = volumes/mean
 
         fixed_volumes.append(volumes)
 
@@ -180,7 +179,7 @@ def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
     bid_diffs = BID_prices.diff().abs().values.flatten()
     ask_diffs = ask_diffs[(ask_diffs > 0) & ~np.isnan(ask_diffs)]
     bid_diffs = bid_diffs[(bid_diffs > 0) & ~np.isnan(bid_diffs)]
-    tickSize = min(ask_diffs.min(initial=np.inf), bid_diffs.min(initial=np.inf))
+    tickSize = int(min(ask_diffs.min(initial=np.inf), bid_diffs.min(initial=np.inf)))
     print(f"The tick size is {tickSize}")
 
     # Compute midprice for each row

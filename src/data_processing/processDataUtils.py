@@ -54,16 +54,16 @@ class ProcessDataUtils:
             )
         elif features == ORDERFIXEDVOL:
             # First process ORDERBOOKS
-            print("Processing ORDERBOOKS")
-            process_data_per_ticker(
-                input_path=input_path,
-                logs_path=logs_path,
-                horizons=horizons,
-                normalization_window=normalization_window,
-                archive=False,
-                scaling=scaling,
-                features=ORDERBOOKS,
-            )
+            # print("Processing ORDERBOOKS")
+            # process_data_per_ticker(
+            #     input_path=input_path,
+            #     logs_path=logs_path,
+            #     horizons=horizons,
+            #     normalization_window=normalization_window,
+            #     archive=False,
+            #     scaling=scaling,
+            #     features=ORDERBOOKS,
+            # )
             print("PROCESSING ORDERFIXEDVOL")
             # Then process the orderfixedvol
             process_data_per_ticker(
