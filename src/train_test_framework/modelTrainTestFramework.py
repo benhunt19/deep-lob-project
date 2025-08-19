@@ -101,7 +101,7 @@ class ModelTrainTestFramework:
                 maxFiles=meta['maxFiles'],
                 rowLim=meta['rowLim'],
                 trainTestSplit=meta['trainTestSplit'],
-                lookForwardHorizon=meta["lookForwardHorizon"]
+                lookForwardHorizon=meta["lookForwardHorizon"],
                 representation=meta['representation'],
                 labelType=meta['labelType'],
             )
