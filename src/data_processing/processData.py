@@ -27,6 +27,7 @@ def process_data(
         normalization_window: int,
         time_index: str = "seconds",
         features: str = ORDERBOOKS,
+        additional_features : list = None,
         scaling: bool = True,
         archive: bool = True,
         ticker = None,
@@ -71,10 +72,13 @@ def process_data(
         time_index (str): The time-index to use ("seconds" or "datetime").
         horizons (list): Forecasting horizons for labels.
         normalization_window (int): Window for rolling z-score normalization.
-        features (str): Whether to return 'orderbooks', 'orderflows', 'orderfixedvol'
+        features (str): Whether to return 'orderbooks', 'orderflows', 'ordervol', 'orderfixedvol
+        additional_features (list): piggy back other features onto an existing run, saves efficiency and repeated, must be 'ordervol' or 'orderfixedvol'
         scaling (bool): Whether to apply rolling z-score normalization.
         save_normalisation (bool): Save normalisation data!
     """
+    
+    print(f"Proecsing {features}")
     
     print(f"Checking CSV files from: {input_path}")
 
@@ -130,6 +134,8 @@ def process_data(
     nsamples_df = pd.DataFrame()
     
     for orderbook_name in csv_orderbook:
+        
+        print(f"ORDERBOOK NAME: {orderbook_name}")
         
         ticker = Path(orderbook_name).stem.split('_')[0]
 
@@ -387,8 +393,10 @@ def process_data(
             z_mean_df.index = df_orderbook.index
             z_stdev_df.index = df_orderbook.index
             
+            df_orderbook_pre_scaled = df_orderbook.copy()
+            
             if scaling and features in [ORDERBOOKS, ORDERFLOWS]:
-                print("Applying scaling from process_data")
+                print("Scaling df_orderbook")
                 df_orderbook[feature_names] = (df_orderbook[feature_names] - z_mean_df) / z_stdev_df  # Apply normalization.
 
             # Roll forward by dropping first rows and adding most recent mean and mean2.
@@ -439,32 +447,35 @@ def process_data(
             if features in [ORDERBOOKS, ORDERFLOWS]:
                 df_orderbook.to_csv(output_name, header=False, index=False)
             
-            elif features == ORDERVOL:
+            if additional_features is not None and ORDERVOL in additional_features:
+                
                 if len(df_orderbook) > 0:
+                    print("RUNNING createOrderVolume")
                     createOrderVolume(
-                        orderbook=df_orderbook,
+                        orderbook=df_orderbook_pre_scaled,
                         ticker=ticker,
                         scaling=scaling,
-                        features=features,
+                        features=ORDERVOL,
                         date=str(date.date()),
                         rowLim=rowLim
                     )
                 else:
-                    print("Check data, skipped processing fixed volume due to zero length")
+                    print(f"Check data, skipped processing fixed volume due to zero length {ORDERVOL}")
             
-            elif features == ORDERFIXEDVOL:
+            if additional_features is not None and ORDERFIXEDVOL in additional_features:
                 if len(df_orderbook) > 0:
+                    print("RUNNING createOrderFixedVolume")
                     createOrderFixedVolume(
-                        orderbook=df_orderbook,
+                        orderbook=df_orderbook_pre_scaled,
                         num_ticks=20,
                         ticker=ticker,
                         scaling=scaling,
-                        features=features,
+                        features=ORDERFIXEDVOL,
                         date=str(date.date()),
                         rowLim=rowLim
                     )
                 else:
-                    print("Check data, skipped processing fixed volume due to zero length")
+                    print(f"Check data, skipped processing fixed volume due to zero length {ORDERFIXEDVOL}")
             
             else:
                 raise ValueError(f"Features must be {ORDERBOOKS}, {ORDERFLOWS}, {ORDERVOL}, {ORDERFIXEDVOL}")
@@ -547,6 +558,7 @@ def process_data_per_ticker(
         normalization_window: int,
         time_index: str = "seconds",
         features: str = ORDERBOOKS,
+        additional_features : list = None,
         scaling: bool = True,
         archive: bool = True,
         save_normalisation=True,
@@ -573,6 +585,7 @@ def process_data_per_ticker(
             normalization_window=normalization_window,
             time_index=time_index,
             features=features,
+            additional_features=additional_features,
             scaling=scaling,
             archive=archive,
             ticker=ticker,

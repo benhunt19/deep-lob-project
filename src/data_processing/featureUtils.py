@@ -7,6 +7,8 @@ import seaborn as sns
 from pathlib import Path
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from numba import jit, njit, prange, cuda
+from numpy.lib.stride_tricks import sliding_window_view
 
 from datetime import datetime
 
@@ -71,13 +73,41 @@ def createOrderFlows(orderbook: pd.DataFrame, levels: int, feature_names) -> Tup
 
     return orderbook, feature_names
 
+@njit(parallel=True)
+def compute_volumes_cpu(windows, ask_size_idx, bid_size_idx, negativeBidMultiplier, scaling):
+    fixed_volumes = []
+    for i, window in enumerate(windows):
+
+        # Extract ASK and BID sizes from the snapshot
+        ask_sizes = window[:, ask_size_idx]
+        bid_sizes = window[:, bid_size_idx]
+        
+        # Initialize volumes with the right shape based on orderbook_depth
+        volumes = np.zeros((window.shape[0], ask_sizes.shape[1] + bid_sizes.shape[1]))
+        
+        # Process all rows at once using NumPy operations
+        bid_volumes = bid_sizes * negativeBidMultiplier  # Apply multiplier to all bid sizes
+        
+        # Flip the bid volumes along the second axis (columns) and hstack with ask sizes
+        volumes = np.hstack((bid_volumes[:, ::-1], ask_sizes))
+        
+        if scaling:
+            non_neg = volumes.ravel()[volumes.ravel() != 0]
+            mean = np.mean(np.abs(non_neg))
+            volumes = volumes/mean
+
+        fixed_volumes.append(volumes)
+    
+    return fixed_volumes
+
+
 # ordervol
 def createOrderVolume(
     orderbook: pd.DataFrame,
     ticker: str,
     scaling: bool,
     features: str,
-    date,
+    date: str,
     windowSize=100,
     negativeBids=False,
     rowLim=None
@@ -115,28 +145,7 @@ def createOrderVolume(
     
     negativeBidMultiplier = -1 if negativeBids else 1
     
-    for i, window in enumerate(windows):
-
-        # Extract ASK and BID sizes from the snapshot
-        ask_sizes = window[:, ask_size_idx]
-        bid_sizes = window[:, bid_size_idx]
-        
-        # Initialize volumes with the right shape based on orderbook_depth
-        volumes = np.zeros((window.shape[0], ask_sizes.shape[1] + bid_sizes.shape[1]))
-        
-        # Process all rows at once using NumPy operations
-        bid_volumes = bid_sizes * negativeBidMultiplier  # Apply multiplier to all bid sizes
-        
-        # Flip the bid volumes along the second axis (columns) and hstack with ask sizes
-        volumes = np.hstack((np.flip(bid_volumes, axis=1), ask_sizes))
-        
-        if scaling:
-            non_neg = volumes[volumes != 0]
-            mean = np.mean(np.abs(non_neg))
-            volumes = volumes/mean
-
-        fixed_volumes.append(volumes)
-
+    fixed_volumes = compute_volumes_cpu(windows, ask_size_idx, bid_size_idx, negativeBidMultiplier, scaling)
     fixed_volumes = np.array(fixed_volumes)
         
     # Print the full fixed_volumes array without truncation
@@ -145,102 +154,98 @@ def createOrderVolume(
     
     print("Saving numpy")
     saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
-     
-# orderfixedvols
+  
+
+# ---------------------------------------------------
+# CPU version (your original)
+# ---------------------------------------------------
+@njit(parallel=True)
+def compute_fixed_volumes_cpu(windows, ticks, ask_idx, bid_idx, ask_size_idx, bid_size_idx, bid_sign, scaling):
+    n_windows = windows.shape[0]
+    windowSize = windows.shape[1]
+    num_ticks = ticks.shape[1]
+
+    fixed_volumes = np.zeros((n_windows, windowSize, num_ticks), dtype=np.float32)
+
+    for i in prange(n_windows):
+        tick_prices = ticks[i]
+        for row_idx in range(windowSize):
+            ask_prices = windows[i, row_idx, ask_idx]
+            bid_prices = windows[i, row_idx, bid_idx]
+            ask_sizes  = windows[i, row_idx, ask_size_idx]
+            bid_sizes  = windows[i, row_idx, bid_size_idx]
+
+            for tick_idx in range(num_ticks):
+                tick = tick_prices[tick_idx]
+
+                fixed_volumes[i, row_idx, tick_idx] += np.sum(ask_sizes[ask_prices == tick])
+                fixed_volumes[i, row_idx, tick_idx] += np.sum(bid_sizes[bid_prices == tick]) * bid_sign
+
+        if scaling:
+            vols = fixed_volumes[i]
+            nonzero = vols.ravel()[vols.ravel() != 0]
+            if nonzero.size > 0:
+                mean = np.mean(np.abs(nonzero))
+                if mean > 0:
+                    fixed_volumes[i] /= mean
+
+    return fixed_volumes
+
+# ---------------------------------------------------
+# Main wrapper
+# ---------------------------------------------------
 def createOrderFixedVolume(
     orderbook: pd.DataFrame,
     ticker: str,
     scaling: bool,
     features: str,
-    date,
-    windowSize=100,
-    negativeBids=True,
-    num_ticks : int = 30,
-    rowLim=None
+    date: str,
+    windowSize: int = 100,
+    negativeBids: bool = True,
+    num_ticks: int = 30,
+    rowLim: int | None = None,
+    plot: bool = True,
 ) -> None:
-    f"""
-    Description:
-        Create order fixed volume examples
-    Parameters:
-        orderbook (pd.DataFrame): Orderbook that has been initially been processed by (processData)
-        ticker (str): The ticker string for the required ticker
-        scaling (bool): Are we scaing the input data
-        features (str): Should be {ORDERFIXEDVOL}, required for naming
-        date (str): Required for naming yyyy-mm-dd
-        windowSize (int): How large to make the window (usually 100)
-        negativeBids (bool): Are the bids neagative (with the asks positive)
-        num_ticks (int): How many discrete ticks to have along the 'x-axis' for a datapoint
-        rowLim (int): Optional limit for the length of the orderbook
-    """
-    # Get new dataframe with tick size
-    # create sliding windows
+
     if rowLim is not None:
         orderbook = orderbook.iloc[:rowLim, :]
-    
+
     ticks = processTicks(orderbook=orderbook, num_ticks=num_ticks)
-    
     arr = orderbook.values
-    
-    # Get sliding windows of data, will be 
+
+    # Sliding windows
     windows = sliding_window_view(arr, window_shape=(windowSize, arr.shape[1]), axis=(0, 1))
-    windows = windows[:, 0, :, :]  # shape: (datasize - windowSize + 1, windowSize, 42)
-    print(f"Windows shape: {windows.shape}")
-    
-    fixed_volumes = []
+    windows = windows[:, 0, :, :]  # (n_windows, windowSize, num_cols)
+
     columns = orderbook.columns
-    # Get indexes of relevant columns
-    ask_price_idx = np.array([columns.get_loc(col) for col in columns if "ASKp" in col])
-    bid_price_idx = np.array([columns.get_loc(col) for col in columns if "BIDp" in col])
-    ask_size_idx = np.array([columns.get_loc(col) for col in columns if "ASKs" in col])
-    bid_size_idx = np.array([columns.get_loc(col) for col in columns if "BIDs" in col])
+    ask_price_idx = np.where(columns.str.contains("ASKp"))[0]
+    bid_price_idx = np.where(columns.str.contains("BIDp"))[0]
+    ask_size_idx  = np.where(columns.str.contains("ASKs"))[0]
+    bid_size_idx  = np.where(columns.str.contains("BIDs"))[0]
+
+    bid_sign = -1 if negativeBids else 1
+
+    print("Running on CPU…")
+    fixed_volumes = compute_fixed_volumes_cpu(
+        windows.astype(np.float32),
+        ticks.astype(np.float32),
+        ask_price_idx,
+        bid_price_idx,
+        ask_size_idx,
+        bid_size_idx,
+        bid_sign,
+        scaling,
+    )
+
+    print(f"Fixed volumes shape: {fixed_volumes.shape}")
+
+    if plot:
+        plotExamples(fixed_volumes)
+
     
-    negativeBidMultiplier = -1 if negativeBids else 1
-    
-    for i, window in enumerate(windows):
-
-        # Get the corresponding ticks for this window (use the last row's ticks)
-        tick_prices = ticks[i]
-
-        # Extract ASK and BID prices and sizes from the snapshot
-        ask_prices = window[:, ask_price_idx]
-        bid_prices = window[:, bid_price_idx]
-        ask_sizes = window[:, ask_size_idx]
-        bid_sizes = window[:, bid_size_idx]
-
-        # Initialize volumes for this window (shape: windowSize x len(tick_prices))
-        volumes = np.zeros((window.shape[0], len(tick_prices)))
-        # For each row in the window
-        for row_idx in range(window.shape[0]):
-            # Map ask prices to sizes for this row
-            ask_price_to_size = {price: size for price, size in zip(ask_prices[row_idx], ask_sizes[row_idx])}
-            bid_price_to_size = {price: size for price, size in zip(bid_prices[row_idx], bid_sizes[row_idx])}
-            # For each tick, assign volume if present in asks or bids
-            for tick_idx, tick in enumerate(tick_prices):
-                if tick in ask_price_to_size:
-                    volumes[row_idx, tick_idx] += ask_price_to_size[tick]
-                if tick in bid_price_to_size:
-                    volumes[row_idx, tick_idx] += bid_price_to_size[tick] * negativeBidMultiplier ## Multiply bids by minus one if flag set, to give contrast to asks
-            # Process scaling, divide by mean of entire frame
-        
-        if scaling:
-            non_neg = volumes[volumes != 0]
-            mean = np.mean(np.abs(non_neg))
-            volumes = volumes/mean
-
-        fixed_volumes.append(volumes)
-
-    fixed_volumes = np.array(fixed_volumes)
-        
-    # Print the full fixed_volumes array without truncation
-    np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-    print(fixed_volumes[0])
-    
-    print("plotting")
-    plotExamples(fixed_volumes)
-    
-    print("Saving numpy")
     saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
-        
+
+     
 def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
     """
     Description:

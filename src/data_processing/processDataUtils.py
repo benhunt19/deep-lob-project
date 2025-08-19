@@ -1,6 +1,6 @@
 from src.core.constants import PROJECT_ROOT, RAW_DATA_PATH, PROCESSED_DATA_PATH, DATA_PROCESS_LOGS, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL
 from src.data_processing.processData import process_data, process_data_per_ticker
-
+import omegaconf
 class ProcessDataUtils:
     """
     Description:
@@ -21,7 +21,40 @@ class ProcessDataUtils:
         rowLim=None
     ):
         # Just process orderbooks
-        if features == ORDERBOOKS:
+        
+        if isinstance(features, omegaconf.listconfig.ListConfig):
+            features = list(features)
+        
+        if isinstance(features, list):
+            
+            if ORDERFLOWS in features:
+                process_data_per_ticker(
+                input_path=input_path,
+                logs_path=logs_path,
+                horizons=horizons,
+                normalization_window=normalization_window,
+                archive=archive,
+                scaling=scaling,
+                features=ORDERFLOWS,
+                rowLim=rowLim
+            )
+                
+            filteredFeatures = list(filter(lambda x : x not in [ORDERBOOKS, ORDERFLOWS], features))
+            
+            if len(filteredFeatures) > 0:
+                process_data_per_ticker(
+                    input_path=input_path,
+                    logs_path=logs_path,
+                    horizons=horizons,
+                    normalization_window=normalization_window,
+                    archive=archive,
+                    scaling=scaling,
+                    features=ORDERBOOKS,
+                    additional_features=filteredFeatures,
+                    rowLim=rowLim
+                )
+        
+        elif features == ORDERBOOKS:
             process_data_per_ticker(
                 input_path=input_path,
                 logs_path=logs_path,
@@ -57,8 +90,8 @@ class ProcessDataUtils:
                 rowLim=rowLim
             )
         
-        elif features == ORDERVOL:
-            # First process ORDERBOOKS
+        elif features in (ORDERVOL, ORDERFIXEDVOL):
+            # First process ORDERBOOKS, then process the additional features
             print("Processing ORDERBOOKS")
             process_data_per_ticker(
                 input_path=input_path,
@@ -68,47 +101,9 @@ class ProcessDataUtils:
                 archive=False,
                 scaling=scaling,
                 features=ORDERBOOKS,
+                additional_features=[features],
                 rowLim=rowLim
             )
-            print("PROCESSING ORDERVOL")
-            # Then process the orderfixedvol
-            process_data_per_ticker(
-                input_path=input_path,
-                logs_path=logs_path,
-                horizons=horizons,
-                normalization_window=normalization_window,
-                archive=archive,
-                scaling=scaling,
-                features=ORDERVOL,
-                rowLim=rowLim
-            )
-            
-        elif features == ORDERFIXEDVOL:
-            # First process ORDERBOOKS
-            print("Processing ORDERBOOKS")
-            process_data_per_ticker(
-                input_path=input_path,
-                logs_path=logs_path,
-                horizons=horizons,
-                normalization_window=normalization_window,
-                archive=False,
-                scaling=scaling,
-                features=ORDERBOOKS,
-                rowLim=rowLim
-            )
-            print("PROCESSING ORDERFIXEDVOL")
-            # Then process the orderfixedvol
-            process_data_per_ticker(
-                input_path=input_path,
-                logs_path=logs_path,
-                horizons=horizons,
-                normalization_window=normalization_window,
-                archive=archive,
-                scaling=scaling,
-                features=ORDERFIXEDVOL,
-                rowLim=rowLim
-            )
-         
         
 if __name__ == "__main__":
     util = ProcessDataUtils.runDataProcss(features=ORDERFLOWS)

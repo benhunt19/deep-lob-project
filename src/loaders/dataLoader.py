@@ -31,7 +31,7 @@ class CustomDataLoader:
         threshold: float = 30,              # Midpoint Change over horizon length, could also be AUTO
         rowLim: int = None,                 # The row limit number for
         trainTestSplit : float = None,      # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
-        lookForwardHorizon :int = None,       # The number of events to look forward after for labelling (prediction horizon)
+        lookForwardHorizon :int = None,     # The number of events to look forward after for labelling (prediction horizon)
         representation: str = ORDERBOOKS,   # The order book representation, 'orderbooks', 'orderflows', 'orderfixedvol'
         labelType: str = CATEGORICAL        # The label type, is it a 'REGRESSION' or a 'CATEGORICAL' definition
     ):
