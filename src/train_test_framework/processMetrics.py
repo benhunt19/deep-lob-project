@@ -84,10 +84,10 @@ class ProcessMetrics:
         return {
             'MSE': mean_squared_error(actual, predictions),
             'R2': r2_score(actual, predictions),
-            # 'MSLE': mean_squared_log_error(actual, predictions),
             'MAPE': np.mean(np.abs((actual - predictions) / actual)) * 100,
             'MAE': mean_absolute_error(actual, predictions),
             # 'KLD': entropy(actual, predictions, base=2),
+            
         }
         
     @staticmethod
