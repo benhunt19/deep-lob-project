@@ -456,7 +456,7 @@ def process_data(
                 if len(df_orderbook) > 0:
                     createOrderFixedVolume(
                         orderbook=df_orderbook,
-                        num_ticks=30,
+                        num_ticks=20,
                         ticker=ticker,
                         scaling=scaling,
                         features=features,
