@@ -203,7 +203,7 @@ def createOrderFixedVolume(
     windowSize: int = 100,
     negativeBids: bool = True,
     num_ticks: int = 30,
-    rowLim: int | None = None,
+    rowLim: int = None,
     plot: bool = True,
 ) -> None:
 
