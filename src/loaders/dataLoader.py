@@ -242,14 +242,19 @@ class CustomDataLoader:
         return np.stack([down, neutral, up], axis=1)
     
     @staticmethod
-    def handleRegressionLabels(midChange : np.array):
+    def handleRegressionLabels(midChange : np.array) -> np.ndarray:
         """
         Description:
             Normalise the mid changes, this will be then passed int
         Parameters:
             midChange (np.array): The mid price changes over the specified forward horizon
         """
-        return (midChange - np.mean(midChange)) / np.std(midChange)
+        normalised = (midChange - np.mean(midChange)) / np.std(midChange)
+        if normalised > 1:
+            return 1
+        elif normalised < -1:
+            return -1
+        return normalised
     
     def splitDataTrainTest(self):
         """

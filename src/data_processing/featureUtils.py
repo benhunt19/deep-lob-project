@@ -235,6 +235,9 @@ def createOrderFixedVolume(
     np.set_printoptions(threshold=np.inf, linewidth=np.inf)
     print(fixed_volumes[0])
     
+    print("plotting")
+    plotExamples(fixed_volumes)
+    
     print("Saving numpy")
     saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
         
@@ -310,16 +313,17 @@ def plotExamples(fixed_volumes: np.ndarray):
     num_plots = 6
     plt.figure(figsize=(24, 18))
     for idx in range(num_plots):
-        plot_idx = idx * 600
+        plot_idx = idx * 1000
         if plot_idx < fixed_volumes.shape[0]:
             plt.subplot(2, 3, idx + 1)
             sns.heatmap(fixed_volumes[plot_idx], cmap="RdYlGn", center=0, annot=False)
             # plt.title(f"Heatmap of fixed_volumes[{plot_idx}]")
-            # plt.xlabel("Tick Index")
+            plt.xlabel("Tick Index $\kappa$")
             plt.ylabel("Window Row Index")
             # plt.xticks([])
             plt.yticks([])
             plt.gca().set_xticklabels([])
+    
     plt.tight_layout(pad=4.0)  # Increase padding between subplots
     plt.subplots_adjust(top=0.80, bottom=0.05, left=0.05, right=0.95)  # Increase gap above top and below bottom
     plt.tight_layout()
