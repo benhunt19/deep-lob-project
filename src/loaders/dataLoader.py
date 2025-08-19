@@ -124,7 +124,12 @@ class CustomDataLoader:
                 
         self.x = np.concatenate(all_data, axis=0)
         self.x = np.expand_dims(self.x, axis=-1)  # (batchSize, horizon, features, 1)
-        print("self.x.shape", self.x.shape)
+        
+        if self.rowLim is not None:
+            # Make sure we don't try to access more rows than available
+            actual_limit = min(self.rowLim, self.x.shape[0])
+            self.x = self.x[:actual_limit]
+        
         return self.x
             
     def getOrderFlowsFromFiles(self):
@@ -161,6 +166,7 @@ class CustomDataLoader:
         windows = sliding_window_view(arr, window_shape=(self.horizon), axis=0)  # (total_rows-horizon+1, horizon, features)
 
         # Select only up to rowLim
+        print(f"Row lim here {self.rowLim}")
         datasetX = windows[:self.rowLim, :, :]  # (batchSize, horizon, features)
 
         # Add the last dimension for channel
@@ -225,20 +231,32 @@ class CustomDataLoader:
         """
         
         if threshold == AUTO:
-            # Use the z score to scale the data into thirds
-            zscores = scipy.stats.zscore(midChange)
-            lower, upper = np.percentile(zscores, [33.33, 66.66])
-            threshold = (abs(lower) + abs(upper)) / 2  # Symmetric threshold
-            print(f"Auto threshold z-score cutoffs: lower={lower:.3f}, upper={upper:.3f}, using threshold={threshold:.3f}")
-            down    = (zscores < -threshold).astype(int)
-            up      = (zscores >  threshold).astype(int)
-            neutral = ((down == 0) & (up == 0)).astype(int)
+            # Use percentiles to divide the data into three equal parts
+            down_threshold, up_threshold = np.percentile(midChange, [33.33, 66.66])
+            print(f"Auto thresholds: down={down_threshold:.6f}, up={up_threshold:.6f}")
+            
+            # Assign labels based on the thresholds
+            down    = (midChange < down_threshold).astype(int)
+            up      = (midChange > up_threshold).astype(int)
+            neutral = ((midChange >= down_threshold) & (midChange <= up_threshold)).astype(int)
+            
+            # Print distribution statistics
+            # Print distribution statistics for AUTO threshold
+            print(f"Distribution counts - Down: {np.sum(down)}, Neutral: {np.sum(neutral)}, Up: {np.sum(up)}")
+            print(f"Distribution percentages - Down: {np.sum(down)/len(midChange)*100:.2f}%, "
+                f"Neutral: {np.sum(neutral)/len(midChange)*100:.2f}%, "
+                f"Up: {np.sum(up)/len(midChange)*100:.2f}%")
         else:
             down    = (midChange < -threshold).astype(int)
             up      = (midChange >  threshold).astype(int)
             neutral = ((down == 0) & (up == 0)).astype(int)
 
         # Stack the one-hot encoded labels
+        values = np.stack([down, neutral, up], axis=1)
+        # Print the sum for each column to check if balanced
+        column_sums = np.sum(values, axis=0)
+        print(f"Label distribution - Down: {column_sums[0]}, Neutral: {column_sums[1]}, Up: {column_sums[2]}")
+        print(f"Percentages - Down: {column_sums[0]/len(values)*100:.2f}%, Neutral: {column_sums[1]/len(values)*100:.2f}%, Up: {column_sums[2]/len(values)*100:.2f}%")
         return np.stack([down, neutral, up], axis=1)
     
     @staticmethod
@@ -336,15 +354,15 @@ class CustomDataLoader:
 
 if __name__ == "__main__":
     cdl = CustomDataLoader(
-        ticker='NFLX',
+        ticker='AAPL',
         scaling=True,
         horizon=100,
         threshold=AUTO,
         maxFiles=2,
-        rowLim=None,
+        rowLim=200_000,
         trainTestSplit=0.8,
-        lookForwardHorizon=20,
-        representation=ORDERFLOWS
+        lookForwardHorizon=15,
+        representation=ORDERFIXEDVOL,
     )
     cdl.runFullProcessReturnXY(tensor=True)
     print(cdl.x.shape)
