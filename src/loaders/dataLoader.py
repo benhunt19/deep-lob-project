@@ -213,6 +213,8 @@ class CustomDataLoader:
         
         assert isinstance(self.threshold, (float, int)) or self.threshold == AUTO, f"Please check threshold is numeric or {AUTO}"
 
+        assert self.labelType in [CATEGORICAL, REGRESSION], f"Please ensure that the labelType is {CATEGORICAL} or {REGRESSION}"
+        
         if self.labelType == CATEGORICAL:
             self.y = self.handleCategoricalLabels(midChange=midChange, threshold=self.threshold)
         elif self.labelType == REGRESSION:
@@ -236,8 +238,8 @@ class CustomDataLoader:
             print(f"Auto thresholds: down={down_threshold:.6f}, up={up_threshold:.6f}")
             
             # Assign labels based on the thresholds
-            down    = (midChange < down_threshold).astype(int)
-            up      = (midChange > up_threshold).astype(int)
+            down    = ((midChange <= down_threshold)) & (midChange != 0).astype(int)
+            up      = ((midChange >= up_threshold) & (midChange != 0)).astype(int)
             neutral = ((midChange >= down_threshold) & (midChange <= up_threshold)).astype(int)
             
             # Print distribution statistics
@@ -247,8 +249,8 @@ class CustomDataLoader:
                 f"Neutral: {np.sum(neutral)/len(midChange)*100:.2f}%, "
                 f"Up: {np.sum(up)/len(midChange)*100:.2f}%")
         else:
-            down    = (midChange < -threshold).astype(int)
-            up      = (midChange >  threshold).astype(int)
+            down    = ((midChange <= -threshold) & (midChange != 0)).astype(int)
+            up      = ((midChange >=  threshold) & (midChange != 0)).astype(int)
             neutral = ((down == 0) & (up == 0)).astype(int)
 
         # Stack the one-hot encoded labels
@@ -267,12 +269,14 @@ class CustomDataLoader:
         Parameters:
             midChange (np.array): The mid price changes over the specified forward horizon
         """
+        # Normalize the midChange values
         normalised = (midChange - np.mean(midChange)) / np.std(midChange)
-        if normalised > 1:
-            return 1
-        elif normalised < -1:
-            return -1
-        return normalised
+        
+        # Clip values to be between -1 and 1
+        normalised = np.clip(normalised, -1, 1)
+        
+        # Return as a column vector
+        return normalised.reshape(-1, 1)
     
     def splitDataTrainTest(self):
         """
