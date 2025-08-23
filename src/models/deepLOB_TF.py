@@ -14,6 +14,7 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input, LSTM, Reshape, Conv2D, MaxPooling2D, LeakyReLU, concatenate)
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 from torch import tensor
 import gc
@@ -105,12 +106,16 @@ class DeepLOB_TF(BaseModel):
         )
         return model
 
-    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int):
+    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, patience: int = 3):
+
+        early_stopping = EarlyStopping(monitor="val_loss", patience=patience, mode="auto", restore_best_weights=True)
+
         self.model.fit(
             x=x,
             y=y,
             epochs=numEpoch,
-            batch_size=batchSize
+            batch_size=batchSize,
+            callbacks=[early_stopping]
         )
         del x, y
         gc.collect()
