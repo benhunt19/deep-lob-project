@@ -262,7 +262,7 @@ class CustomDataLoader:
             # Assign labels based on the thresholds
             down    = ((midChange <= down_threshold) & (midChange != 0)).astype(int)
             up      = ((midChange >= up_threshold) & (midChange != 0)).astype(int)
-            neutral = ((midChange > down_threshold) & (midChange < up_threshold)).astype(int)
+            neutral = ((midChange > down_threshold) & (midChange < up_threshold) | (midChange == 0)).astype(int)
             
             # Print distribution statistics
             # Print distribution statistics for AUTO threshold
