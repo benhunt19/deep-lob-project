@@ -477,9 +477,6 @@ def process_data(
                 else:
                     print(f"Check data, skipped processing fixed volume due to zero length {ORDERFIXEDVOL}")
             
-            else:
-                raise ValueError(f"Features must be {ORDERBOOKS}, {ORDERFLOWS}, {ORDERVOL}, {ORDERFIXEDVOL}")
-
             
             print(f"Saving: {fileName}")
             
