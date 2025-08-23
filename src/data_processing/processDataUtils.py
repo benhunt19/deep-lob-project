@@ -33,7 +33,7 @@ class ProcessDataUtils:
                 logs_path=logs_path,
                 horizons=horizons,
                 normalization_window=normalization_window,
-                archive=archive,
+                archive=False,
                 scaling=scaling,
                 features=ORDERFLOWS,
                 rowLim=rowLim

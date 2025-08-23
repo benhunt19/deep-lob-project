@@ -209,7 +209,10 @@ class ModelTrainTestFramework:
             return DeepLOB_PT
         elif model.lower() == DeepLOB_JAX.name.lower():
             return DeepLOB_JAX
-            
+        elif model.lower() == DeepLOB_TF_2.name.lower():
+            return DeepLOB_TF_2
+        else:
+            raise Exception("Model name not valid")
         
 if __name__ == "__main__":
     metas = ModelMetaMaker.createMeta(
