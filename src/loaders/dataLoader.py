@@ -292,10 +292,10 @@ class CustomDataLoader:
             midChange (np.array): The mid price changes over the specified forward horizon
         """
         # Normalize the midChange values
-        normalised = (midChange - np.mean(midChange)) / np.std(midChange)
+        normalised = (midChange - np.mean(midChange)) / np.std(midChange) 
         
         # Clip values to be between -1 and 1
-        clip_thresh = 2
+        clip_thresh = 1
         normalised = np.clip(normalised, -clip_thresh, clip_thresh)
         
         # Return as a column vector

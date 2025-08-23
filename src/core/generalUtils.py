@@ -160,3 +160,22 @@ def makeJsonSerializable(obj):
         return obj.tolist()
     else:
         return obj
+    
+def resultsLocation(run_id : str, representation : str, ticker : str) -> str:
+    """
+    Description:
+        Single function for defining the results location
+    Parameters:
+        run_id (str): The id of the run
+        representation (str): The representation of the data
+        ticker (str): The ticker of the stock run for
+    """
+    # Save resultsStore as JSON
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    folder_location = f"{PROJECT_ROOT}/{RESULTS_PATH}/{date_str}/{representation}/{ticker}"
+    file_name = f"results_{run_id}.json"
+    results_path = f"{folder_location}/{file_name}"
+    
+    # Create directory if it doesn't exist
+    os.makedirs(folder_location, exist_ok=True)
+    return results_path
