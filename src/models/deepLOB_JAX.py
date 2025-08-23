@@ -87,9 +87,10 @@ class _DeepLOB_JAX(nn.Module):
         return nn.softmax(logits)
 
 class DeepLOB_JAX(BaseModel):
+    name = "deepLOB_JAX"
     def __init__(self, input_shape: Tuple[int, int, int] = (100, 40, 1), num_lstm_units: int = 64):
         super().__init__()
-        self.name = "deepLOB_JAX"
+        self.name = DeepLOB_JAX.name
         self.weightsFileFormat = "msgpack"
         self.input_shape = input_shape
         self.num_lstm_units = num_lstm_units

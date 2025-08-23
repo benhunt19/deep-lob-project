@@ -73,7 +73,7 @@ def createOrderFlows(orderbook: pd.DataFrame, levels: int, feature_names) -> Tup
 
     return orderbook, feature_names
 
-@njit(parallel=True)
+# @njit(parallel=True)
 def compute_volumes_cpu(windows, ask_size_idx, bid_size_idx, negativeBidMultiplier, scaling):
     fixed_volumes = []
     for i, window in enumerate(windows):

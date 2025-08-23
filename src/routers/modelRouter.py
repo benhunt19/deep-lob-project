@@ -3,3 +3,4 @@ from src.models.deepLOB_PT import DeepLOB_PT
 from src.models.deepLOB_TF import DeepLOB_TF
 from src.models.deepLOB_JAX import DeepLOB_JAX
 from src.models.deepLOBREG_TF import DeepLOBREG_TF
+from src.models.deepLOB_TF_2 import DeepLOB_TF_2
