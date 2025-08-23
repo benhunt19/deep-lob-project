@@ -148,7 +148,7 @@ def createOrderVolume(
     
         # Mid price calc
     mid = (values[:, ask_price_idx[0]] + values[:, bid_price_idx[0]]) / 2
-    print(f"Mid: {mid}")
+    # print(f"Mid: {mid}")
     
     negativeBidMultiplier = -1 if negativeBids else 1
     
@@ -200,7 +200,7 @@ def compute_fixed_volumes_cpu(
 
     if scaling:
         mean = np.mean(np.abs(fixed_volumes))
-        print(f"Mean: {mean}")
+        # print(f"Mean: {mean}")
         fixed_volumes /= mean
 
     return fixed_volumes
