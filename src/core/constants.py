@@ -59,3 +59,4 @@ CATEGORICAL = "CATEGORICAL"
 # Numpy saved constants
 NUMPY_EXTENSION = '.npz'
 NUMPY_X_KEY = 'x'
+NUMPY_Y_KEY = 'mid'
