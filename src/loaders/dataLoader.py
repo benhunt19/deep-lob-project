@@ -295,7 +295,8 @@ class CustomDataLoader:
         normalised = (midChange - np.mean(midChange)) / np.std(midChange)
         
         # Clip values to be between -1 and 1
-        normalised = np.clip(normalised, -1, 1)
+        clip_thresh = 2
+        normalised = np.clip(normalised, -clip_thresh, clip_thresh)
         
         # Return as a column vector
         print(f"Labels Greater than zero: {np.sum(normalised > 0)}, less than zero: {np.sum(normalised < 0)}")
