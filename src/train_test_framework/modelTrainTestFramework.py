@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from omegaconf import OmegaConf, DictConfig
 from inspect import isclass
 
-from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable
+from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable, resultsLocation
 from src.routers.modelRouter import *
 from src.core.constants import TEST, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.loaders.dataLoader import CustomDataLoader
@@ -81,18 +81,7 @@ class ModelTrainTestFramework:
             
             # No need to clone as the model isn't used again as is
             resultsStore['meta']['model'] = str(model.name)
-             
-            # ticker : str,                       # Ticker name
-            # scaling : bool,                     # True for scaled, False for unscaled, decides if we use the scaled or unscaled processed data
-            # horizon : int = 100,                # Horizon length looking backwards, essentially the window
-            # maxFiles : int = None,              # Maximum number of files to concatenate into one file
-            # threshold: float = 30,              # Midpoint Change over horizon length, could also be AUTO
-            # rowLim: int = None,                 # The row limit number for
-            # trainTestSplit : float = None,      # Split the data between train and test, eg 0.8 for 80% Train, 20% Test
-            # lookForwardHorizon :int = None,     # The number of events to look forward after for labelling (prediction horizon)
-            # representation: str = ORDERBOOKS,   # The order book representation, 'orderbooks', 'orderflows', 'orderfixedvol'
-            # labelType: str = CATEGORICAL        # The label type, is it a 'REGRESSION' or a 'CATEGORICAL' definition
-            
+                         
             cdl = CustomDataLoader(
                 ticker=meta['ticker'],
                 scaling=meta['scaling'],
@@ -146,11 +135,7 @@ class ModelTrainTestFramework:
                 resultsStore['metricsStrength'] = metricsStrength
 
             # Save resultsStore as JSON
-            date_str = datetime.now().strftime("%Y-%m-%d")
-            results_path = f"{PROJECT_ROOT}/{RESULTS_PATH}/{date_str}/results_{run_id}.json"
-            
-            # Create directory if it doesn't exist
-            os.makedirs(f"{PROJECT_ROOT}/{RESULTS_PATH}/{date_str}", exist_ok=True)
+            results_path = resultsLocation(run_id=run_id, representation=meta['representation'], ticker=meta['ticker'])
             with open(results_path, "w") as f:
                 # If resultsStore is DictConfig, convert to plain dict before saving
                 results_store_dict = makeJsonSerializable(resultsStore)

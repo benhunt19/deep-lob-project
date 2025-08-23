@@ -40,7 +40,7 @@ class ProcessMetrics:
             'recall': recall_score(y_true, y_pred, average='macro'),
             'f1': f1_score(y_true, y_pred, average='macro'),
             'confusion_matrix': confusion_matrix(y_true, y_pred),
-            'categorical_crossentropy': log_loss(actual, predictions)
+            # 'categorical_crossentropy': log_loss(actual, predictions)
         }
     
     @staticmethod
