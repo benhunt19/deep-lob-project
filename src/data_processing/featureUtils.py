@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 from src.core.generalUtils import processDataFileNaming
-from src.core.constants import NUMPY_EXTENSION, NUMPY_X_KEY, ORDERFIXEDVOL, ORDERVOL, ORDERFLOWS
+from src.core.constants import NUMPY_EXTENSION, NUMPY_X_KEY, NUMPY_Y_KEY, ORDERFIXEDVOL, ORDERVOL, ORDERFLOWS
 
 # Functions for creating features from data
 
@@ -130,10 +130,10 @@ def createOrderVolume(
         orderbook = orderbook.iloc[:rowLim, :]
     print(orderbook)
     
-    arr = orderbook.values
-    
+    values = orderbook.values
+        
     # Get sliding windows of data, will be 
-    windows = sliding_window_view(arr, window_shape=(windowSize, arr.shape[1]), axis=(0, 1))
+    windows = sliding_window_view(values, window_shape=(windowSize, values.shape[1]), axis=(0, 1))
     windows = windows[:, 0, :, :]  # shape: (datasize - windowSize + 1, windowSize, 42)
     print(f"Windows shape: {windows.shape}")
     
@@ -142,6 +142,13 @@ def createOrderVolume(
     # Get indexes of relevant columns
     ask_size_idx = np.array([columns.get_loc(col) for col in columns if "ASKs" in col])
     bid_size_idx = np.array([columns.get_loc(col) for col in columns if "BIDs" in col])
+    
+    ask_price_idx = [columns.get_loc(col) for col in columns if "ASKp" in col]
+    bid_price_idx = [columns.get_loc(col) for col in columns if "BIDp" in col]
+    
+        # Mid price calc
+    mid = (values[:, ask_price_idx[0]] + values[:, bid_price_idx[0]]) / 2
+    print(f"Mid: {mid}")
     
     negativeBidMultiplier = -1 if negativeBids else 1
     
@@ -153,20 +160,30 @@ def createOrderVolume(
     print(fixed_volumes[0])
     
     print("Saving numpy")
-    saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
+    saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date, mid=mid )
   
 
 # ---------------------------------------------------
 # CPU version (your original)
 # ---------------------------------------------------
 @njit(parallel=True)
-def compute_fixed_volumes_cpu(windows, ticks, ask_idx, bid_idx, ask_size_idx, bid_size_idx, bid_sign, scaling):
+def compute_fixed_volumes_cpu(
+        windows,
+        ticks,
+        ask_idx,
+        bid_idx,
+        ask_size_idx,
+        bid_size_idx,
+        bid_sign,
+        scaling
+    ) -> np.array:
+    
     n_windows = windows.shape[0]
     windowSize = windows.shape[1]
     num_ticks = ticks.shape[1]
 
     fixed_volumes = np.zeros((n_windows, windowSize, num_ticks), dtype=np.float32)
-
+    
     for i in prange(n_windows):
         tick_prices = ticks[i]
         for row_idx in range(windowSize):
@@ -181,13 +198,10 @@ def compute_fixed_volumes_cpu(windows, ticks, ask_idx, bid_idx, ask_size_idx, bi
                 fixed_volumes[i, row_idx, tick_idx] += np.sum(ask_sizes[ask_prices == tick])
                 fixed_volumes[i, row_idx, tick_idx] += np.sum(bid_sizes[bid_prices == tick]) * bid_sign
 
-        if scaling:
-            vols = fixed_volumes[i]
-            nonzero = vols.ravel()[vols.ravel() != 0]
-            if nonzero.size > 0:
-                mean = np.mean(np.abs(nonzero))
-                if mean > 0:
-                    fixed_volumes[i] /= mean
+    if scaling:
+        mean = np.mean(np.abs(fixed_volumes))
+        print(f"Mean: {mean}")
+        fixed_volumes /= mean
 
     return fixed_volumes
 
@@ -202,7 +216,7 @@ def createOrderFixedVolume(
     date: str,
     windowSize: int = 100,
     negativeBids: bool = True,
-    num_ticks: int = 30,
+    num_ticks: int = 20,
     rowLim: int = None,
     plot: bool = True,
 ) -> None:
@@ -211,10 +225,10 @@ def createOrderFixedVolume(
         orderbook = orderbook.iloc[:rowLim, :]
 
     ticks = processTicks(orderbook=orderbook, num_ticks=num_ticks)
-    arr = orderbook.values
+    values = orderbook.values
 
     # Sliding windows
-    windows = sliding_window_view(arr, window_shape=(windowSize, arr.shape[1]), axis=(0, 1))
+    windows = sliding_window_view(values, window_shape=(windowSize, values.shape[1]), axis=(0, 1))
     windows = windows[:, 0, :, :]  # (n_windows, windowSize, num_cols)
 
     columns = orderbook.columns
@@ -222,6 +236,10 @@ def createOrderFixedVolume(
     bid_price_idx = np.where(columns.str.contains("BIDp"))[0]
     ask_size_idx  = np.where(columns.str.contains("ASKs"))[0]
     bid_size_idx  = np.where(columns.str.contains("BIDs"))[0]
+    
+    # Mid price calc
+    mid = (values[:, ask_price_idx[0]] + values[:, bid_price_idx[0]]) / 2
+    print(f"Mid: {mid}")
 
     bid_sign = -1 if negativeBids else 1
 
@@ -243,7 +261,7 @@ def createOrderFixedVolume(
         plotExamples(fixed_volumes)
 
     
-    saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date)
+    saveNumpy(array=fixed_volumes, ticker=ticker, scaling=scaling, features=features, date=date, mid=mid)
 
      
 def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
@@ -290,7 +308,7 @@ def processTicks(orderbook: pd.DataFrame, num_ticks=30) -> pd.DataFrame:
     print('price_levels shape:', price_levels.shape)
     return price_levels
 
-def saveNumpy(array: np.ndarray, ticker: str, scaling: bool, features: str, date) -> None:
+def saveNumpy(array: np.ndarray, ticker: str, scaling: bool, features: str, date, mid: np.array) -> None:
     """
     Description:
         Save numpy .npz file in standard file saving location for processed data
@@ -300,18 +318,21 @@ def saveNumpy(array: np.ndarray, ticker: str, scaling: bool, features: str, date
         scaling (bool): Indicates whether scaling has been applied to the data.
         features (str): The feature representation used for the data.
         date (str): String of the date to add to file name
+        mid (np.array): Numpy array of mid prices, these mid prices will be ALL, from beginning
     """
     # NUMPY_EXTENSION is '.npz'
     # NUMPY_X_KEY is 'x'
+    # NUMPY_Y_KEY is 'mid'
     _, output_name = processDataFileNaming(ticker=ticker, scaling=scaling, representation=features, extension=NUMPY_EXTENSION, date=date)
-    np.savez_compressed(output_name, **{NUMPY_X_KEY: array})
+    np.savez_compressed(output_name, **{NUMPY_X_KEY: array, NUMPY_Y_KEY: mid})
     
-def plotExamples(fixed_volumes: np.ndarray):
+def plotExamples(fixed_volumes: np.ndarray, threeD : bool = False):
     """
     Descripton:
         Plot example 2d and 3d surfaces, revealing information about the representation
     Parameters:
         fixed_volumes (np.ndarray): Data to plot from
+        threeD (bool): Plot 3d data
     """
     plt.figure(figsize=(18, 6))
     # Plot 9 heatmaps, 100 apart
@@ -340,35 +361,36 @@ def plotExamples(fixed_volumes: np.ndarray):
     example_idx = 0  # Change this to plot a different example
     example = fixed_volumes[example_idx]
 
-    fig = plt.figure(figsize=(16, 9))
-    ax = fig.add_subplot(121, projection='3d')
+    if threeD:
+        fig = plt.figure(figsize=(16, 9))
+        ax = fig.add_subplot(121, projection='3d')
 
-    x = np.arange(example.shape[1])
-    y = np.arange(example.shape[0])
-    X, Y = np.meshgrid(x, y)
-    Z = example
+        x = np.arange(example.shape[1])
+        y = np.arange(example.shape[0])
+        X, Y = np.meshgrid(x, y)
+        Z = example
 
-    ax.plot_surface(X, Y, Z, cmap='RdYlGn')
-    ax.set_xlabel('Tick Index')
-    ax.set_ylabel('Window Row Index')
-    ax.set_zlabel('Volume')
-    ax.set_title('3D Surface Plot of an example Fixed Volume')
+        ax.plot_surface(X, Y, Z, cmap='RdYlGn')
+        ax.set_xlabel('Tick Index')
+        ax.set_ylabel('Window Row Index')
+        ax.set_zlabel('Volume')
+        ax.set_title('3D Surface Plot of an example Fixed Volume')
 
-    # 3D bar plot (vertical bars)
-    ax2 = fig.add_subplot(122, projection='3d')
-    xpos, ypos = X.ravel(), Y.ravel()
-    zpos = np.zeros_like(xpos)
-    dz = Z.ravel()
-    dx = dy = 0.8  # width of the bars
+        # 3D bar plot (vertical bars)
+        ax2 = fig.add_subplot(122, projection='3d')
+        xpos, ypos = X.ravel(), Y.ravel()
+        zpos = np.zeros_like(xpos)
+        dz = Z.ravel()
+        dx = dy = 0.8  # width of the bars
 
-    ax2.bar3d(xpos, ypos, zpos, dx, dy, dz, shade=True, color=plt.cm.RdYlGn((dz - dz.min()) / (np.ptp(dz) + 1e-9)))
-    ax2.set_xlabel('Tick Index')
-    ax2.set_ylabel('Window Row Index')
-    ax2.set_zlabel('Volume')
-    ax2.set_title('3D Bar Plot of an example Fixed Volume')
+        ax2.bar3d(xpos, ypos, zpos, dx, dy, dz, shade=True, color=plt.cm.RdYlGn((dz - dz.min()) / (np.ptp(dz) + 1e-9)))
+        ax2.set_xlabel('Tick Index')
+        ax2.set_ylabel('Window Row Index')
+        ax2.set_zlabel('Volume')
+        ax2.set_title('3D Bar Plot of an example Fixed Volume')
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
 if __name__ == "__main__":
     pass

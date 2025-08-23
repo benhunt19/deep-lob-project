@@ -11,7 +11,7 @@ from math import floor
 # import pyspark
 # from pyspark.sql import SparkSession
 
-from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, REGRESSION, CATEGORICAL, NUMPY_EXTENSION, NUMPY_X_KEY
+from src.core.constants import AUTO, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, REGRESSION, CATEGORICAL, NUMPY_EXTENSION, NUMPY_X_KEY, NUMPY_Y_KEY
 from src.core.generalUtils import processedDataLocation
 
 # Some data specific constants
@@ -54,6 +54,7 @@ class CustomDataLoader:
         self.y = None               # Training Labels
         self.x_test = None          # Test data
         self.y_test = None          # Test labels
+        self.globalFrame = None     # Values dataframe
 
     def getFileLocations(self, dataLocation : str = None, date : str = None, extension : str = '.csv') -> list[str]:
         """
@@ -108,7 +109,7 @@ class CustomDataLoader:
         Description:
             Get raw data out of a presaved .npz file, already in the correct format
         """
-        
+        print("Running getFeaturesFromFilesDirect")
         folder = processedDataLocation(self.ticker, self.scaling, representation=representation)
         fileLocations = self.getFileLocations(dataLocation=folder, extension= NUMPY_EXTENSION)
             
@@ -120,6 +121,7 @@ class CustomDataLoader:
         for npz_file in fileLocations:
             with np.load(npz_file, allow_pickle=True) as data:
                 values = data[NUMPY_X_KEY]
+                mids = data[NUMPY_Y_KEY]
                 all_data.append(values)
                 
         self.x = np.concatenate(all_data, axis=0)
@@ -129,6 +131,9 @@ class CustomDataLoader:
             # Make sure we don't try to access more rows than available
             actual_limit = min(self.rowLim, self.x.shape[0])
             self.x = self.x[:actual_limit]
+        
+        # Getting labels from data direct
+        self.dataFrameToLabelsRaw(midPrices=mids)
         
         return self.x
             
@@ -177,40 +182,57 @@ class CustomDataLoader:
 
         return self.x
     
-    def dataFrameToLabelsRaw(self) -> np.ndarray:
+    def dataFrameToLabelsRaw(self, midPrices: np.array = None) -> np.ndarray:
         """
         Description:
             Finds the feature labels from the raw LOB data
+        Parameters:
+            midPrices (np.array): Option to provide the midprices, skips getting it from the raw file
         """
         # ASKp1, ASKs1, BIDp1, BIDs1, ...
         
-        ask1Col = 0; bid1Col = 2
+        if self.globalFrame is not None:
+            self.rowLim  = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
         
-        self.rowLim  = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
+        if midPrices is None:
+        
+            ask1Col = 0; bid1Col = 2
             
-        df = self.globalFrame.values  # Convert DataFrame to NumPy array for fast indexing
-        horizon = self.horizon
-        
-        rowLim = min(self.rowLim, len(df) - horizon)
-
-        # For each window, get the last ask/bid in the window as the "start"
-        # and the ask/bid at lookForwardHorizon after the window as the "end"
-        startAsk = df[self.horizon - 1 : self.horizon - 1 + rowLim, ask1Col]
-        endAsk   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, ask1Col]
-        startBid = df[self.horizon - 1 : self.horizon - 1 + rowLim, bid1Col]
-        endBid   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, bid1Col]
-        
-        # Ensure all arrays are the same length by truncating to the minimum length
-        min_len = min(len(startAsk), len(endAsk), len(startBid), len(endBid))
-        startAsk = startAsk[:min_len]
-        endAsk = endAsk[:min_len]
-        startBid = startBid[:min_len]
-        endBid = endBid[:min_len]
-        
-        startMid = (startAsk + startBid) / 2
-        endMid   = (endAsk + endBid) / 2
+            # self.rowLim  = self.rowLim if self.rowLim is not None else len(self.globalFrame) - self.horizon - self.lookForwardHorizon
+                
+            df = self.globalFrame.values  # Convert DataFrame to NumPy array for fast indexing
+            rowLim = min(self.rowLim, len(df) - self.horizon - self.lookForwardHorizon)
+            
+            # For each window, get the last ask/bid in the window as the "start"
+            # and the ask/bid at lookForwardHorizon after the window as the "end"
+            startAsk = df[self.horizon - 1 : self.horizon - 1 + rowLim, ask1Col]
+            endAsk   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, ask1Col]
+            startBid = df[self.horizon - 1 : self.horizon - 1 + rowLim, bid1Col]
+            endBid   = df[self.horizon - 1 + self.lookForwardHorizon : self.horizon - 1 + self.lookForwardHorizon + rowLim, bid1Col]
+            
+            # Ensure all arrays are the same length by truncating to the minimum length
+            min_len = min(len(startAsk), len(endAsk), len(startBid), len(endBid))
+            startAsk = startAsk[:min_len]
+            endAsk = endAsk[:min_len]
+            startBid = startBid[:min_len]
+            endBid = endBid[:min_len]
+            
+            startMid = (startAsk + startBid) / 2
+            endMid   = (endAsk + endBid) / 2
+        else:
+            print("Getting mid from provided data, not getting from orderbooks")
+            rowLim = min(self.rowLim, len(midPrices) - self.horizon - self.lookForwardHorizon)
+            # Use the provided midPrices
+            startMid = midPrices[self.horizon - 1 : -self.lookForwardHorizon]
+            endMid   = midPrices[self.horizon - 1 + self.lookForwardHorizon : ]
+            
+            # Ensure we don't exceed rowLim
+            min_len = min(len(startMid), len(endMid), rowLim)
+            startMid = startMid[:min_len]
+            endMid   = endMid[:min_len]
+            
         midChange = (endMid - startMid)
-        
+                            
         assert isinstance(self.threshold, (float, int)) or self.threshold == AUTO, f"Please check threshold is numeric or {AUTO}"
 
         assert self.labelType in [CATEGORICAL, REGRESSION], f"Please ensure that the labelType is {CATEGORICAL} or {REGRESSION}"
@@ -238,9 +260,9 @@ class CustomDataLoader:
             print(f"Auto thresholds: down={down_threshold:.6f}, up={up_threshold:.6f}")
             
             # Assign labels based on the thresholds
-            down    = ((midChange <= down_threshold)) & (midChange != 0).astype(int)
+            down    = ((midChange <= down_threshold) & (midChange != 0)).astype(int)
             up      = ((midChange >= up_threshold) & (midChange != 0)).astype(int)
-            neutral = ((midChange >= down_threshold) & (midChange <= up_threshold)).astype(int)
+            neutral = ((midChange > down_threshold) & (midChange < up_threshold)).astype(int)
             
             # Print distribution statistics
             # Print distribution statistics for AUTO threshold
@@ -330,12 +352,12 @@ class CustomDataLoader:
             self.getOrderFlowsFromFiles()
         
         elif self.representation == ORDERVOL:
-            self.dataFrameToLabelsRaw()
+            # self.dataFrameToLabelsRaw()
             self.getFeaturesFromFilesDirect(representation=self.representation)
         
         elif self.representation == ORDERFIXEDVOL:
-            self.getDataFromFiles()
-            self.dataFrameToLabelsRaw()
+            # self.getDataFromFiles()
+            # self.dataFrameToLabelsRaw()
             self.getFeaturesFromFilesDirect(representation=self.representation)
         
         else:
