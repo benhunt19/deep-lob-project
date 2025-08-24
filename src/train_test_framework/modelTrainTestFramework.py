@@ -10,7 +10,7 @@ from inspect import isclass
 
 from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable, resultsLocation
 from src.routers.modelRouter import *
-from src.core.constants import TEST, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
+from src.core.constants import TEST, ALGO, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 from src.train_test_framework.metaMaker import ModelMetaMaker
@@ -51,7 +51,7 @@ class ModelTrainTestFramework:
         del x, y
         gc.collect()
             
-    def run(self, metas : list[dict] = None) -> None:
+    def run(self, metas : list[dict] = None):
         """
         Description:
             Run model train test framework
@@ -133,6 +133,26 @@ class ModelTrainTestFramework:
                 gc.collect()
                 resultsStore['metrics'] = metrics
                 resultsStore['metricsStrength'] = metricsStrength
+            
+            if ALGO in meta['steps']:
+                """
+                Special case for testing algos, uses original framework
+                """
+                
+                if TRAIN not in meta['steps']:
+                    # Need to run full process as not run in above
+                    cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
+                
+                if 'loadModelPath' in meta:
+                    print("Loading model from file")
+                    model.loadFromWeights(meta['loadModelPath'])
+                    
+                x_test, y_test = cdl.getTestData()
+                print('x_test.shape', x_test.shape)
+                print('y_test.shape', y_test.shape)
+                preds = model.predict(x = x_test, y = y_test)
+                
+                return preds, y_test
 
             # Save resultsStore as JSON
             results_path = resultsLocation(run_id=run_id, representation=meta['representation'], ticker=meta['ticker'])
