@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (Flatten, Dense, Dropout, Activation, Input, LSTM, Reshape, Conv2D, MaxPooling2D, LeakyReLU, concatenate)
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 from src.models.deepLOB_TF import DeepLOB_TF
 
@@ -88,3 +89,7 @@ class DeepLOBREG_TF(DeepLOB_TF):
             metrics=['mse']
         )
         return model
+    
+    @property
+    def earlyStopping(self):
+        return EarlyStopping(monitor="val_mse", patience=self.patience, mode="auto", restore_best_weights=True)

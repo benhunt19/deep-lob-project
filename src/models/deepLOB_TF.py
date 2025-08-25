@@ -40,6 +40,7 @@ class DeepLOB_TF(BaseModel):
         self.model = self._build_model()                                    # Build the model
         self.name = DeepLOB_TF.name                                         # Model name
         self.weightsFileFormat = 'h5'                                       # File format for saving weights
+        self.patience = 3                                                   # For early stopping
 
     def _build_model(self):
         input_lmd = Input(shape=self.shape)
@@ -105,18 +106,22 @@ class DeepLOB_TF(BaseModel):
             metrics=['accuracy']
         )
         return model
+    
+    @property
+    def earlyStopping(self):
+        return EarlyStopping(monitor="val_accuracy", patience=self.patience, mode="auto", restore_best_weights=True)
 
-    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, patience: int = 3):
-
-        early_stopping = EarlyStopping(monitor="val_loss", patience=patience, mode="auto", restore_best_weights=True)
+    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, patience: int = 4, validation_split = 1/9):
 
         self.model.fit(
             x=x,
             y=y,
             epochs=numEpoch,
             batch_size=batchSize,
-            callbacks=[early_stopping]
+            callbacks=[self.earlyStopping],
+            validation_split=validation_split
         )
+        
         del x, y
         gc.collect()
 
