@@ -111,7 +111,7 @@ class DeepLOB_TF(BaseModel):
     @property
     def earlyStopping(self):
         return EarlyStopping(
-            monitor=self.self.earlyStoppingMonitor,
+            monitor=self.earlyStoppingMonitor,
             patience=self.patience,
             mode="auto",
             restore_best_weights=True,
