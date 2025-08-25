@@ -114,8 +114,7 @@ class DeepLOB_TF(BaseModel):
             monitor=self.earlyStoppingMonitor,
             patience=self.patience,
             mode="auto",
-            restore_best_weights=True,
-            min_delta=0.002
+            restore_best_weights=True
         )
 
     def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, validation_split = 3/17):
