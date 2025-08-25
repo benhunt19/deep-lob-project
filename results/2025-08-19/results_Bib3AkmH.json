@@ -1,0 +1,68 @@
+{
+    "run_id": "Bib3AkmH",
+    "datetime": "2025-08-19 16:37:39",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 5,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 50,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.32299906991629246,
+        "precision": 0.3363731277516702,
+        "recall": 0.33615204527023607,
+        "f1": 0.31781779619168965,
+        "confusion_matrix": [
+            [
+                12169,
+                5457,
+                13070
+            ],
+            [
+                15905,
+                7060,
+                15997
+            ],
+            [
+                11882,
+                5383,
+                13068
+            ]
+        ],
+        "categorical_crossentropy": 1.1658278988426058
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3166998758266193,
+        "coverage@>0.4": 0.692642337810403,
+        "accuracy@>0.5": 0.310774452584958,
+        "coverage@>0.5": 0.24161174505705513,
+        "accuracy@>0.6": 0.31910112359550563,
+        "coverage@>0.6": 0.08455761018491664,
+        "accuracy@>0.7": 0.33708838821490467,
+        "coverage@>0.7": 0.023082077386964828,
+        "accuracy@>0.8": 0.30971128608923887,
+        "coverage@>0.8": 0.0038103429308637775,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}

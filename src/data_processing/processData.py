@@ -472,7 +472,8 @@ def process_data(
                         scaling=scaling,
                         features=ORDERFIXEDVOL,
                         date=str(date.date()),
-                        rowLim=rowLim
+                        rowLim=rowLim,
+                        negativeBids=True
                     )
                 else:
                     print(f"Check data, skipped processing fixed volume due to zero length {ORDERFIXEDVOL}")

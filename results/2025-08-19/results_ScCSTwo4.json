@@ -1,0 +1,68 @@
+{
+    "run_id": "ScCSTwo4",
+    "datetime": "2025-08-19 18:30:52",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 400,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.388194937544379,
+        "precision": 0.129398312514793,
+        "recall": 0.3333333333333333,
+        "f1": 0.18642671719245665,
+        "confusion_matrix": [
+            [
+                0,
+                31206,
+                0
+            ],
+            [
+                0,
+                38816,
+                0
+            ],
+            [
+                0,
+                29969,
+                0
+            ]
+        ],
+        "categorical_crossentropy": 1.210381399343603
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": null,
+        "coverage@>0.4": 0.0,
+        "accuracy@>0.5": null,
+        "coverage@>0.5": 0.0,
+        "accuracy@>0.6": null,
+        "coverage@>0.6": 0.0,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}

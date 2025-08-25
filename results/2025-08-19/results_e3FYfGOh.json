@@ -1,0 +1,50 @@
+{
+    "run_id": "e3FYfGOh",
+    "datetime": "2025-08-19 18:18:18",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 2,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 500,
+        "representation": "orderfixedvol",
+        "labelType": "REGRESSION",
+        "archive": true
+    },
+    "metrics": {
+        "MSE": 0.6529104113578796,
+        "R2": -0.5282043218612671,
+        "MAPE": 621.347900390625,
+        "MAE": 0.6715213060379028
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.48234921640018996,
+        "coverage@>0.4": 0.5054054864937845,
+        "accuracy@>0.5": 0.48541737456110545,
+        "coverage@>0.5": 0.3531917872608535,
+        "accuracy@>0.6": 0.48088752196836554,
+        "coverage@>0.6": 0.18209638867498074,
+        "accuracy@>0.7": 0.4469584569732938,
+        "coverage@>0.7": 0.05392485323679131,
+        "accuracy@>0.8": 0.27044025157232704,
+        "coverage@>0.8": 0.0031802862257603185,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}

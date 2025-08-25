@@ -1,0 +1,61 @@
+{
+    "run_id": "6QRVI5YJ",
+    "datetime": "2025-08-23 19:56:21",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 3,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 2,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.9,
+        "lookForwardHorizon": 20,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.19543863158947683,
+        "precision": 0.09771931579473842,
+        "recall": 0.5,
+        "f1": 0.16348696321585166,
+        "confusion_matrix": [
+            [
+                0,
+                80432
+            ],
+            [
+                0,
+                19538
+            ]
+        ],
+        "categorical_crossentropy": 0.2955663586599686
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.19543863158947683,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": null,
+        "coverage@>0.5": 0.0,
+        "accuracy@>0.6": null,
+        "coverage@>0.6": 0.0,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0
+    }
+}
