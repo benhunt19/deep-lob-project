@@ -41,6 +41,7 @@ class DeepLOB_TF(BaseModel):
         self.name = DeepLOB_TF.name                                         # Model name
         self.weightsFileFormat = 'h5'                                       # File format for saving weights
         self.patience = 3                                                   # For early stopping
+        self.earlyStoppingMonitor = "val_mse"
 
     def _build_model(self):
         input_lmd = Input(shape=self.shape)
@@ -109,9 +110,15 @@ class DeepLOB_TF(BaseModel):
     
     @property
     def earlyStopping(self):
-        return EarlyStopping(monitor="val_accuracy", patience=self.patience, mode="auto", restore_best_weights=True)
+        return EarlyStopping(
+            monitor=self.self.earlyStoppingMonitor,
+            patience=self.patience,
+            mode="auto",
+            restore_best_weights=True,
+            min_delta=0.002
+        )
 
-    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, patience: int = 4, validation_split = 1/9):
+    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, validation_split = 3/17):
 
         self.model.fit(
             x=x,

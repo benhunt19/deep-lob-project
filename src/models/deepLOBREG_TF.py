@@ -24,6 +24,7 @@ class DeepLOBREG_TF(DeepLOB_TF):
         super().__init__(shape, number_of_lstm)
         self.model = self._build_model()                                    # Build the model
         self.name = DeepLOBREG_TF.name                                         # Model name
+        self.earlyStoppingMonitor = "val_mse"
 
     def _build_model(self):
         input_lmd = Input(shape=self.shape)
@@ -89,7 +90,3 @@ class DeepLOBREG_TF(DeepLOB_TF):
             metrics=['mse']
         )
         return model
-    
-    @property
-    def earlyStopping(self):
-        return EarlyStopping(monitor="val_mse", patience=self.patience, mode="auto", restore_best_weights=True)
