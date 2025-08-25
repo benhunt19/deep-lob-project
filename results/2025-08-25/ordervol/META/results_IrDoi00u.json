@@ -1,0 +1,72 @@
+{
+    "run_id": "IrDoi00u",
+    "datetime": "2025-08-25 17:45:11",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 80,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.350155352603333,
+        "precision": 0.3504318469066991,
+        "recall": 0.3538668582494655,
+        "f1": 0.3495949220951747,
+        "confusion_matrix": [
+            [
+                6963,
+                5059,
+                5095
+            ],
+            [
+                7976,
+                6203,
+                6525
+            ],
+            [
+                4791,
+                5064,
+                5429
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.350155352603333,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": 0.35020661157024796,
+        "coverage@>0.5": 0.9660860559269372,
+        "accuracy@>0.6": 0.34797853309481214,
+        "coverage@>0.6": 0.7894736842105263,
+        "accuracy@>0.7": 0.3427811381701872,
+        "coverage@>0.7": 0.5946144430844553,
+        "accuracy@>0.8": 0.33541051268563105,
+        "coverage@>0.8": 0.4653610771113831,
+        "accuracy@>0.9": 0.33509629203794195,
+        "coverage@>0.9": 0.3275586103003484,
+        "accuracy@1%_coverage": 0.1902071563088512,
+        "accuracy@5%_coverage": 0.30583804143126175,
+        "accuracy@10%_coverage": 0.34519774011299437,
+        "accuracy@25%_coverage": 0.32826152455558905,
+        "accuracy@50%_coverage": 0.3367731244350708
+    }
+}

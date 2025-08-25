@@ -1,0 +1,72 @@
+{
+    "run_id": "04hICnLj",
+    "datetime": "2025-08-25 16:15:30",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "TSLA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 10,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.46236372728788133,
+        "precision": 0.45637615430458994,
+        "recall": 0.45550242275522357,
+        "f1": 0.4539725762973423,
+        "confusion_matrix": [
+            [
+                20988,
+                15532,
+                5267
+            ],
+            [
+                20206,
+                33153,
+                13846
+            ],
+            [
+                7483,
+                18298,
+                15202
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.47116282516860597,
+        "coverage@>0.4": 0.8996832805467578,
+        "accuracy@>0.5": 0.5085554242702727,
+        "coverage@>0.5": 0.3047307884647441,
+        "accuracy@>0.6": 0.5631233969791963,
+        "coverage@>0.6": 0.07019169861643608,
+        "accuracy@>0.7": 0.6415607985480943,
+        "coverage@>0.7": 0.007347891315219203,
+        "accuracy@>0.8": 1.0,
+        "coverage@>0.8": 2.0003333888981497e-05,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.6364242828552368,
+        "accuracy@5%_coverage": 0.5701520405441451,
+        "accuracy@10%_coverage": 0.5516436620657464,
+        "accuracy@25%_coverage": 0.5171898754434161,
+        "accuracy@50%_coverage": 0.4912451491591876
+    }
+}

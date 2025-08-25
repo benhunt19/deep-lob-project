@@ -1,0 +1,72 @@
+{
+    "run_id": "GWvjvxxZ",
+    "datetime": "2025-08-25 17:36:10",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.36359668267132256,
+        "precision": 0.32261824632130814,
+        "recall": 0.3269008583434312,
+        "f1": 0.32076585361017435,
+        "confusion_matrix": [
+            [
+                1210,
+                1179,
+                702
+            ],
+            [
+                2171,
+                2586,
+                1070
+            ],
+            [
+                873,
+                1295,
+                369
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.363612542580138,
+        "coverage@>0.4": 0.9994762112614579,
+        "accuracy@>0.5": 0.36407274069971385,
+        "coverage@>0.5": 0.9457005674378001,
+        "accuracy@>0.6": 0.34518013631937683,
+        "coverage@>0.6": 0.7172413793103448,
+        "accuracy@>0.7": 0.3066743383199079,
+        "coverage@>0.7": 0.45517241379310347,
+        "accuracy@>0.8": 0.27378964941569284,
+        "coverage@>0.8": 0.2614578786556089,
+        "accuracy@>0.9": 0.18128654970760233,
+        "coverage@>0.9": 0.08956787429070275,
+        "accuracy@1%_coverage": 0.07894736842105263,
+        "accuracy@5%_coverage": 0.11188811188811189,
+        "accuracy@10%_coverage": 0.20786026200873362,
+        "accuracy@25%_coverage": 0.27244149493538244,
+        "accuracy@50%_coverage": 0.31307840055875674
+    }
+}

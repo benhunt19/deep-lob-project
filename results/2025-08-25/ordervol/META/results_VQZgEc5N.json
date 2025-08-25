@@ -1,0 +1,72 @@
+{
+    "run_id": "VQZgEc5N",
+    "datetime": "2025-08-25 17:34:58",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3223068962273027,
+        "precision": 0.3694824677815202,
+        "recall": 0.35175542062106874,
+        "f1": 0.28208612154867035,
+        "confusion_matrix": [
+            [
+                7841,
+                396,
+                8294
+            ],
+            [
+                8911,
+                704,
+                11315
+            ],
+            [
+                6701,
+                399,
+                8584
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.32476682101158694,
+        "coverage@>0.4": 0.8493179038479631,
+        "accuracy@>0.5": 0.3283216938748276,
+        "coverage@>0.5": 0.4230125129363063,
+        "accuracy@>0.6": 0.3169959001118151,
+        "coverage@>0.6": 0.10096904694703171,
+        "accuracy@>0.7": 0.20343461030383092,
+        "coverage@>0.7": 0.014244049299087402,
+        "accuracy@>0.8": 0.47368421052631576,
+        "coverage@>0.8": 0.0003575124658951924,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.1958568738229755,
+        "accuracy@5%_coverage": 0.2600677455777192,
+        "accuracy@10%_coverage": 0.3165223936770794,
+        "accuracy@25%_coverage": 0.32274574740328166,
+        "accuracy@50%_coverage": 0.3293692608761102
+    }
+}

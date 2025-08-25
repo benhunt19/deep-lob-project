@@ -1,0 +1,72 @@
+{
+    "run_id": "HtdfdZMa",
+    "datetime": "2025-08-25 17:02:29",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "TSLA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4876937952188844,
+        "precision": 0.3258200543370459,
+        "recall": 0.4390120450080744,
+        "f1": 0.3733528731177364,
+        "confusion_matrix": [
+            [
+                35019,
+                0,
+                21382
+            ],
+            [
+                17941,
+                0,
+                20867
+            ],
+            [
+                16638,
+                0,
+                38118
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.49481803520089757,
+        "coverage@>0.4": 0.95095522288534,
+        "accuracy@>0.5": 0.5439119185492994,
+        "coverage@>0.5": 0.5953455806354816,
+        "accuracy@>0.6": 0.6051394364140751,
+        "coverage@>0.6": 0.2283532824325676,
+        "accuracy@>0.7": 0.6972627737226277,
+        "coverage@>0.7": 0.036541859767279035,
+        "accuracy@>0.8": 0.8101851851851852,
+        "coverage@>0.8": 0.0014403360784182976,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7431621080720481,
+        "accuracy@5%_coverage": 0.6836489730594826,
+        "accuracy@10%_coverage": 0.6503067484662577,
+        "accuracy@25%_coverage": 0.5994238617268144,
+        "accuracy@50%_coverage": 0.5569736736816836
+    }
+}
