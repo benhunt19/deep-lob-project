@@ -262,7 +262,7 @@ class CustomDataLoader:
             # Assign labels based on the thresholds
             down    = ((midChange <= down_threshold) & (midChange != 0)).astype(int)
             up      = ((midChange >= up_threshold) & (midChange != 0)).astype(int)
-            neutral = ((midChange > down_threshold) & (midChange < up_threshold)).astype(int)
+            neutral = ((midChange > down_threshold) & (midChange < up_threshold) | (midChange == 0)).astype(int)
             
             # Print distribution statistics
             # Print distribution statistics for AUTO threshold
@@ -299,7 +299,7 @@ class CustomDataLoader:
         normalised = np.clip(normalised, -clip_thresh, clip_thresh)
         
         # Return as a column vector
-        print(f"Labels Greater than zero: {np.sum(normalised > 0)}, less than zero: {np.sum(normalised < 0)}")
+        print(f"Labels Greater than zero: {np.sum(normalised > 0)}, less than zero: {np.sum(normalised < 0)}, zero: {np.sum(normalised == 0)}")
         return normalised.reshape(-1, 1)
     
     def splitDataTrainTest(self):

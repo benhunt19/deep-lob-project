@@ -17,6 +17,9 @@ from sklearn.metrics import (
     mean_absolute_error,
 )
 from scipy.stats import entropy
+
+coverage_targets = [0.01, 0.05, 0.1, 0.25, 0.5]
+
 class ProcessMetrics:
     """
     Description:
@@ -65,6 +68,21 @@ class ProcessMetrics:
                 y_t = y_true[mask]
                 results[f'accuracy@>{thresh}'] = accuracy_score(y_t, y_pred)
                 results[f'coverage@>{thresh}'] = len(y_t) / len(y_true)
+        
+        # Also calculate accuracy at specific coverage targets
+        y_pred = np.argmax(predictions, axis=1)
+        confidences = np.max(predictions, axis=1)
+        sorted_indices = np.argsort(-confidences)  # Sort in descending order of confidence
+        sorted_true = y_true[sorted_indices]
+        sorted_pred = y_pred[sorted_indices]
+
+        for target in coverage_targets:
+            target_samples = int(len(y_true) * target)
+            if target_samples > 0:
+                selected_true = sorted_true[:target_samples]
+                selected_pred = sorted_pred[:target_samples]
+                results[f'accuracy@{int(target*100)}%_coverage'] = accuracy_score(selected_true, selected_pred)
+        
         return results
     
     @staticmethod
@@ -81,14 +99,14 @@ class ProcessMetrics:
             actual = actual.detach().cpu().numpy()
         if hasattr(predictions, 'detach'):
             predictions = predictions.detach().cpu().numpy()
-        return {
+        
+        metrics = {
             'MSE': mean_squared_error(actual, predictions),
             'R2': r2_score(actual, predictions),
             'MAPE': np.mean(np.abs((actual - predictions) / actual)) * 100,
             'MAE': mean_absolute_error(actual, predictions),
-            # 'KLD': entropy(actual, predictions, base=2),
-            
-        }
+        }        
+        return metrics
         
     @staticmethod
     def RegressionStrength(predictions : np.ndarray = None, actual : np.ndarray = None):
@@ -99,7 +117,7 @@ class ProcessMetrics:
             predictions (np.ndarray): The model predictions
             actual (np.ndarray): The actual test labels
         """
-        thresholds = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
         results = {}
         y_true = np.sign(actual).flatten()
         y_pred = np.sign(predictions).flatten()
@@ -113,4 +131,18 @@ class ProcessMetrics:
             acc = accuracy_score(y_true[mask], y_pred[mask])
             results[f'accuracy@>{thresh}'] = acc
             results[f'coverage@>{thresh}'] = np.mean(mask)
+        
+        # Also calculate accuracy at specific coverage targets
+        abs_confidence = np.abs(predictions).flatten()
+        sorted_indices = np.argsort(-abs_confidence)  # Sort in descending order of absolute confidence
+        sorted_true = y_true[sorted_indices]
+        sorted_pred = y_pred[sorted_indices]
+
+        for target in coverage_targets:
+            target_samples = int(len(y_true) * target)
+            if target_samples > 0:
+                selected_true = sorted_true[:target_samples]
+                selected_pred = sorted_pred[:target_samples]
+                results[f'accuracy@{int(target*100)}%_coverage'] = accuracy_score(selected_true, selected_pred)
+            
         return results

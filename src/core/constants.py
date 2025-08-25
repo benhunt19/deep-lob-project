@@ -41,6 +41,7 @@ STD_DEV_ROW = 1
 # Process steps
 TEST = "TEST"
 TRAIN = "TRAIN"
+ALGO = "ALGO"
 PROCESS_DATA = "PROCESS_DATA"
 
 # Model Label Modes, also used for anything AUTOMATIC
