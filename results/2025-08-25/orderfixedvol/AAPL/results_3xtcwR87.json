@@ -1,0 +1,72 @@
+{
+    "run_id": "3xtcwR87",
+    "datetime": "2025-08-25 13:34:40",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 10,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.5371228538089682,
+        "precision": 0.4925680137195296,
+        "recall": 0.3946881343497062,
+        "f1": 0.37388167201332007,
+        "confusion_matrix": [
+            [
+                8285,
+                25576,
+                511
+            ],
+            [
+                8365,
+                69527,
+                2468
+            ],
+            [
+                1972,
+                30528,
+                2743
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5378615947995956,
+        "coverage@>0.4": 0.9959859976662777,
+        "accuracy@>0.5": 0.562816680640105,
+        "coverage@>0.5": 0.7316686114352392,
+        "accuracy@>0.6": 0.6248594178775474,
+        "coverage@>0.6": 0.1482180363393899,
+        "accuracy@>0.7": 0.7053973013493253,
+        "coverage@>0.7": 0.008894815802633772,
+        "accuracy@>0.8": 0.7142857142857143,
+        "coverage@>0.8": 4.667444574095683e-05,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.6931287525016678,
+        "accuracy@5%_coverage": 0.6555081355028007,
+        "accuracy@10%_coverage": 0.6420617456824699,
+        "accuracy@25%_coverage": 0.6066732456725256,
+        "accuracy@50%_coverage": 0.5803272567244989
+    }
+}

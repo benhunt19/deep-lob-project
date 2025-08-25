@@ -1,0 +1,72 @@
+{
+    "run_id": "9aFPtbHl",
+    "datetime": "2025-08-25 15:38:40",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 100,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.32842144668107337,
+        "precision": 0.3587301733926298,
+        "recall": 0.35330634306958336,
+        "f1": 0.3200598788927489,
+        "confusion_matrix": [
+            [
+                6582,
+                2320,
+                8396
+            ],
+            [
+                9188,
+                3856,
+                11447
+            ],
+            [
+                6003,
+                2114,
+                8863
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3224744608399546,
+        "coverage@>0.4": 0.7495448280556075,
+        "accuracy@>0.5": 0.3278258718773188,
+        "coverage@>0.5": 0.3439738637717164,
+        "accuracy@>0.6": 0.3086453744493392,
+        "coverage@>0.6": 0.12360257959128111,
+        "accuracy@>0.7": 0.29640018700327253,
+        "coverage@>0.7": 0.036396739777773995,
+        "accuracy@>0.8": 0.30971128608923887,
+        "coverage@>0.8": 0.0064830097500382855,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.28960817717206133,
+        "accuracy@5%_coverage": 0.29339686861810754,
+        "accuracy@10%_coverage": 0.29628999319264804,
+        "accuracy@25%_coverage": 0.3215355295398857,
+        "accuracy@50%_coverage": 0.319833923223523
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "CKcX1HgB",
+    "datetime": "2025-08-25 15:42:14",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.31621469600640884,
+        "precision": 0.31934209131999974,
+        "recall": 0.3511844378245797,
+        "f1": 0.2856867167039143,
+        "confusion_matrix": [
+            [
+                8838,
+                1233,
+                7224
+            ],
+            [
+                10864,
+                1110,
+                12066
+            ],
+            [
+                7676,
+                1054,
+                8604
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.317574452540711,
+        "coverage@>0.4": 0.8865499667626856,
+        "accuracy@>0.5": 0.31761633294953523,
+        "coverage@>0.5": 0.6069474509536552,
+        "accuracy@>0.6": 0.3165293262239457,
+        "coverage@>0.6": 0.31647036765583186,
+        "accuracy@>0.7": 0.3078892250407261,
+        "coverage@>0.7": 0.14648281034277047,
+        "accuracy@>0.8": 0.29690265486725664,
+        "coverage@>0.8": 0.03852119517973717,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.3412969283276451,
+        "accuracy@5%_coverage": 0.3013978861234231,
+        "accuracy@10%_coverage": 0.2940675076713263,
+        "accuracy@25%_coverage": 0.3120610895206927,
+        "accuracy@50%_coverage": 0.3206177132337901
+    }
+}
