@@ -1,0 +1,72 @@
+{
+    "run_id": "PbAOfzWM",
+    "datetime": "2025-08-26 16:38:38",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "JPM",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4920292357274402,
+        "precision": 0.4759809295910265,
+        "recall": 0.48282469251815696,
+        "f1": 0.47384935929992517,
+        "confusion_matrix": [
+            [
+                6848,
+                2386,
+                2519
+            ],
+            [
+                3498,
+                2826,
+                4292
+            ],
+            [
+                2945,
+                2013,
+                7425
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5101180162803622,
+        "coverage@>0.4": 0.8802083333333334,
+        "accuracy@>0.5": 0.5942826101717933,
+        "coverage@>0.5": 0.42377417127071826,
+        "accuracy@>0.6": 0.681023720349563,
+        "coverage@>0.6": 0.18439226519337015,
+        "accuracy@>0.7": 0.7564505978602895,
+        "coverage@>0.7": 0.04572398710865562,
+        "accuracy@>0.8": 0.8760330578512396,
+        "coverage@>0.8": 0.003481813996316759,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.8443804034582133,
+        "accuracy@5%_coverage": 0.7501439263097294,
+        "accuracy@10%_coverage": 0.7185611510791367,
+        "accuracy@25%_coverage": 0.6515883977900553,
+        "accuracy@50%_coverage": 0.5729166666666666
+    }
+}

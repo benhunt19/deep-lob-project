@@ -1,0 +1,72 @@
+{
+    "run_id": "8lsLrCWw",
+    "datetime": "2025-08-26 17:11:34",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "JPM",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.38620849242161287,
+        "precision": 0.3575048864865999,
+        "recall": 0.34506008695773066,
+        "f1": 0.3283481056697468,
+        "confusion_matrix": [
+            [
+                2769,
+                5296,
+                844
+            ],
+            [
+                4760,
+                9341,
+                1417
+            ],
+            [
+                2934,
+                5969,
+                1242
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.38620849242161287,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": 0.38616019530341783,
+        "coverage@>0.5": 0.9952562767557561,
+        "accuracy@>0.6": 0.38688167217003816,
+        "coverage@>0.6": 0.9022619460835358,
+        "accuracy@>0.7": 0.3861978883204528,
+        "coverage@>0.7": 0.7972058313085734,
+        "accuracy@>0.8": 0.38866666666666666,
+        "coverage@>0.8": 0.650815688996876,
+        "accuracy@>0.9": 0.37125935162094764,
+        "coverage@>0.9": 0.37116741872035175,
+        "accuracy@1%_coverage": 0.5014492753623189,
+        "accuracy@5%_coverage": 0.29224537037037035,
+        "accuracy@10%_coverage": 0.2892681515765114,
+        "accuracy@25%_coverage": 0.34027536734930003,
+        "accuracy@50%_coverage": 0.38100196690963783
+    }
+}
