@@ -1,0 +1,72 @@
+{
+    "run_id": "OvZqq01V",
+    "datetime": "2025-08-26 11:33:10",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 10,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.8826948076776019,
+        "precision": 0.598320738198336,
+        "recall": 0.4877094765233563,
+        "f1": 0.5246647596926628,
+        "confusion_matrix": [
+            [
+                492,
+                1645,
+                137
+            ],
+            [
+                536,
+                33479,
+                585
+            ],
+            [
+                189,
+                1510,
+                658
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.8833750063785273,
+        "coverage@>0.4": 0.9990568682929316,
+        "accuracy@>0.5": 0.9094730561657581,
+        "coverage@>0.5": 0.9398944712089929,
+        "accuracy@>0.6": 0.9373343542022499,
+        "coverage@>0.6": 0.8655909867196859,
+        "accuracy@>0.7": 0.9462240103190934,
+        "coverage@>0.7": 0.82998139226632,
+        "accuracy@>0.8": 0.9561392117394975,
+        "coverage@>0.8": 0.785144401111366,
+        "accuracy@>0.9": 0.9731209181169542,
+        "coverage@>0.9": 0.6752058321225561,
+        "accuracy@1%_coverage": 1.0,
+        "accuracy@5%_coverage": 0.9923508414074452,
+        "accuracy@10%_coverage": 0.9898037216416008,
+        "accuracy@25%_coverage": 0.9875599061894565,
+        "accuracy@50%_coverage": 0.9838388988019373
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "UDofyFHf",
+    "datetime": "2025-08-26 12:39:20",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3681098284401424,
+        "precision": 0.43494110006616454,
+        "recall": 0.41301821009707096,
+        "f1": 0.323503994303514,
+        "confusion_matrix": [
+            [
+                9713,
+                278,
+                6368
+            ],
+            [
+                10014,
+                755,
+                11109
+            ],
+            [
+                5512,
+                273,
+                9079
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.37641235099558257,
+        "coverage@>0.4": 0.8483644375812132,
+        "accuracy@>0.5": 0.4111065235342692,
+        "coverage@>0.5": 0.4561119376282933,
+        "accuracy@>0.6": 0.4528611041088984,
+        "coverage@>0.6": 0.14941338204553586,
+        "accuracy@>0.7": 0.5092378752886836,
+        "coverage@>0.7": 0.016308544095214778,
+        "accuracy@>0.8": 0.5333333333333333,
+        "coverage@>0.8": 0.00028248055592173404,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.5178907721280602,
+        "accuracy@5%_coverage": 0.4817325800376648,
+        "accuracy@10%_coverage": 0.45706214689265534,
+        "accuracy@25%_coverage": 0.43962335216572507,
+        "accuracy@50%_coverage": 0.40519774011299436
+    }
+}

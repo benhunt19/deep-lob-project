@@ -1,0 +1,72 @@
+{
+    "run_id": "hQbZGdwj",
+    "datetime": "2025-08-25 17:47:24",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 80,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.32010168534036343,
+        "precision": 0.3416826463333244,
+        "recall": 0.3410359440033907,
+        "f1": 0.30021094758960415,
+        "confusion_matrix": [
+            [
+                7818,
+                1543,
+                7756
+            ],
+            [
+                9285,
+                2004,
+                9415
+            ],
+            [
+                6660,
+                1447,
+                7177
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.31692566981436043,
+        "coverage@>0.4": 0.7597589680821015,
+        "accuracy@>0.5": 0.3136444181925576,
+        "coverage@>0.5": 0.2869221353921476,
+        "accuracy@>0.6": 0.33818742504711324,
+        "coverage@>0.6": 0.10991432068543451,
+        "accuracy@>0.7": 0.3523903400689995,
+        "coverage@>0.7": 0.03820732511062989,
+        "accuracy@>0.8": 0.409375,
+        "coverage@>0.8": 0.012051595894925148,
+        "accuracy@>0.9": 0.48497854077253216,
+        "coverage@>0.9": 0.004387534130496187,
+        "accuracy@1%_coverage": 0.4030131826741996,
+        "accuracy@5%_coverage": 0.3389830508474576,
+        "accuracy@10%_coverage": 0.33728813559322035,
+        "accuracy@25%_coverage": 0.3183187707140705,
+        "accuracy@50%_coverage": 0.3117655920457969
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "WkcQfZjo",
+    "datetime": "2025-08-26 13:18:21",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "JPM",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4951143809633291,
+        "precision": 0.4327335365633201,
+        "recall": 0.42821280714377713,
+        "f1": 0.3910935944851981,
+        "confusion_matrix": [
+            [
+                6477,
+                357,
+                6035
+            ],
+            [
+                2668,
+                315,
+                4864
+            ],
+            [
+                3210,
+                434,
+                10436
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5181575387603621,
+        "coverage@>0.4": 0.8285722496838717,
+        "accuracy@>0.5": 0.5696547546941247,
+        "coverage@>0.5": 0.4744798252672721,
+        "accuracy@>0.6": 0.6281643380827223,
+        "coverage@>0.6": 0.2077537648005518,
+        "accuracy@>0.7": 0.6774622892635315,
+        "coverage@>0.7": 0.06477756063915392,
+        "accuracy@>0.8": 0.7379134860050891,
+        "coverage@>0.8": 0.011294401655362685,
+        "accuracy@>0.9": 0.9090909090909091,
+        "coverage@>0.9": 0.00031612829060811585,
+        "accuracy@1%_coverage": 0.7262247838616714,
+        "accuracy@5%_coverage": 0.6802760207015526,
+        "accuracy@10%_coverage": 0.6654210980166715,
+        "accuracy@25%_coverage": 0.6152431313944131,
+        "accuracy@50%_coverage": 0.5650074721232325
+    }
+}

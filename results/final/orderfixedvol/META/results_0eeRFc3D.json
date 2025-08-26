@@ -1,0 +1,72 @@
+{
+    "run_id": "0eeRFc3D",
+    "datetime": "2025-08-25 17:54:10",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 100,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3086182537439955,
+        "precision": 0.36304059310150644,
+        "recall": 0.3322979499227449,
+        "f1": 0.26393797170944494,
+        "confusion_matrix": [
+            [
+                7838,
+                185,
+                9370
+            ],
+            [
+                8466,
+                428,
+                11340
+            ],
+            [
+                7047,
+                294,
+                8117
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3042845123292991,
+        "coverage@>0.4": 0.5821230102665537,
+        "accuracy@>0.5": 0.2260536398467433,
+        "coverage@>0.5": 0.054083074314778184,
+        "accuracy@>0.6": 0.2699468085106383,
+        "coverage@>0.6": 0.014165960252425355,
+        "accuracy@>0.7": 0.2568306010928962,
+        "coverage@>0.7": 0.006894602995196383,
+        "accuracy@>0.8": 0.6190476190476191,
+        "coverage@>0.8": 0.0003955919751342187,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.2811320754716981,
+        "accuracy@5%_coverage": 0.22305953278070836,
+        "accuracy@10%_coverage": 0.2522607385079126,
+        "accuracy@25%_coverage": 0.28362595132243235,
+        "accuracy@50%_coverage": 0.30020345113405167
+    }
+}

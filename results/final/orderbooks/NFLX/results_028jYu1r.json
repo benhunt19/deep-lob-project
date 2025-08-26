@@ -1,0 +1,61 @@
+{
+    "run_id": "028jYu1r",
+    "datetime": "2025-08-25 19:10:47",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "orderbooks",
+        "labelType": "REGRESSION",
+        "archive": true
+    },
+    "metrics": {
+        "MSE": 0.3233780562877655,
+        "R2": -0.13318908214569092,
+        "MAPE": 200.59873962402344,
+        "MAE": 0.4588729441165924
+    },
+    "metricsStrength": {
+        "accuracy@>0.1": 0.5420512153906148,
+        "coverage@>0.1": 0.6623331898407232,
+        "accuracy@>0.2": 0.5408881339480709,
+        "coverage@>0.2": 0.3547998278088678,
+        "accuracy@>0.3": 0.5877192982456141,
+        "coverage@>0.3": 0.15703831252690487,
+        "accuracy@>0.4": 0.5653543307086614,
+        "coverage@>0.4": 0.054670684459750325,
+        "accuracy@>0.5": 0.6976744186046512,
+        "coverage@>0.5": 0.011106328024106759,
+        "accuracy@>0.6": 0.8333333333333334,
+        "coverage@>0.6": 0.0036160137752905726,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7672413793103449,
+        "accuracy@5%_coverage": 0.5637931034482758,
+        "accuracy@10%_coverage": 0.5684754521963824,
+        "accuracy@25%_coverage": 0.5514984498794351,
+        "accuracy@50%_coverage": 0.5377992078525917
+    }
+}

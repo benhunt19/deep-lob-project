@@ -1,0 +1,61 @@
+{
+    "run_id": "Pn4iIWCg",
+    "datetime": "2025-08-26 17:28:32",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 10,
+        "representation": "orderflows",
+        "labelType": "REGRESSION",
+        "archive": true
+    },
+    "metrics": {
+        "MSE": 0.2974999248981476,
+        "R2": -0.0002675056457519531,
+        "MAPE": 115.83860778808594,
+        "MAE": 0.3008877635002136
+    },
+    "metricsStrength": {
+        "accuracy@>0.1": null,
+        "coverage@>0.1": 0.0,
+        "accuracy@>0.2": null,
+        "coverage@>0.2": 0.0,
+        "accuracy@>0.3": null,
+        "coverage@>0.3": 0.0,
+        "accuracy@>0.4": null,
+        "coverage@>0.4": 0.0,
+        "accuracy@>0.5": null,
+        "coverage@>0.5": 0.0,
+        "accuracy@>0.6": null,
+        "coverage@>0.6": 0.0,
+        "accuracy@>0.7": null,
+        "coverage@>0.7": 0.0,
+        "accuracy@>0.8": null,
+        "coverage@>0.8": 0.0,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.226,
+        "accuracy@5%_coverage": 0.16533333333333333,
+        "accuracy@10%_coverage": 0.15293333333333334,
+        "accuracy@25%_coverage": 0.14746666666666666,
+        "accuracy@50%_coverage": 0.14488
+    }
+}

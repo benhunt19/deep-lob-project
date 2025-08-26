@@ -1,0 +1,72 @@
+{
+    "run_id": "eZOqAJ4v",
+    "datetime": "2025-08-25 16:18:56",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.34061701039713654,
+        "precision": 0.32525639222331587,
+        "recall": 0.3243181882485784,
+        "f1": 0.32339642926887213,
+        "confusion_matrix": [
+            [
+                4133,
+                8639,
+                4524
+            ],
+            [
+                7513,
+                11213,
+                5314
+            ],
+            [
+                5250,
+                7446,
+                4638
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.34061701039713654,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": 0.34079958552802003,
+        "coverage@>0.5": 0.986960968126811,
+        "accuracy@>0.6": 0.33744493392070485,
+        "coverage@>0.6": 0.8512016362706665,
+        "accuracy@>0.7": 0.32723464392065815,
+        "coverage@>0.7": 0.6754048065450826,
+        "accuracy@>0.8": 0.3101719478281305,
+        "coverage@>0.8": 0.4351627748423385,
+        "accuracy@>0.9": 0.2858474444617058,
+        "coverage@>0.9": 0.21943071416396795,
+        "accuracy@1%_coverage": 0.3430034129692833,
+        "accuracy@5%_coverage": 0.31401295601772927,
+        "accuracy@10%_coverage": 0.2918016021816942,
+        "accuracy@25%_coverage": 0.2865616690529761,
+        "accuracy@50%_coverage": 0.315766149650588
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "skL3KqOd",
+    "datetime": "2025-08-26 11:29:47",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MTCH",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 60,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.35859124866595515,
+        "precision": 0.3529518210609761,
+        "recall": 0.3542244718406707,
+        "f1": 0.34871231966708177,
+        "confusion_matrix": [
+            [
+                1307,
+                754,
+                716
+            ],
+            [
+                1460,
+                823,
+                637
+            ],
+            [
+                717,
+                524,
+                558
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3579553057674294,
+        "coverage@>0.4": 0.996931696905016,
+        "accuracy@>0.5": 0.35697808535178777,
+        "coverage@>0.5": 0.9252934898612594,
+        "accuracy@>0.6": 0.3755163349605708,
+        "coverage@>0.6": 0.71051227321238,
+        "accuracy@>0.7": 0.3759809750297265,
+        "coverage@>0.7": 0.560965848452508,
+        "accuracy@>0.8": 0.4029255319148936,
+        "coverage@>0.8": 0.4012806830309498,
+        "accuracy@>0.9": 0.3766959297685555,
+        "coverage@>0.9": 0.16715581643543223,
+        "accuracy@1%_coverage": 0.33783783783783783,
+        "accuracy@5%_coverage": 0.3609625668449198,
+        "accuracy@10%_coverage": 0.38050734312416556,
+        "accuracy@25%_coverage": 0.4007470651013874,
+        "accuracy@50%_coverage": 0.381803628601921
+    }
+}

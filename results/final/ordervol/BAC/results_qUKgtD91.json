@@ -1,0 +1,72 @@
+{
+    "run_id": "qUKgtD91",
+    "datetime": "2025-08-26 10:03:59",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.7538838294941456,
+        "precision": 0.6492812469010013,
+        "recall": 0.566309174497993,
+        "f1": 0.5960419365628902,
+        "confusion_matrix": [
+            [
+                2352,
+                3018,
+                337
+            ],
+            [
+                1673,
+                24992,
+                1131
+            ],
+            [
+                278,
+                3211,
+                2209
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.7547822078820005,
+        "coverage@>0.4": 0.9961735670008418,
+        "accuracy@>0.5": 0.7621679635095251,
+        "coverage@>0.5": 0.9507410525241703,
+        "accuracy@>0.6": 0.7974932336641319,
+        "coverage@>0.6": 0.7917144970791562,
+        "accuracy@>0.7": 0.827127889860594,
+        "coverage@>0.7": 0.589219662763705,
+        "accuracy@>0.8": 0.8655615542544293,
+        "coverage@>0.8": 0.3354761358128619,
+        "accuracy@>0.9": 0.9559943582510578,
+        "coverage@>0.9": 0.09043136654677177,
+        "accuracy@1%_coverage": 0.9795918367346939,
+        "accuracy@5%_coverage": 0.9683673469387755,
+        "accuracy@10%_coverage": 0.9497448979591837,
+        "accuracy@25%_coverage": 0.8813265306122449,
+        "accuracy@50%_coverage": 0.838265306122449
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "TLaXn6wW",
+    "datetime": "2025-08-26 11:39:44",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.7724037652100711,
+        "precision": 0.7063579981171054,
+        "recall": 0.5492317947058162,
+        "f1": 0.5927476767820082,
+        "confusion_matrix": [
+            [
+                2046,
+                3363,
+                298
+            ],
+            [
+                1093,
+                26273,
+                430
+            ],
+            [
+                296,
+                3442,
+                1960
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.7724315636400745,
+        "coverage@>0.4": 0.9998979617866891,
+        "accuracy@>0.5": 0.7758691946066023,
+        "coverage@>0.5": 0.9875768475293998,
+        "accuracy@>0.6": 0.7946911943431665,
+        "coverage@>0.6": 0.9235478686768195,
+        "accuracy@>0.7": 0.8161527915059146,
+        "coverage@>0.7": 0.8000561210173209,
+        "accuracy@>0.8": 0.8524065800162469,
+        "coverage@>0.8": 0.5024361623427974,
+        "accuracy@>0.9": 0.907717041800643,
+        "coverage@>0.9": 0.15866942169842607,
+        "accuracy@1%_coverage": 0.9923469387755102,
+        "accuracy@5%_coverage": 0.95,
+        "accuracy@10%_coverage": 0.9301020408163265,
+        "accuracy@25%_coverage": 0.8790816326530613,
+        "accuracy@50%_coverage": 0.8526020408163265
+    }
+}

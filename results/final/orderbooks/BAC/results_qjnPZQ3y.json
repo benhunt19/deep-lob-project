@@ -1,0 +1,72 @@
+{
+    "run_id": "qjnPZQ3y",
+    "datetime": "2025-08-25 18:03:09",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.7255593012565124,
+        "precision": 0.6143870124194039,
+        "recall": 0.5454844371379136,
+        "f1": 0.5679481455209462,
+        "confusion_matrix": [
+            [
+                2394,
+                3112,
+                201
+            ],
+            [
+                2629,
+                24012,
+                1110
+            ],
+            [
+                265,
+                3429,
+                2004
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.7255593012565124,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": 0.7288082739982329,
+        "coverage@>0.5": 0.9827868015119011,
+        "accuracy@>0.6": 0.7503385874420079,
+        "coverage@>0.6": 0.8862754111758095,
+        "accuracy@>0.7": 0.7703857703857704,
+        "coverage@>0.7": 0.7739043824701195,
+        "accuracy@>0.8": 0.7936628004706673,
+        "coverage@>0.8": 0.6077229543365001,
+        "accuracy@>0.9": 0.8602897400277832,
+        "coverage@>0.9": 0.257380733476351,
+        "accuracy@1%_coverage": 0.9335038363171355,
+        "accuracy@5%_coverage": 0.9509453244762391,
+        "accuracy@10%_coverage": 0.9223499361430396,
+        "accuracy@25%_coverage": 0.8634181223822658,
+        "accuracy@50%_coverage": 0.8106548166309122
+    }
+}

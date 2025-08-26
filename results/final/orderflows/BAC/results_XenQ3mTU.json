@@ -1,0 +1,72 @@
+{
+    "run_id": "XenQ3mTU",
+    "datetime": "2025-08-26 22:15:55",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 10,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.8978998137137316,
+        "precision": 0.6878351134072936,
+        "recall": 0.5284575870389167,
+        "f1": 0.5780610886009092,
+        "confusion_matrix": [
+            [
+                526,
+                1587,
+                161
+            ],
+            [
+                338,
+                33772,
+                446
+            ],
+            [
+                92,
+                1377,
+                888
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.8998821540195727,
+        "coverage@>0.4": 0.9960956439635593,
+        "accuracy@>0.5": 0.9117732213828863,
+        "coverage@>0.5": 0.96953071171562,
+        "accuracy@>0.6": 0.927489864026257,
+        "coverage@>0.6": 0.9252303059688162,
+        "accuracy@>0.7": 0.940295924547893,
+        "coverage@>0.7": 0.8847577002577386,
+        "accuracy@>0.8": 0.9599539406345957,
+        "coverage@>0.8": 0.7978156021129457,
+        "accuracy@>0.9": 0.9758419020679637,
+        "coverage@>0.9": 0.6675938448975426,
+        "accuracy@1%_coverage": 1.0,
+        "accuracy@5%_coverage": 0.9979581419091373,
+        "accuracy@10%_coverage": 0.9982133741704952,
+        "accuracy@25%_coverage": 0.9928542262147816,
+        "accuracy@50%_coverage": 0.9829530954932885
+    }
+}

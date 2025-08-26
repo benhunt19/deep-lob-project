@@ -1,0 +1,72 @@
+{
+    "run_id": "KRvIBmHj",
+    "datetime": "2025-08-25 19:17:20",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "NFLX",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.32643478260869563,
+        "precision": 0.3432350382382086,
+        "recall": 0.3464045672420794,
+        "f1": 0.3227651480615952,
+        "confusion_matrix": [
+            [
+                1464,
+                594,
+                1014
+            ],
+            [
+                2013,
+                1486,
+                2308
+            ],
+            [
+                949,
+                868,
+                804
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.32544740288083807,
+        "coverage@>0.4": 0.9960869565217392,
+        "accuracy@>0.5": 0.3095735785953177,
+        "coverage@>0.5": 0.832,
+        "accuracy@>0.6": 0.30366922234392113,
+        "coverage@>0.6": 0.6351304347826087,
+        "accuracy@>0.7": 0.300814447592068,
+        "coverage@>0.7": 0.4911304347826087,
+        "accuracy@>0.8": 0.3074978938500421,
+        "coverage@>0.8": 0.3096521739130435,
+        "accuracy@>0.9": 0.45646437994722955,
+        "coverage@>0.9": 0.06591304347826087,
+        "accuracy@1%_coverage": 0.7652173913043478,
+        "accuracy@5%_coverage": 0.48695652173913045,
+        "accuracy@10%_coverage": 0.39652173913043476,
+        "accuracy@25%_coverage": 0.3154782608695652,
+        "accuracy@50%_coverage": 0.2994782608695652
+    }
+}
