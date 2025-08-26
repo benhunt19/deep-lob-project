@@ -1,0 +1,72 @@
+{
+    "run_id": "Jz30rdg1",
+    "datetime": "2025-08-25 19:53:34",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MTCH",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 80,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3447255113024758,
+        "precision": 0.3768436407622619,
+        "recall": 0.41690313864794487,
+        "f1": 0.2980373468970248,
+        "confusion_matrix": [
+            [
+                1527,
+                42,
+                1415
+            ],
+            [
+                1306,
+                70,
+                1725
+            ],
+            [
+                324,
+                58,
+                965
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.34798642867679597,
+        "coverage@>0.4": 0.9121367061356297,
+        "accuracy@>0.5": 0.45462555066079297,
+        "coverage@>0.5": 0.3054359526372443,
+        "accuracy@>0.6": 0.6978798586572438,
+        "coverage@>0.6": 0.07615715823466093,
+        "accuracy@>0.7": 0.7725118483412322,
+        "coverage@>0.7": 0.028390742734122714,
+        "accuracy@>0.8": 0.7804878048780488,
+        "coverage@>0.8": 0.005516684607104414,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7702702702702703,
+        "accuracy@5%_coverage": 0.7331536388140162,
+        "accuracy@10%_coverage": 0.6608344549125168,
+        "accuracy@25%_coverage": 0.4881593110871905,
+        "accuracy@50%_coverage": 0.38966630785791173
+    }
+}

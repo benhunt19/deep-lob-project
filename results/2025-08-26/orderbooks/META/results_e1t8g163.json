@@ -1,0 +1,72 @@
+{
+    "run_id": "e1t8g163",
+    "datetime": "2025-08-25 19:30:38",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3212914156626506,
+        "precision": 0.34098481279713866,
+        "recall": 0.3505110741979471,
+        "f1": 0.2719678254134972,
+        "confusion_matrix": [
+            [
+                8099,
+                201,
+                8301
+            ],
+            [
+                9811,
+                252,
+                10652
+            ],
+            [
+                6880,
+                208,
+                8716
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.323524486231728,
+        "coverage@>0.4": 0.786878765060241,
+        "accuracy@>0.5": 0.325375811411001,
+        "coverage@>0.5": 0.4408132530120482,
+        "accuracy@>0.6": 0.32000689298638635,
+        "coverage@>0.6": 0.21848644578313253,
+        "accuracy@>0.7": 0.32988196313936635,
+        "coverage@>0.7": 0.09090737951807229,
+        "accuracy@>0.8": 0.30246913580246915,
+        "coverage@>0.8": 0.027447289156626507,
+        "accuracy@>0.9": 0.3620689655172414,
+        "coverage@>0.9": 0.0010918674698795182,
+        "accuracy@1%_coverage": 0.2862523540489642,
+        "accuracy@5%_coverage": 0.32153614457831325,
+        "accuracy@10%_coverage": 0.32643072289156627,
+        "accuracy@25%_coverage": 0.32055722891566263,
+        "accuracy@50%_coverage": 0.32435993975903615
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "run_id": "OCzTMhBq",
+    "datetime": "2025-08-25 14:10:16",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.48920604221547903,
+        "precision": 0.3261371500525631,
+        "recall": 0.4015014681417289,
+        "f1": 0.35991569348665203,
+        "confusion_matrix": [
+            [
+                36749,
+                0,
+                24351
+            ],
+            [
+                14160,
+                0,
+                13985
+            ],
+            [
+                24095,
+                0,
+                36605
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.48977205526584594,
+        "coverage@>0.4": 0.992417219647204,
+        "accuracy@>0.5": 0.5405314677802694,
+        "coverage@>0.5": 0.49666877855213576,
+        "accuracy@>0.6": 0.6275751072961373,
+        "coverage@>0.6": 0.12431224782420221,
+        "accuracy@>0.7": 0.7583596214511041,
+        "coverage@>0.7": 0.010570542532261829,
+        "accuracy@>0.8": 0.9615384615384616,
+        "coverage@>0.8": 0.00017339691220114042,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7625083388925951,
+        "accuracy@5%_coverage": 0.6744030945711618,
+        "accuracy@10%_coverage": 0.6379885287448313,
+        "accuracy@25%_coverage": 0.5829643066744918,
+        "accuracy@50%_coverage": 0.5398815557808249
+    }
+}

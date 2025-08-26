@@ -1,0 +1,72 @@
+{
+    "run_id": "Q8udtQfL",
+    "datetime": "2025-08-25 18:19:49",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "TSLA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 80,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3772455888729529,
+        "precision": 0.37145468944294296,
+        "recall": 0.3874450401090029,
+        "f1": 0.32109721909939887,
+        "confusion_matrix": [
+            [
+                17089,
+                2500,
+                26575
+            ],
+            [
+                15765,
+                2632,
+                35815
+            ],
+            [
+                10237,
+                2462,
+                36830
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.4033400989922729,
+        "coverage@>0.4": 0.5620159434308395,
+        "accuracy@>0.5": 0.4670125033253525,
+        "coverage@>0.5": 0.10030352556619192,
+        "accuracy@>0.6": 0.6060606060606061,
+        "coverage@>0.6": 0.006163903805743638,
+        "accuracy@>0.7": 0.17721518987341772,
+        "coverage@>0.7": 0.0005270004336079518,
+        "accuracy@>0.8": 0.0,
+        "coverage@>0.8": 2.0012674693972848e-05,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.5763842561707805,
+        "accuracy@5%_coverage": 0.5079386257505003,
+        "accuracy@10%_coverage": 0.46731154102735156,
+        "accuracy@25%_coverage": 0.43110257231294696,
+        "accuracy@50%_coverage": 0.4085014409221902
+    }
+}

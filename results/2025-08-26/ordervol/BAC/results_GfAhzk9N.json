@@ -1,0 +1,72 @@
+{
+    "run_id": "GfAhzk9N",
+    "datetime": "2025-08-26 10:30:29",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.39284342101892883,
+        "precision": 0.41276192362708497,
+        "recall": 0.3889340430070571,
+        "f1": 0.33074943312632593,
+        "confusion_matrix": [
+            [
+                11064,
+                782,
+                1382
+            ],
+            [
+                9892,
+                1375,
+                1564
+            ],
+            [
+                8491,
+                1593,
+                2898
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.39020771513353114,
+        "coverage@>0.4": 0.9149868087395302,
+        "accuracy@>0.5": 0.3951065509076559,
+        "coverage@>0.5": 0.6490612433083169,
+        "accuracy@>0.6": 0.415799779708726,
+        "coverage@>0.6": 0.41858558950846547,
+        "accuracy@>0.7": 0.4190673828125,
+        "coverage@>0.7": 0.20983069081222305,
+        "accuracy@>0.8": 0.3840304182509506,
+        "coverage@>0.8": 0.026946031095514973,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.26666666666666666,
+        "accuracy@5%_coverage": 0.38575819672131145,
+        "accuracy@10%_coverage": 0.429047131147541,
+        "accuracy@25%_coverage": 0.43258196721311476,
+        "accuracy@50%_coverage": 0.4067110655737705
+    }
+}

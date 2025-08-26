@@ -1,0 +1,72 @@
+{
+    "run_id": "mVpJAKR8",
+    "datetime": "2025-08-25 15:23:33",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MSFT",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.42245407738449253,
+        "precision": 0.39515159669737043,
+        "recall": 0.4077374614475567,
+        "f1": 0.36817160427410595,
+        "confusion_matrix": [
+            [
+                12269,
+                1430,
+                5998
+            ],
+            [
+                8876,
+                1346,
+                7480
+            ],
+            [
+                8782,
+                1422,
+                11246
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.4432163328689854,
+        "coverage@>0.4": 0.7440908086798417,
+        "accuracy@>0.5": 0.4881724625664537,
+        "coverage@>0.5": 0.34840014273819436,
+        "accuracy@>0.6": 0.5391752577319587,
+        "coverage@>0.6": 0.1153800404424884,
+        "accuracy@>0.7": 0.6325431034482759,
+        "coverage@>0.7": 0.015769171948546278,
+        "accuracy@>0.8": 0.8181818181818182,
+        "coverage@>0.8": 0.0001869190640452684,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.6530612244897959,
+        "accuracy@5%_coverage": 0.566281441196465,
+        "accuracy@10%_coverage": 0.5440176750509857,
+        "accuracy@25%_coverage": 0.5050299075584557,
+        "accuracy@50%_coverage": 0.4682232191408374
+    }
+}

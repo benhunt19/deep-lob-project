@@ -1,0 +1,72 @@
+{
+    "run_id": "e8ALCQWj",
+    "datetime": "2025-08-25 16:05:47",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.43011770982693653,
+        "precision": 0.432279894863789,
+        "recall": 0.44182818610110286,
+        "f1": 0.43084848481838495,
+        "confusion_matrix": [
+            [
+                22786,
+                12136,
+                10427
+            ],
+            [
+                21198,
+                19560,
+                19310
+            ],
+            [
+                11465,
+                10915,
+                22148
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.4447350608762503,
+        "coverage@>0.4": 0.7980859648537797,
+        "accuracy@>0.5": 0.49930716876553777,
+        "coverage@>0.5": 0.3272800026676448,
+        "accuracy@>0.6": 0.5678213013920362,
+        "coverage@>0.6": 0.1442062089432792,
+        "accuracy@>0.7": 0.6408754283187797,
+        "coverage@>0.7": 0.06033545633398913,
+        "accuracy@>0.8": 0.6813222079589217,
+        "coverage@>0.8": 0.020780953016105906,
+        "accuracy@>0.9": 0.6981132075471698,
+        "coverage@>0.9": 0.002827703491280136,
+        "accuracy@1%_coverage": 0.686457638425617,
+        "accuracy@5%_coverage": 0.6539949313058556,
+        "accuracy@10%_coverage": 0.6021742030145392,
+        "accuracy@25%_coverage": 0.5214213306301019,
+        "accuracy@50%_coverage": 0.47196286613669103
+    }
+}

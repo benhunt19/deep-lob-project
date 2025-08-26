@@ -1,0 +1,72 @@
+{
+    "run_id": "7wrZJmil",
+    "datetime": "2025-08-26 11:48:18",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 100,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4976878465036662,
+        "precision": 0.48802204541566546,
+        "recall": 0.4897048591279269,
+        "f1": 0.48851941828977136,
+        "confusion_matrix": [
+            [
+                4587,
+                4530,
+                1321
+            ],
+            [
+                4257,
+                9827,
+                4511
+            ],
+            [
+                1048,
+                3994,
+                5066
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5051317464186097,
+        "coverage@>0.4": 0.9434352724764313,
+        "accuracy@>0.5": 0.5260782747603834,
+        "coverage@>0.5": 0.6397383817480391,
+        "accuracy@>0.6": 0.5607182117991938,
+        "coverage@>0.6": 0.34861143046932885,
+        "accuracy@>0.7": 0.5661482528782065,
+        "coverage@>0.7": 0.12649140287677882,
+        "accuracy@>0.8": 0.6012793176972282,
+        "coverage@>0.8": 0.023964640658133415,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.629156010230179,
+        "accuracy@5%_coverage": 0.5600408788962699,
+        "accuracy@10%_coverage": 0.5551865099642309,
+        "accuracy@25%_coverage": 0.5658661216147164,
+        "accuracy@50%_coverage": 0.5420030659172203
+    }
+}

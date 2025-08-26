@@ -1,0 +1,72 @@
+{
+    "run_id": "ySxYURoJ",
+    "datetime": "2025-08-25 17:03:47",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "TSLA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 100,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.34392,
+        "precision": 0.35741009814640107,
+        "recall": 0.3585858900600785,
+        "f1": 0.3321419089621767,
+        "confusion_matrix": [
+            [
+                25918,
+                6751,
+                13025
+            ],
+            [
+                30851,
+                10099,
+                16610
+            ],
+            [
+                22943,
+                8232,
+                15571
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3421603047732875,
+        "coverage@>0.4": 0.53548,
+        "accuracy@>0.5": 0.32782301428790905,
+        "coverage@>0.5": 0.21696666666666667,
+        "accuracy@>0.6": 0.31215273673010996,
+        "coverage@>0.6": 0.11278666666666666,
+        "accuracy@>0.7": 0.32044713553795995,
+        "coverage@>0.7": 0.05725333333333334,
+        "accuracy@>0.8": 0.29720670391061454,
+        "coverage@>0.8": 0.023866666666666668,
+        "accuracy@>0.9": 0.34822451317296677,
+        "coverage@>0.9": 0.00582,
+        "accuracy@1%_coverage": 0.3566666666666667,
+        "accuracy@5%_coverage": 0.31826666666666664,
+        "accuracy@10%_coverage": 0.31453333333333333,
+        "accuracy@25%_coverage": 0.33042666666666665,
+        "accuracy@50%_coverage": 0.34101333333333333
+    }
+}

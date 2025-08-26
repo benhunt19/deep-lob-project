@@ -1,0 +1,72 @@
+{
+    "run_id": "Gk1fu7d1",
+    "datetime": "2025-08-26 13:05:06",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "META",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 100,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.35063441488659713,
+        "precision": 0.3332554624237958,
+        "recall": 0.33200919619496455,
+        "f1": 0.32622865700214104,
+        "confusion_matrix": [
+            [
+                3253,
+                7832,
+                5439
+            ],
+            [
+                4199,
+                11003,
+                6833
+            ],
+            [
+                2750,
+                7390,
+                4342
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.35063441488659713,
+        "coverage@>0.4": 1.0,
+        "accuracy@>0.5": 0.35069000400832206,
+        "coverage@>0.5": 0.9877453290850474,
+        "accuracy@>0.6": 0.3486723672367237,
+        "coverage@>0.6": 0.8378424237853735,
+        "accuracy@>0.7": 0.339866639725197,
+        "coverage@>0.7": 0.6531362530872344,
+        "accuracy@>0.8": 0.3095997679814385,
+        "coverage@>0.8": 0.39003789521313703,
+        "accuracy@>0.9": 0.28610578240613865,
+        "coverage@>0.9": 0.20638751154767068,
+        "accuracy@1%_coverage": 0.4339622641509434,
+        "accuracy@5%_coverage": 0.35784313725490197,
+        "accuracy@10%_coverage": 0.3207013574660634,
+        "accuracy@25%_coverage": 0.28355957767722473,
+        "accuracy@50%_coverage": 0.3228506787330317
+    }
+}

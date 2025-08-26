@@ -1,0 +1,72 @@
+{
+    "run_id": "8mHrYOpc",
+    "datetime": "2025-08-25 18:32:53",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "PLTR",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.5149468209248824,
+        "precision": 0.49535253576985916,
+        "recall": 0.4467994278956911,
+        "f1": 0.38904493644394406,
+        "confusion_matrix": [
+            [
+                37805,
+                45,
+                18432
+            ],
+            [
+                17207,
+                52,
+                17420
+            ],
+            [
+                19620,
+                17,
+                39367
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.5241140893861094,
+        "coverage@>0.4": 0.9393658520321408,
+        "accuracy@>0.5": 0.5755434117241149,
+        "coverage@>0.5": 0.5991331310639149,
+        "accuracy@>0.6": 0.6336640376053696,
+        "coverage@>0.6": 0.2950621811756076,
+        "accuracy@>0.7": 0.704426391314251,
+        "coverage@>0.7": 0.08782715967058981,
+        "accuracy@>0.8": 0.8065134099616859,
+        "coverage@>0.8": 0.006961624379021772,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7858572381587725,
+        "accuracy@5%_coverage": 0.7276607095225394,
+        "accuracy@10%_coverage": 0.6998532942117898,
+        "accuracy@25%_coverage": 0.6448480968765837,
+        "accuracy@50%_coverage": 0.5911552105838734
+    }
+}

@@ -1,0 +1,61 @@
+{
+    "run_id": "TIqCubax",
+    "datetime": "2025-08-26 13:32:50",
+    "meta": {
+        "model": "deepLOBREG_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "NVDA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 80,
+        "representation": "orderfixedvol",
+        "labelType": "REGRESSION",
+        "archive": true
+    },
+    "metrics": {
+        "MSE": 0.5008169412612915,
+        "R2": -0.05984342098236084,
+        "MAPE": 727.2189331054688,
+        "MAE": 0.6013909578323364
+    },
+    "metricsStrength": {
+        "accuracy@>0.1": 0.5134188213860276,
+        "coverage@>0.1": 0.571201761115373,
+        "accuracy@>0.2": 0.4907060252415905,
+        "coverage@>0.2": 0.25265334711984255,
+        "accuracy@>0.3": 0.47011698880976605,
+        "coverage@>0.3": 0.104919782528935,
+        "accuracy@>0.4": 0.47354925775978407,
+        "coverage@>0.4": 0.04943130649411294,
+        "accuracy@>0.5": 0.4886278430392402,
+        "coverage@>0.5": 0.026690237150195122,
+        "accuracy@>0.6": 0.5727891156462585,
+        "coverage@>0.6": 0.014709315900070045,
+        "accuracy@>0.7": 0.5939675174013921,
+        "coverage@>0.7": 0.005750308528734866,
+        "accuracy@>0.8": 0.553680981595092,
+        "coverage@>0.8": 0.004349421300156766,
+        "accuracy@>0.9": 0.6,
+        "coverage@>0.9": 3.335445782328808e-05,
+        "accuracy@1%_coverage": 0.5783855903935957,
+        "accuracy@5%_coverage": 0.47391594396264175,
+        "accuracy@10%_coverage": 0.46824549699799867,
+        "accuracy@25%_coverage": 0.4898334934357989,
+        "accuracy@50%_coverage": 0.5114206425445619
+    }
+}

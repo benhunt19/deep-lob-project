@@ -1,0 +1,72 @@
+{
+    "run_id": "eGs6YQpE",
+    "datetime": "2025-08-25 18:39:11",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "GOOG",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.6900466666666667,
+        "precision": 0.66397389709415,
+        "recall": 0.5750071202559833,
+        "f1": 0.6022787279934622,
+        "confusion_matrix": [
+            [
+                12913,
+                16094,
+                1735
+            ],
+            [
+                5662,
+                77427,
+                5879
+            ],
+            [
+                1281,
+                15842,
+                13167
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.6913703542343912,
+        "coverage@>0.4": 0.9946333333333334,
+        "accuracy@>0.5": 0.7087541837114169,
+        "coverage@>0.5": 0.8963333333333333,
+        "accuracy@>0.6": 0.7689634903010907,
+        "coverage@>0.6": 0.5103666666666666,
+        "accuracy@>0.7": 0.8444050200407386,
+        "coverage@>0.7": 0.20292,
+        "accuracy@>0.8": 0.8737738293540626,
+        "coverage@>0.8": 0.07204,
+        "accuracy@>0.9": 0.9210249210249211,
+        "coverage@>0.9": 0.018993333333333334,
+        "accuracy@1%_coverage": 0.9273333333333333,
+        "accuracy@5%_coverage": 0.8785333333333334,
+        "accuracy@10%_coverage": 0.8678666666666667,
+        "accuracy@25%_coverage": 0.8298933333333334,
+        "accuracy@50%_coverage": 0.7707866666666666
+    }
+}

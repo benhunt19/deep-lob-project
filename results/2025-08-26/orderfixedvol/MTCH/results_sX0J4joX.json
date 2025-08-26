@@ -1,0 +1,72 @@
+{
+    "run_id": "sX0J4joX",
+    "datetime": "2025-08-26 11:32:08",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "MTCH",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.43760195758564435,
+        "precision": 0.3913074970602104,
+        "recall": 0.3780039804913846,
+        "f1": 0.36941514678576004,
+        "confusion_matrix": [
+            [
+                2348,
+                420,
+                1215
+            ],
+            [
+                927,
+                447,
+                717
+            ],
+            [
+                548,
+                310,
+                424
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.43778110944527737,
+        "coverage@>0.4": 0.9974170744970092,
+        "accuracy@>0.5": 0.4409990178195594,
+        "coverage@>0.5": 0.9688689505165851,
+        "accuracy@>0.6": 0.4348768778070311,
+        "coverage@>0.6": 0.8777868406742795,
+        "accuracy@>0.7": 0.4463376075882663,
+        "coverage@>0.7": 0.7739260467645459,
+        "accuracy@>0.8": 0.46670572153876194,
+        "coverage@>0.8": 0.6961663947797716,
+        "accuracy@>0.9": 0.5017253278122843,
+        "coverage@>0.9": 0.5909461663947798,
+        "accuracy@1%_coverage": 0.684931506849315,
+        "accuracy@5%_coverage": 0.8555858310626703,
+        "accuracy@10%_coverage": 0.7646258503401361,
+        "accuracy@25%_coverage": 0.686242523110386,
+        "accuracy@50%_coverage": 0.5502990755845568
+    }
+}

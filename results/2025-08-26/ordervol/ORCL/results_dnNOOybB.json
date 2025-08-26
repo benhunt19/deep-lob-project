@@ -1,0 +1,72 @@
+{
+    "run_id": "dnNOOybB",
+    "datetime": "2025-08-26 10:48:26",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "ORCL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 60,
+        "representation": "ordervol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3482047807993806,
+        "precision": 0.31673738894745096,
+        "recall": 0.33173418707783026,
+        "f1": 0.297973543420007,
+        "confusion_matrix": [
+            [
+                4608,
+                604,
+                2760
+            ],
+            [
+                3784,
+                429,
+                2343
+            ],
+            [
+                3369,
+                610,
+                2159
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.35073593517616286,
+        "coverage@>0.4": 0.9435304364656925,
+        "accuracy@>0.5": 0.35573098710377243,
+        "coverage@>0.5": 0.8029613858511565,
+        "accuracy@>0.6": 0.35838398283875583,
+        "coverage@>0.6": 0.6767153779154166,
+        "accuracy@>0.7": 0.3565748104309229,
+        "coverage@>0.7": 0.5232749443530437,
+        "accuracy@>0.8": 0.35471008473168303,
+        "coverage@>0.8": 0.29125133068808673,
+        "accuracy@>0.9": 0.3188736681887367,
+        "coverage@>0.9": 0.06358269621600697,
+        "accuracy@1%_coverage": 0.2766990291262136,
+        "accuracy@5%_coverage": 0.2952565343659245,
+        "accuracy@10%_coverage": 0.34849951597289447,
+        "accuracy@25%_coverage": 0.3517228029423151,
+        "accuracy@50%_coverage": 0.3539146424078196
+    }
+}

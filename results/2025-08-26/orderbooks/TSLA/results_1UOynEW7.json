@@ -1,0 +1,72 @@
+{
+    "run_id": "1UOynEW7",
+    "datetime": "2025-08-25 17:17:50",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                40,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "TSLA",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 200,
+        "representation": "orderbooks",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.3392133333333333,
+        "precision": 0.3391928917217819,
+        "recall": 0.3400855286731545,
+        "f1": 0.33664308649007274,
+        "confusion_matrix": [
+            [
+                19569,
+                15788,
+                11522
+            ],
+            [
+                21541,
+                18345,
+                15806
+            ],
+            [
+                19146,
+                15315,
+                12968
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.3403401164957565,
+        "coverage@>0.4": 0.62606,
+        "accuracy@>0.5": 0.3549472459915261,
+        "coverage@>0.5": 0.32098666666666664,
+        "accuracy@>0.6": 0.3755743490710528,
+        "coverage@>0.6": 0.20022666666666666,
+        "accuracy@>0.7": 0.38921447389644603,
+        "coverage@>0.7": 0.12399333333333333,
+        "accuracy@>0.8": 0.40613212109488345,
+        "coverage@>0.8": 0.06892666666666666,
+        "accuracy@>0.9": 0.4629858875959396,
+        "coverage@>0.9": 0.026926666666666668,
+        "accuracy@1%_coverage": 0.4673333333333333,
+        "accuracy@5%_coverage": 0.42933333333333334,
+        "accuracy@10%_coverage": 0.3904,
+        "accuracy@25%_coverage": 0.3618133333333333,
+        "accuracy@50%_coverage": 0.3508266666666667
+    }
+}

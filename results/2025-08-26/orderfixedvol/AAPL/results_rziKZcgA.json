@@ -1,0 +1,72 @@
+{
+    "run_id": "rziKZcgA",
+    "datetime": "2025-08-25 14:17:17",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 40,
+        "representation": "orderfixedvol",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4937210310447164,
+        "precision": 0.33168269870473277,
+        "recall": 0.4049967779075003,
+        "f1": 0.3612265441744535,
+        "confusion_matrix": [
+            [
+                42936,
+                0,
+                18164
+            ],
+            [
+                17234,
+                0,
+                10911
+            ],
+            [
+                29605,
+                0,
+                31095
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.4944335825959594,
+        "coverage@>0.4": 0.9926239621194438,
+        "accuracy@>0.5": 0.550672708260718,
+        "coverage@>0.5": 0.4783420587548768,
+        "accuracy@>0.6": 0.6243133169160826,
+        "coverage@>0.6": 0.14082496915535697,
+        "accuracy@>0.7": 0.6931673052362708,
+        "coverage@>0.7": 0.020887658808229684,
+        "accuracy@>0.8": 0.8495575221238938,
+        "coverage@>0.8": 0.0007536096568741872,
+        "accuracy@>0.9": null,
+        "coverage@>0.9": 0.0,
+        "accuracy@1%_coverage": 0.7198132088058706,
+        "accuracy@5%_coverage": 0.6740029345071362,
+        "accuracy@10%_coverage": 0.6421235160730959,
+        "accuracy@25%_coverage": 0.5926745985167796,
+        "accuracy@50%_coverage": 0.5481913247612442
+    }
+}
