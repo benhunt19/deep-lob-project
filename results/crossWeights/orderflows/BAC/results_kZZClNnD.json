@@ -1,0 +1,98 @@
+{
+    "run_id": "kZZClNnD",
+    "datetime": "2025-08-31 15:06:27",
+    "meta": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 5,
+        "batchSize": 64,
+        "ticker": "BAC",
+        "steps": [
+            "ALGO"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true,
+        "weightsRunID": "Nt7PRirE"
+    },
+    "metaFromWeights": {
+        "model": "deepLOB_TF",
+        "modelKwargs": {
+            "shape": [
+                100,
+                20,
+                1
+            ]
+        },
+        "numEpoch": 10,
+        "batchSize": 64,
+        "ticker": "AAPL",
+        "steps": [
+            "TRAIN",
+            "TEST"
+        ],
+        "maxFiles": 1,
+        "scaling": true,
+        "threshold": "auto",
+        "rowLim": 1000000,
+        "trainTestSplit": 0.85,
+        "lookForwardHorizon": 20,
+        "representation": "orderflows",
+        "labelType": "CATEGORICAL",
+        "archive": true
+    },
+    "metrics": {
+        "accuracy": 0.4349852843807767,
+        "precision": 0.4391208799343039,
+        "recall": 0.5746425555192384,
+        "f1": 0.3968146159945069,
+        "confusion_matrix": [
+            [
+                20713,
+                5109,
+                3719
+            ],
+            [
+                67780,
+                73991,
+                61181
+            ],
+            [
+                3527,
+                6315,
+                18952
+            ]
+        ]
+    },
+    "metricsStrength": {
+        "accuracy@>0.4": 0.4226973896368022,
+        "coverage@>0.4": 0.8901055161565635,
+        "accuracy@>0.5": 0.3137643179609225,
+        "coverage@>0.5": 0.4213336293041751,
+        "accuracy@>0.6": 0.3487320303666613,
+        "coverage@>0.6": 0.21324826723105245,
+        "accuracy@>0.7": 0.43213320547467526,
+        "coverage@>0.7": 0.08780383256725363,
+        "accuracy@>0.8": 0.6107728337236534,
+        "coverage@>0.8": 0.024513274674974262,
+        "accuracy@>0.9": 0.748567335243553,
+        "coverage@>0.9": 0.005342783988487755,
+        "accuracy@1%_coverage": 0.7331546707503829,
+        "accuracy@5%_coverage": 0.5017605633802817,
+        "accuracy@10%_coverage": 0.4179807103490508,
+        "accuracy@25%_coverage": 0.33581849634880057,
+        "accuracy@50%_coverage": 0.3286130906363142
+    }
+}
