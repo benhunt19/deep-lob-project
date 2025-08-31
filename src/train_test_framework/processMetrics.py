@@ -112,7 +112,7 @@ class ProcessMetrics:
     def RegressionStrength(predictions : np.ndarray = None, actual : np.ndarray = None):
         """
         Description:
-            Produce Categorical strength testing, test if there is a reltionship between strength of signal and 
+            Produce Regression strength testing, test if there is a reltionship between strength of signal and prediction
         Parameters:
             predictions (np.ndarray): The model predictions
             actual (np.ndarray): The actual test labels

@@ -3,12 +3,13 @@ from pprint import pprint
 import numpy as np
 import gc
 import json
+import os
 from glob import glob
 from datetime import datetime, timedelta
 from omegaconf import OmegaConf, DictConfig
 from inspect import isclass
 
-from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable, resultsLocation
+from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable, resultsLocation, getWeightPathFromID, getMetaFromRunID
 from src.routers.modelRouter import *
 from src.core.constants import TEST, ALGO, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.loaders.dataLoader import CustomDataLoader
@@ -16,7 +17,6 @@ from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD
 from src.train_test_framework.metaMaker import ModelMetaMaker
 from src.routers.modelRouter import BaseModel, DeepLOB_PT, DeepLOB_TF, DeepLOB_JAX
 from src.train_test_framework.processMetrics import ProcessMetrics
-import os
 
 class ModelTrainTestFramework:
     """
@@ -117,42 +117,43 @@ class ModelTrainTestFramework:
                 print('x_test.shape', x_test.shape)
                 print('y_test.shape', y_test.shape)
                 preds = model.predict(x = x_test, y = y_test)
-                # print(preds)
-                # print(y_test)
-                if meta['labelType'] == CATEGORICAL:
-                    metrics = ProcessMetrics.Categorical(predictions=preds, actual=y_test)
-                    metricsStrength = ProcessMetrics.CategoricalStrength(predictions=preds, actual=y_test)
-                    print(metrics)
-                    print(metricsStrength)
-                elif meta['labelType'] == REGRESSION:
-                    metrics = ProcessMetrics.Regression(predictions=preds, actual=y_test)
-                    metricsStrength = ProcessMetrics.RegressionStrength(predictions=preds, actual=y_test)
-                    print(metrics)
-                    print(metricsStrength)
+                resultsStore['metrics'], resultsStore['metricsStrength'] = ModelTrainTestFramework.processAllMetrics(preds=preds, actual=y_test, labelType=meta['labelType'])
                 del x_test, y_test, preds
                 gc.collect()
-                resultsStore['metrics'] = metrics
-                resultsStore['metricsStrength'] = metricsStrength
+
             
             if ALGO in meta['steps']:
                 """
                 Special case for testing algos, uses original framework
                 """
+                print("In algo")
                 
                 if TRAIN not in meta['steps']:
                     # Need to run full process as not run in above
                     cdl.runFullProcessReturnXY(tensor=model.requiresTensor)
                 
-                if 'loadModelPath' in meta:
+                if 'weightsRunID' in meta:
                     print("Loading model from file")
-                    model.loadFromWeights(meta['loadModelPath'])
+                    
+                    extension = 'h5'
+                    paths = getWeightPathFromID(run_id=meta['weightsRunID'], extension=extension)
+                    print(paths)
+                    if len(paths) > 0:
+                        print("WEIGHT PATH FOUND")
+                    assert len(paths) > 0, f"No paths have been found for run_id = {run_id}"
+                    
+                    weights_path = paths[0]  
+                    print(f'weights_path: {weights_path}')                  
+                    model.loadFromWeights(weights_path)
+                    resultsStore['metaFromWeights'] = getMetaFromRunID(run_id=meta['weightsRunID'])
+            
                     
                 x_test, y_test = cdl.getTestData()
                 print('x_test.shape', x_test.shape)
                 print('y_test.shape', y_test.shape)
                 preds = model.predict(x = x_test, y = y_test)
-                
-                return preds, y_test
+                resultsStore['metrics'], resultsStore['metricsStrength'] = ModelTrainTestFramework.processAllMetrics(preds=preds, actual=y_test, labelType=meta['labelType'])
+                del x_test, y_test, preds # REVIEW
 
             # Save resultsStore as JSON
             results_path = resultsLocation(run_id=run_id, representation=meta['representation'], ticker=meta['ticker'])
@@ -193,6 +194,29 @@ class ModelTrainTestFramework:
         if TEST in meta['steps'] and 'trainTestSplit' not in meta:
             meta['trainTestSplit'] = DEFAULT_TEST_TRAIN_SPLIT
         return meta
+    
+    @staticmethod
+    def processAllMetrics(preds : np.array, actual : np.array, labelType : str = CATEGORICAL):
+        f"""
+        Description:
+            Wrapper for processing any metrics, for use in {TEST} or {ALGO}
+        Parameters:
+            preds (np.array): The model predictions
+            actual (np.array): The actual labls 
+            labelType (str) : {CATEGORICAL} or {REGRESSION}
+        """
+        if labelType == CATEGORICAL:
+            metrics = ProcessMetrics.Categorical(predictions=preds, actual=actual)
+            metricsStrength = ProcessMetrics.CategoricalStrength(predictions=preds, actual=actual)
+            print(metrics)
+            print(metricsStrength)
+        elif labelType == REGRESSION:
+            metrics = ProcessMetrics.Regression(predictions=preds, actual=actual)
+            metricsStrength = ProcessMetrics.RegressionStrength(predictions=preds, actual=actual)
+            print(metrics)
+            print(metricsStrength)
+        gc.collect()
+        return metrics, metricsStrength
 
     @staticmethod
     def getModelsFromName(model) -> BaseModel:

@@ -4,7 +4,7 @@ import copy
 # Based on original from https://github.com/benhunt19/data-science-project
 
 # Constant of keys that are meant to be iterable, potentially use the dataclass here
-IGNORE_KEYS = ['steps', 'modelKwargs']
+IGNORE_KEYS = ['steps', 'modelKwargs', 'metaFromWeights']
 
 class ModelMetaMaker:
     def __init__(self):

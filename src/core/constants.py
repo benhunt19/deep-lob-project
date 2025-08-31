@@ -27,6 +27,7 @@ WEIGHTS_PATH = 'weights'
 # Results location
 RESULTS_PATH = 'results'
 RESULTS_CSVS = 'results/csv_outputs'
+FINAl_RESULTS_PATH = 'results/final'
 
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000

@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 
 from src.train_test_framework.runFramework import runFramework
 from src.data_processing.processDataUtils import ProcessDataUtils
-from src.core.constants import PROJECT_ROOT, HYDRA_CONFIG_PATH, TRAIN, TEST, PROCESS_DATA, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, REGRESSION, CATEGORICAL
+from src.core.constants import PROJECT_ROOT, HYDRA_CONFIG_PATH, TRAIN, TEST, ALGO, PROCESS_DATA, ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL, REGRESSION, CATEGORICAL
 
 @hydra.main(config_path=f"{PROJECT_ROOT}/{HYDRA_CONFIG_PATH}", config_name="config", version_base=None)
 def main(config: DictConfig):
@@ -28,6 +28,19 @@ def main(config: DictConfig):
             ++labelType="{REGRESSION}"
         """
 
+        runFramework(config=config)
+        
+    if ALGO in config.steps:
+        f"""
+        Run the Train Test Framework for trained models:
+            ++lookForwardHorizon=[20]
+            ++ticker='["MSFT"]'
+            ++representation="{ORDERFLOWS}"
+            ++model="deepLOB_TF"
+            ++rowLim=100000
+            ++labelType="{CATEGORICAL}"
+            ++weightsRunID="Ov888KGE"
+        """
         runFramework(config=config)
 
     if PROCESS_DATA in config.steps:

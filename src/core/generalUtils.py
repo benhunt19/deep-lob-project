@@ -8,6 +8,7 @@ from omegaconf import OmegaConf, DictConfig
 import json
 import numpy as np
 from pathlib import Path
+import warnings
 
 from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, NORMALISATION
 
@@ -102,7 +103,7 @@ def nameModelRun(runID : str):
     """
     return f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{runID}"
 
-def getWeightPathFromID(run_id : str) -> list:
+def getWeightPathFromID(run_id : str, extension : str = None) -> list:
     """
     Description:
         Find weights path based on a run ID
@@ -110,7 +111,10 @@ def getWeightPathFromID(run_id : str) -> list:
         run_id (str): The ID to find from the weights
     """
     # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
-    pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}*"
+    if extension is None:
+        pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}*"
+    else:
+        pattern = f"{PROJECT_ROOT}/{WEIGHTS_PATH}/**/*{run_id}.{extension}"
     return glob(pattern)
 
 def getResultPathFromID(run_id : str) -> list:
@@ -121,8 +125,30 @@ def getResultPathFromID(run_id : str) -> list:
         run_id (str): The ID to find from the weights
     """
     # Use glob to match any file containing the run_id in its name, in any subdirectory of WEIGHTS_PATH
-    pattern = f"{PROJECT_ROOT}/{RESULTS_PATH}/*{run_id}.json"
-    return glob(pattern)
+    pattern = f"{PROJECT_ROOT}/{RESULTS_PATH}/**/*{run_id}*.json"
+    return glob(pattern, recursive=True)
+
+def getMetaFromRunID(run_id : str) -> json:
+    """
+    Description:
+        Get JSON meta from a run_id
+    """
+    weights_results_paths = getResultPathFromID(run_id=run_id)
+    print(f'results_path: {weights_results_paths}')
+    
+    if len(weights_results_paths) == 0:
+        warnings.warn(f'Not found meta for existing weights run_id ({weights_results_paths})')
+        return {}
+    
+    if len(weights_results_paths) > 1:
+        warnings.warn(f"Multiple metas found for one run_id {run_id}, selecting {weights_results_paths[0]}")
+    
+    weights_results_path = weights_results_paths[0]
+    # Read and return the JSON file
+    with open(weights_results_path, 'r') as f:
+        j = json.load(f)
+        return j['meta']
+        
 
 def gitAdd(filePath : str):
     """
