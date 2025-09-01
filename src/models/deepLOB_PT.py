@@ -184,8 +184,8 @@ class DeepLOB_PT(BaseModel):
                 xb = x[i:i+batch_size]
                 preds = self.model.forward(xb)
                 preds_list.append(preds.cpu())
-        del x  # remove reference to tensor on GPU
-        gc.collect()  # force Python garbage collection
+        # del x  # remove reference to tensor on GPU
+        # gc.collect()  # force Python garbage collection
         if torch.cuda.is_available():
             torch.cuda.empty_cache()  # release unused GPU memory back to the OS
 

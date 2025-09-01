@@ -133,9 +133,7 @@ class DeepLOB_TF(BaseModel):
         gc.collect()
 
     def predict(self, x : tensor, y : tensor = None):
-        res = self.model.predict(x=x, verbose=1)
-        del x
-        gc.collect()
+        res = self.model.predict(x=x, verbose=0)
         return res
     
     def saveWeights(self, run_id : str = "") -> None:
