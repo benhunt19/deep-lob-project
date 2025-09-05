@@ -42,7 +42,7 @@ if __name__ == "__main__":
     )
 
 
-    models = [DeepLOB_PT(),  DeepLOB_PT()]
+    models = [DeepLOB_TF(),  DeepLOB_PT()]
     
     val_store = []
     
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     sns.set()
     fig, ax = plt.subplots(1, 1, figsize=(12,6))
 
-    labels = ['PyTorch', 'TensorFlow']
+    labels = ['TensorFlow', 'PyTorch']
     colors = ['blue', 'red']
 
     for i, (vals, av) in enumerate(val_store):

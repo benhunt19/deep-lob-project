@@ -104,14 +104,14 @@ class CustomDataLoader:
 
         return self.globalFrame
 
-    def getFeaturesFromFilesDirect(self, fileLocations :list[str] = None, representation : str = ORDERVOL):
+    def getFeaturesFromFilesDirect(self, fileLocations :list[str] = None, representation : str = ORDERVOL, date : str = None):
         """
         Description:
             Get raw data out of a presaved .npz file, already in the correct format
         """
         print("Running getFeaturesFromFilesDirect")
         folder = processedDataLocation(self.ticker, self.scaling, representation=representation)
-        fileLocations = self.getFileLocations(dataLocation=folder, extension= NUMPY_EXTENSION)
+        fileLocations = self.getFileLocations(dataLocation=folder, extension= NUMPY_EXTENSION, date=date)
             
         assert fileLocations is not None, "No file Locations provided, run self.getFileLocations()"
         
@@ -137,13 +137,13 @@ class CustomDataLoader:
         
         return self.x
             
-    def getOrderFlowsFromFiles(self):
+    def getOrderFlowsFromFiles(self, date : str = None):
         """
         Description:
             Custom process to handle orderflow representation, usual process required to run first
         """
         locations = processedDataLocation(self.ticker, self.scaling, representation=ORDERFLOWS)
-        fileLocations = self.getFileLocations(locations)
+        fileLocations = self.getFileLocations(locations, date=date)
         frame = self.getDataFromFiles(fileLocations)
         self.dataFrameToFeatures(alternativeFrame=frame)
 
@@ -341,7 +341,7 @@ class CustomDataLoader:
             tensor (bool): Does the data need to be transformed into a tensor for the model to work
             date (bool): The date of data to retrieve from the process (can be null) (currently unused)
         """
-        self.getFileLocations()
+        self.getFileLocations(date=date)
         self.getDataFromFiles()
         
         if self.representation == ORDERBOOKS:
@@ -350,16 +350,16 @@ class CustomDataLoader:
                 
         elif self.representation == ORDERFLOWS:
             self.dataFrameToLabelsRaw()
-            self.getOrderFlowsFromFiles()
+            self.getOrderFlowsFromFiles(date=date)
         
         elif self.representation == ORDERVOL:
             # self.dataFrameToLabelsRaw()
-            self.getFeaturesFromFilesDirect(representation=self.representation)
+            self.getFeaturesFromFilesDirect(representation=self.representation, date=date)
         
         elif self.representation == ORDERFIXEDVOL:
             # self.getDataFromFiles()
             # self.dataFrameToLabelsRaw()
-            self.getFeaturesFromFilesDirect(representation=self.representation)
+            self.getFeaturesFromFilesDirect(representation=self.representation, date=date)
         
         else:
             raise Exception("Representation not valid")

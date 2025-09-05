@@ -23,6 +23,7 @@ ORDERFIXEDVOL = 'orderfixedvol'
 
 # Weights location
 WEIGHTS_PATH = 'weights'
+WEIGHTS_PRD_PATH = 'weights_prd'
 
 # Results location
 RESULTS_PATH = 'results'
