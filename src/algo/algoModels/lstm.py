@@ -36,9 +36,9 @@ class LSTMModel(BaseAlgoClass):
             Dropout(0.2),
             Dense(1, activation='tanh')
         ])
-        
+        optimizer = adam = Adam(0.0001)
         self.model.compile(
-            optimizer=Adam(learning_rate=0.001, clipnorm=1.0),  # Gradient clipping
+            optimizer=optimizer
             loss='huber',  # More robust to outliers
             metrics=['mae']
         )
@@ -86,7 +86,7 @@ class LSTMModel(BaseAlgoClass):
         
         return X_normalized, y_normalized  # Return scaler for consistent inference
     
-    def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 3, validation_split = 0.15):
+    def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 1, validation_split = 0.15):
         
         self.model.fit(
             x=x,
