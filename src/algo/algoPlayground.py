@@ -2,7 +2,6 @@ from pprint import pprint
 import warnings
 warnings.filterwarnings('ignore')
 from src.core.constants import ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL, CATEGORICAL, REGRESSION
-from src.core.generalUtils import runID
 from src.algo.algoUtils import AlgoTrading, AlgoMetaMaker
 from src.routers.algoModelRouter import (
     ArimaModel,
@@ -47,19 +46,9 @@ if __name__ == "__main__":
             signalPercentage=meta['signalPercentage'],
             representation=meta['representation'],
             plot=meta['plot'],
-            verbose=meta['verbose']
+            verbose=meta['verbose'],
+            saveResults=meta['saveResults'],
+            meta=meta
         )
         result = at.runAlgoProcess()
-        result['meta'] = meta
-        
-        # Realisitically, add this to algoUtils
-        if meta['saveResults']:
-            AlgoTrading.saveResultsDict(
-                dic=result,
-                fileName=f'data_{runID(length=12)}',
-                modelName=meta['modelClass'].name,
-                ticker=meta['ticker'],
-                horizon=meta['horizon'],
-                signalPercentage=meta['signalPercentage'],
-                date=meta['date']
-            )
+        results.append(result)

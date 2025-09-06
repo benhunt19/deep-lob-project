@@ -61,7 +61,9 @@ class AlgoTrading:
         modelKwargs : dict = {},
         representation : str = None,
         plot : bool = False,
-        verbose : bool = False
+        verbose : bool = False,
+        saveResults : bool = False,
+        meta : dict = None
     ):
         # Initialisation params
         self.modelClass = modelClass
@@ -75,6 +77,8 @@ class AlgoTrading:
         self.plot = plot
         self.representation = representation
         self.verbose = verbose
+        self.saveResults = saveResults
+        self.meta = meta
         
         # Running params
         self.predictions : np.array = None                 # Prediction array from the models
@@ -157,13 +161,29 @@ class AlgoTrading:
         if self.plot:
             self.plotPnL(pnl=pnl, ticker=self.ticker, date=self.date)
         
-        return {
+        result = {
             'pnl': pnl,
             'directions': directions,
             'predictions': self.predictions,
             'upper_thresh': self.upper_thresh,
             'lower_thresh': self.lower_thresh,
         }
+        
+        if self.meta is not None:
+            result['meta'] = self.meta
+        
+        if self.saveResults:
+            self.saveResultsDict(
+                dic=result,
+                fileName=f'data_{runID(length=10)}',
+                modelName=self.modelClass.name,
+                ticker=self.ticker,
+                horizon=self.horizon,
+                signalPercentage=self.signalPercentage,
+                date=self.date
+            )
+        
+        return result
     
     @staticmethod
     def predictionsToThresolds(predictions : np.array, signalPercentage : int) -> Tuple[int, int]:
