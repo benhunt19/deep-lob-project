@@ -10,7 +10,22 @@ import numpy as np
 from pathlib import Path
 import warnings
 
-from src.core.constants import PROJECT_ROOT, WEIGHTS_PATH, RESULTS_PATH, PROCESSED_DATA_PATH, SCALED, UNSCALED, ORDERBOOKS, ORDERFLOWS, NORMALISATION
+from src.core.constants import (
+    PROJECT_ROOT,
+    WEIGHTS_PATH,
+    WEIGHTS_PRD_PATH,
+    RESULTS_PATH,
+    PROCESSED_DATA_PATH,
+    SCALED,
+    UNSCALED,
+    ORDERBOOKS,
+    ORDERFLOWS,
+    NORMALISATION,
+    ORDERVOL,
+    ORDERFIXEDVOL,
+    CATEGORICAL,
+    REGRESSION
+)
 
 def weightLocation(model, runName : str = ""):
     """
@@ -65,7 +80,7 @@ def processDataFileNaming(ticker : str, scaling : bool, date: str, representatio
     
     # If file_location is not absolute, make it relative to your project root
     if not file_location.is_absolute():
-        project_root = Path(__file__).parents[2]  # Adjust as needed for your project structure
+        project_root = Path(__file__).parents[2]
         file_location = project_root / file_location
         
     # Compose the output file name
@@ -205,3 +220,21 @@ def resultsLocation(run_id : str, representation : str, ticker : str) -> str:
     # Create directory if it doesn't exist
     os.makedirs(folder_location, exist_ok=True)
     return results_path
+
+def getPrdWeightsPath(ticker : str, representation : str, lookForwardHorizon : int, labelType : str, extension : str = '.h5'):
+    f"""
+    Description:
+        Get production weights path
+    Parameters:
+        ticker (str): Stock ticker
+        representation (str): Data representation {ORDERBOOKS, ORDERFLOWS, ORDERVOL, ORDERFIXEDVOL}
+        lookForwardHorizon (int): Look forward horizon from model 
+        labelType (str): The label type the model is {CATEGORICAL, REGRESSION}
+    """
+    folder = f"{PROJECT_ROOT}/{WEIGHTS_PRD_PATH}/{ticker}/{representation}/{lookForwardHorizon}"
+    
+    # Check for Categorical or Regression, if extended, change to get name from model class
+    file_pattern = f"deepLOB_*{extension}" if labelType == CATEGORICAL else f"deepLOBREG_*{extension}"
+    files = glob(f"{folder}/{file_pattern}")
+    assert len(files) > 0, f"Production weight not found for specific parameters: {ticker, representation, lookForwardHorizon, labelType, extension}"
+    return files[0]

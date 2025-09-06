@@ -4,21 +4,25 @@ import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
 import torch
-import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Tuple
+import copy
+import warnings
 
-from src.core.generalUtils import processDataFileNaming
+from src.core.generalUtils import processDataFileNaming, getPrdWeightsPath
 from src.core.constants import ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL, CATEGORICAL, REGRESSION
 from src.loaders.dataLoader import CustomDataLoader
 
 from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
+from src.algo.algoModels.deepLOB import DeepLOB
+from src.algo.algoModels.deepLOBREG import DeepLOBREG
 
 
 # LOCAL COL CONSTS
 TIME_COL = 1; ASK_PRICE_COL_1 = 2; BID_PRICE_COL_1 = 4
 TIME = 'time'; ASK = 'ask'; BID = 'bid'; MID = 'mid' 
 LOBSTER_DIVISOR = 10_000
+IGNORE_KEYS = []
 
 class Direction(Enum):
     LONG = 1
@@ -38,7 +42,6 @@ class AlgoTrading:
         ticker (str, optional): Stock ticker symbol. Defaults to 'AAPL'.
         date (str, optional): Date for data processing in 'YYYY-MM-DD' format. Defaults to '2025-06-04'.
         signalPercentage (int, optional): Percentile threshold for trading signals. Defaults to 25.
-        weightsPath (str, optional): Path to pre-trained model weights. Defaults to None.
         representation (str): Representation required for deeplob and deeplobreg {ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL}
         labelType (str): labelType required for deeplob and deeplobreg {CATEGORICAL, REGRESSION}
         modelKwargs (dict, optional): Additional keyword arguments for model initialization. Defaults to {{}}.
@@ -53,11 +56,10 @@ class AlgoTrading:
         ticker : str = 'AAPL',
         date : str = '2025-06-04',
         signalPercentage:  int = 25,
-        weightsPath : str = None,
         modelKwargs : dict = {},
         representation : str = None,
-        labelType : str = None,
-        plot : bool = False
+        plot : bool = False,
+        verbose : bool = False
     ):
         # Initialisation params
         self.modelClass = modelClass
@@ -67,19 +69,23 @@ class AlgoTrading:
         self.ticker = ticker
         self.date = date
         self.signalPercentage = signalPercentage
-        self.weightsPath = weightsPath
         self.modelKwargs = modelKwargs
         self.plot = plot
         self.representation = representation
-        self.labelType = labelType
+        self.verbose = verbose
         
         # Running params
-        self.predictions : np.array = None                                       # Prediction array from the models
-        self.data : pd.DataFrame = None                                          # Datafrane with mid, ask, bid and time in for HTF data 
-        self.upper_thresh : float = None                                         # Upper threshold for algo positioning (LONG)
-        self.lower_thresh : float = None                                         # Lower threshold for algo positioning (SHORT)
-        self.model : BaseAlgoClass = None                                        # Algo Model to use
-            
+        self.predictions : np.array = None                 # Prediction array from the models
+        self.data : pd.DataFrame = None                    # Datafrane with mid, ask, bid and time in for HTF data 
+        self.upper_thresh : float = None                   # Upper threshold for algo positioning (LONG)
+        self.lower_thresh : float = None                   # Lower threshold for algo positioning (SHORT)
+        self.model : BaseAlgoClass = None                  # Algo Model to use
+        self.weightsPath : str = None                      # Path for model production weights
+        
+        # Imply label type from model class, only required for deepLOB, deepLOBREG models
+        self.labelType = CATEGORICAL if modelClass is DeepLOB else REGRESSION if modelClass is DeepLOBREG else None
+        print(self.labelType) 
+        
     def runAlgoProcess(self) -> None:
         
         """
@@ -90,14 +96,13 @@ class AlgoTrading:
         """
     
         # Get the data from the unscaled deep lob file
-        self.data = self.getBidMidAsk(ticker=self.ticker, date=self.date)
-        print(self.data.head)
-        assert self.data is not None or len(self.data) > 0, f"Ensure that data has been correctly loaded"
-        self.data = self.data[self.windowLength : self.rowLim].reset_index()
+        dataFull = self.getBidMidAsk(ticker=self.ticker, date=self.date)
+        assert dataFull is not None or len(dataFull) > 0, f"Ensure that data has been correctly loaded"
+        dataFull = dataFull[:self.rowLim]
+        self.data = dataFull[self.windowLength : self.rowLim].copy().reset_index()
         
-        self.predictions = []
-
         if self.modelClass.AlgoType == AlgoTypes.DEEPLOB:
+            
             print(f"Model type: {self.modelClass.AlgoType}")
             
             assert self.labelType is not None, f"Please provide labelType: {CATEGORICAL, REGRESSION}"
@@ -105,6 +110,7 @@ class AlgoTrading:
             
             print(self.representation)
             
+            # Custom data loader from main training code
             cdl = CustomDataLoader(
                 ticker=self.ticker,
                 scaling=True,
@@ -117,8 +123,10 @@ class AlgoTrading:
                 representation=self.representation,
                 labelType=self.labelType,
             )
-            
             x, _ = cdl.runFullProcessReturnXY(tensor=True, date=self.date)
+            
+            # Get weights location, load models wit weights and predict data
+            self.weightsPath = getPrdWeightsPath(ticker=self.ticker, representation=self.representation, lookForwardHorizon=self.horizon, labelType=self.labelType)
             self.model = self.modelClass(weightsPath=self.weightsPath, **self.modelKwargs)
             self.predictions = self.model.predict(x=x)
             
@@ -128,20 +136,30 @@ class AlgoTrading:
             print(f"Model type: {self.modelClass.AlgoType}")
         
         elif self.modelClass.AlgoType == AlgoTypes.FIT_ON_THE_GO:
-            print(f"Model type: {self.modelClass.AlgoType}")
+
+            self.model = self.modelClass(windowLength=self.windowLength, horizon=self.horizon, **self.modelKwargs)
+            self.predictions = self.model.predict(x=dataFull[MID].values)
+            self.upper_thresh, self.lower_thresh = self.predictionsToThresolds(predictions=self.predictions, signalPercentage=self.signalPercentage)
         
         else:
             raise Exception(f"AlgoType: {self.modelClass.AlgoType} not supported.")
         
         assert self.model is not None, f"Pleaes ensure that the model is not NoneType"
         assert self.upper_thresh is not None and self.lower_thresh is not None, f"Please ensure that the lower and upper thesholds are"
+        assert self.predictions is not None, f"Pleaes ensure that there are predictions"
         
-        pnl = self.predictionsToProfit()
+        pnl, directions = self.predictionsToProfit()
         
         if self.plot:
             self.plotPnL(pnl=pnl, ticker=self.ticker, date=self.date)
         
-        return pnl
+        return {
+            'pnl': pnl,
+            'directions': directions,
+            'predictions': self.predictions,
+            'upper_thresh': self.upper_thresh,
+            'lower_thresh': self.lower_thresh,
+        }
     
     @staticmethod
     def predictionsToThresolds(predictions : np.array, signalPercentage : int) -> Tuple[int, int]:
@@ -152,8 +170,14 @@ class AlgoTrading:
             predictions (np.array): Predictions, typically values between -1 and 1
             signalPercentage (int): Percentage for threshold calc
         """
-        upper_thresh = np.percentile(predictions[predictions > 0], 100 - signalPercentage)
-        lower_thresh = np.percentile(predictions[predictions < 0], signalPercentage)
+        try:
+            upper_thresh = np.percentile(predictions[predictions > 0], 100 - signalPercentage)
+            lower_thresh = np.percentile(predictions[predictions < 0], signalPercentage)
+        except:
+            upper_thresh = 0.5
+            lower_thresh = -0.5
+            warnings.warn(f"Thresholds not created, defautls applied: upper_thresh: {upper_thresh}, lower_thresh: {lower_thresh}")
+            
         print(f"upper_thresh: {upper_thresh}")
         print(f"lower_thresh: {lower_thresh}")
         return upper_thresh, lower_thresh
@@ -197,7 +221,7 @@ class AlgoTrading:
         plt.show()
 
 
-    def predictionsToProfit(self) -> np.array:
+    def predictionsToProfit(self, verbose : bool = False) -> np.array:
         f"""
         Description:
             Run HFT LOB algo.
@@ -208,18 +232,21 @@ class AlgoTrading:
             lower_threshold (flat): Lower threshold for going short,
             slippage (int): The number of discrete slippages to include 
         Returns:
-            PnL array (np.array)
+            PnL array (np.array), directons (np.array)
         """
         
         # Starting values
         direction = Direction.FLAT
         entryPrice = None
         pnl = np.zeros(len(self.data))
+        directions = [None for i in range(len(self.data))]
         countdown = 0
         extend = False
         
-        print(f"Prediction length: {len(self.predictions)}")
-        print(f"Data length: {len(self.data)}")
+        if self.verbose:
+            print(f"Prediction length: {len(self.predictions)}")
+            print(f"Data length: {len(self.data)}")
+            input("Pausing...")
         
         for index, row in self.data.iterrows():
             signal = self.predictions[index]
@@ -228,23 +255,26 @@ class AlgoTrading:
             if signal > self.upper_thresh and direction == Direction.SHORT:
                 margin = entryPrice - row[MID]
                 pnl[index] = pnl[index - 1] + margin
-                print(f"[{index}] Exit SHORT, margin={margin:.5f}")
                 direction = Direction.FLAT
                 countdown = 0
+                if self.verbose:
+                    print(f"[{index}] Exit SHORT, margin={margin:.5f}")
 
             elif signal < self.lower_thresh and direction == Direction.LONG:
                 margin = row[MID] - entryPrice
                 pnl[index] = pnl[index - 1] + margin
-                print(f"[{index}] Exit LONG, margin={margin:.5f}")
                 direction = Direction.FLAT
                 countdown = 0
+                if self.verbose:
+                    print(f"[{index}] Exit LONG, margin={margin:.5f}")
 
             # --- Enter if aligned ---
             elif signal > self.upper_thresh and direction in [Direction.FLAT, Direction.LONG]:
                 if countdown == 0:
                     entryPrice = row[MID]
-                    print(f"[{index}] Enter LONG at {row[MID]}")
                     countdown = self.horizon
+                    if self.verbose:
+                        print(f"[{index}] Enter LONG at {row[MID]}")
                 elif countdown > 0 and extend:
                     countdown = self.horizon
                 direction = Direction.LONG
@@ -252,8 +282,9 @@ class AlgoTrading:
             elif signal < self.lower_thresh and direction in [Direction.FLAT, Direction.SHORT]:
                 if countdown == 0:
                     entryPrice = row[MID]
-                    print(f"[{index}] Enter SHORT at {row[MID]}")
                     countdown = self.horizon
+                    if self.verbose:
+                        print(f"[{index}] Enter SHORT at {row[MID]}")
                 elif countdown > 0 and extend:
                     countdown = self.horizon
                 direction = Direction.SHORT
@@ -263,11 +294,13 @@ class AlgoTrading:
                 if direction == Direction.LONG:
                     margin = row[MID] - entryPrice
                     pnl[index] = pnl[index - 1] + margin
-                    print(f"[{index}] Exit LONG (countdown), margin={margin:.5f}")
+                    if self.verbose:
+                        print(f"[{index}] Exit LONG (countdown), margin={margin:.5f}")
                 elif direction == Direction.SHORT:
                     margin = entryPrice - row[MID]
                     pnl[index] = pnl[index - 1] + margin
-                    print(f"[{index}] Exit SHORT (countdown), margin={margin:.5f}")
+                    if self.verbose:
+                        print(f"[{index}] Exit SHORT (countdown), margin={margin:.5f}")
                 direction = Direction.FLAT
 
             # --- Carry forward PnL ---
@@ -277,5 +310,33 @@ class AlgoTrading:
             # --- Update countdown ---
             if countdown > 0:
                 countdown -= 1
+            directions[index] = direction
             
-        return pnl
+        return pnl, directions
+
+class AlgoMetaMaker:
+    f"""
+    Description:
+        Eseentially the same as ModelMetaMake from src.test_framework.metaMaker
+    """
+        
+    @staticmethod
+    def createMetas(base):
+        modelMetas = [copy.deepcopy(base)]
+        
+        for key, value in base.items():
+            if hasattr(value, '__iter__') and not isinstance(value, str) and key not in IGNORE_KEYS:
+                new_metas = []
+                
+                for meta in modelMetas:
+                    for v in value:
+                        new_meta = copy.deepcopy(meta)
+                        new_meta[key] = v
+                        new_metas.append(new_meta)
+                        
+                modelMetas = new_metas
+            else:
+                for meta in modelMetas:
+                    meta[key] = value
+
+        return modelMetas

@@ -1,35 +1,39 @@
-from src.algo.algoModels.baseAlgoModel import BaseAlgoClass
-
+import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
+from tqdm import tqdm
 
+from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
 
 class ArimaModel(BaseAlgoClass):
-    def __init__(self, window : int = 100, lookForwardHorizon : int = 100, AR_order : int = 2, differencing_order : int = 1, MA_order : int = 1):
+    
+    AlgoType = AlgoTypes.FIT_ON_THE_GO
+    
+    def __init__(self, windowLength : int = 100, horizon : int = 20, AR_order : int = 2, differencing_order : int = 1, MA_order : int = 2):
         super().__init__()
         
-        self.model = ARIMA(order=(AR_order, differencing_order, MA_order))
-        self.window = window
-        self.lookForwardHorizon = lookForwardHorizon
+        self.model = None                               # Created on the fly in predict
+        self.windowLength = windowLength
+        self.horizon = horizon
+        self.AR_order = AR_order
+        self.differencing_order = differencing_order
+        self.MA_order = MA_order
         
     def predict(self, x):
-        W = 100   # window length
-        H = 20    # forecast horizon
-
+        
         forecasts = []
-
-        for start in range(len(x) - W - H):
-            window = x[start:start + W]   # sliding window
+        for i in tqdm(range(self.windowLength, len(x)), desc="Predicting ARIMA"):
+            # Use rolling window of last W points
+            window_data = x[i - self.windowLength : i]
             
-            # Fit a basic ARIMA(p,d,q), here (1,1,1) is just an example
-            model = ARIMA(window, order=(1,1,1))
-            fitted = model.fit()
+            model = ARIMA(window_data, order=(self.AR_order, self.differencing_order, self.MA_order))
+            fitted = model.fit(method_kwargs={'warn_convergence': False})
             
-            # Forecast H steps ahead
-            pred = fitted.forecast(steps=H)
+            # Predict H steps ahead from current position
+            pred = fitted.forecast(steps=self.horizon)[-1] - window_data[-1] # Take the H-th step prediction
             
-            forecasts.append(pred.values[-1])  # store last forecast (t+H)
-
-        print("Number of forecasts:", len(forecasts))
-        print("First few:", forecasts[:5])
+            forecasts.append(pred)
         
+        np_forecasts = np.array(forecasts)
+        np_forecasts /= np_forecasts.std()
         
+        return np_forecasts
