@@ -80,18 +80,13 @@ class LSTMModel(BaseAlgoClass):
         # Option 1: Normalize each feature across all samples (recommended)
         scaler = StandardScaler()
         X_normalized = scaler.fit_transform(X.reshape(-1, 1)).reshape(X.shape)
-        
-        # Reshape X for LSTM input (samples, timesteps, features)
         X_normalized = X_normalized.reshape(X_normalized.shape[0], X_normalized.shape[1], 1)
         
-        # Don't normalize targets - keep them as percentage returns for interpretability
-        # If you must normalize targets, save the scaler for inverse transform later
-        y_scaler = StandardScaler()
-        y_normalized = y_scaler.fit_transform(y.reshape(-1, 1)).flatten()
+        y_normalized = y / y.std()
         
         return X_normalized, y_normalized  # Return scaler for consistent inference
     
-    def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 3, validation_split = 1/10):
+    def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 3, validation_split = 0.15):
         
         self.model.fit(
             x=x,
