@@ -9,6 +9,7 @@ from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
 class GarchModel(BaseAlgoClass):
     
     AlgoType = AlgoTypes.FIT_ON_THE_GO
+    name = 'GarchModel'
     
     def __init__(self, windowLength : int = 100, horizon : int = 20, p: int = 1, q: int = 1):
         super().__init__()

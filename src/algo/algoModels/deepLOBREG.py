@@ -7,6 +7,7 @@ import numpy as np
 class DeepLOBREG(BaseAlgoClass):
     
     AlgoType = AlgoTypes.DEEPLOB
+    name = 'DeepLOBREG'
     
     def __init__(self, weightsPath : str = None, shape : tuple = (100, 20, 1)):
         super().__init__()

@@ -13,6 +13,7 @@ from torch import tensor
 class LSTMModel(BaseAlgoClass):
     
     AlgoType = AlgoTypes.PRE_TRAINED
+    name = 'LSTMModel'
     
     def __init__(self):
         super().__init__()

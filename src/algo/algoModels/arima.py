@@ -7,6 +7,7 @@ from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
 class ArimaModel(BaseAlgoClass):
     
     AlgoType = AlgoTypes.FIT_ON_THE_GO
+    name = 'ArimaModel'
     
     def __init__(self, windowLength : int = 100, horizon : int = 20, AR_order : int = 2, differencing_order : int = 1, MA_order : int = 2):
         super().__init__()

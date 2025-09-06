@@ -4,12 +4,14 @@ import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
 import torch
+import os
 import seaborn as sns
 from typing import Tuple
 import copy
 import warnings
+from joblib import dump, load
 
-from src.core.generalUtils import processDataFileNaming, getPrdWeightsPath
+from src.core.generalUtils import processDataFileNaming, getPrdWeightsPath, saveAlgoDictLocation, runID
 from src.core.constants import ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL, CATEGORICAL, REGRESSION
 from src.loaders.dataLoader import CustomDataLoader
 
@@ -36,7 +38,7 @@ class AlgoTrading:
         AlgoTradnig class to process data, run models, and output results
     Parameters:
         modelClass (BaseAlgoClass): Algorithm model class to use for predictions
-        rowLim (int, optional): Maximum number of data rows to process. Defaults to 100,000.
+        rowLim (int, optional): Maximum number of data rows to process. Defaults to None.
         windowLength (int, optional): Length of lookback window. Defaults to 100.
         horizon (int, optional): Prediction horizon for lookforward. Defaults to 20.
         ticker (str, optional): Stock ticker symbol. Defaults to 'AAPL'.
@@ -50,7 +52,7 @@ class AlgoTrading:
     def __init__(
         self,
         modelClass : BaseAlgoClass,
-        rowLim : int = 100_000,
+        rowLim : int = None,
         windowLength :int = 100,
         horizon : int = 20,
         ticker : str = 'AAPL',
@@ -98,8 +100,10 @@ class AlgoTrading:
         # Get the data from the unscaled deep lob file
         dataFull = self.getBidMidAsk(ticker=self.ticker, date=self.date)
         assert dataFull is not None or len(dataFull) > 0, f"Ensure that data has been correctly loaded"
-        dataFull = dataFull[:self.rowLim]
-        self.data = dataFull[self.windowLength : self.rowLim].copy().reset_index()
+        
+        if self.rowLim is not None:
+            dataFull = dataFull[:self.rowLim]
+        self.data = dataFull[self.windowLength : ].copy().reset_index()
         
         if self.modelClass.AlgoType == AlgoTypes.DEEPLOB:
             
@@ -180,7 +184,7 @@ class AlgoTrading:
             
         print(f"upper_thresh: {upper_thresh}")
         print(f"lower_thresh: {lower_thresh}")
-        return upper_thresh, lower_thresh
+        return float(upper_thresh), float(lower_thresh)
     
     @staticmethod
     def getBidMidAsk(ticker : str, date : str) -> pd.DataFrame:
@@ -239,7 +243,7 @@ class AlgoTrading:
         direction = Direction.FLAT
         entryPrice = None
         pnl = np.zeros(len(self.data))
-        directions = [None for i in range(len(self.data))]
+        directions = np.zeros(len(self.data))
         countdown = 0
         extend = False
         
@@ -310,9 +314,25 @@ class AlgoTrading:
             # --- Update countdown ---
             if countdown > 0:
                 countdown -= 1
-            directions[index] = direction
+            directions[index] = direction.value
             
         return pnl, directions
+    
+    @staticmethod
+    def saveResultsDict(dic : dict, fileName : str, ticker : str, modelName : str, horizon : int, date : str, signalPercentage : int):
+        """
+        Save dict data to a file using joblib.
+            fileName (str): Name of the file to save (without extension)
+            ticker (str): Stock ticker symbol
+            modelName (str): Name of the model used
+            horizon (int): Time horizon for the model
+            date (str): Date string for the data
+            signalPercentage (int): Signal percentage threshold
+        """
+        
+        location = saveAlgoDictLocation(ticker=ticker, modelName=modelName, horizon=horizon, date=date, signalPercentage=signalPercentage )
+        os.makedirs(location, exist_ok=True)
+        dump(dic, f"{location}/{fileName}.joblib")
 
 class AlgoMetaMaker:
     f"""

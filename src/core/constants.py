@@ -29,6 +29,7 @@ WEIGHTS_PRD_PATH = 'weights_prd'
 RESULTS_PATH = 'results'
 RESULTS_CSVS = 'results/csv_outputs'
 FINAl_RESULTS_PATH = 'results/final'
+ALGO_RESULTS = 'results/algo'
 
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000

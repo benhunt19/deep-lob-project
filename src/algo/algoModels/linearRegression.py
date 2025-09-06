@@ -11,6 +11,7 @@ from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
 class LinearRegressionModel(BaseAlgoClass):
     
     AlgoType = AlgoTypes.FIT_ON_THE_GO
+    name = 'LinearRegressionModel'
     
     def __init__(self, windowLength: int = 100, horizon: int = 20):
         super().__init__()

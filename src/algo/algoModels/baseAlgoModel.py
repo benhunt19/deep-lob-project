@@ -10,6 +10,7 @@ class AlgoTypes(Enum):
 class BaseAlgoClass(ABC):
     
     AlgoType = AlgoTypes.PRE_TRAINED
+    name = 'BaseAlgoClass'
     
     def __init__(self):
         super().__init__()

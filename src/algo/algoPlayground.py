@@ -2,6 +2,7 @@ from pprint import pprint
 import warnings
 warnings.filterwarnings('ignore')
 from src.core.constants import ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL, CATEGORICAL, REGRESSION
+from src.core.generalUtils import runID
 from src.algo.algoUtils import AlgoTrading, AlgoMetaMaker
 from src.routers.algoModelRouter import (
     ArimaModel,
@@ -15,8 +16,8 @@ from src.routers.algoModelRouter import (
 if __name__ == "__main__":
     
     base = {
-        'horizon': [60],
-        'rowLim': 500_000,
+        'horizon': [20],
+        'rowLim': 10_000,
         'windowLength': 100,
         'ticker': 'AAPL',
         'date': '2025-06-05',
@@ -24,7 +25,8 @@ if __name__ == "__main__":
         'plot': True,
         'modelClass': [DeepLOB],
         'representation': ORDERFLOWS,
-        'verbose': False
+        'verbose': False,
+        'saveResults': True
     }
     
     metas = AlgoMetaMaker.createMetas(base=base)
@@ -49,4 +51,15 @@ if __name__ == "__main__":
         )
         result = at.runAlgoProcess()
         result['meta'] = meta
-        results.append(result)
+        
+        # Realisitically, add this to algoUtils
+        if meta['saveResults']:
+            AlgoTrading.saveResultsDict(
+                dic=result,
+                fileName=f'data_{runID(length=12)}',
+                modelName=meta['modelClass'].name,
+                ticker=meta['ticker'],
+                horizon=meta['horizon'],
+                signalPercentage=meta['signalPercentage'],
+                date=meta['date']
+            )

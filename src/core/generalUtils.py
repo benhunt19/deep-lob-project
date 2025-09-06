@@ -24,7 +24,8 @@ from src.core.constants import (
     ORDERVOL,
     ORDERFIXEDVOL,
     CATEGORICAL,
-    REGRESSION
+    REGRESSION,
+    ALGO_RESULTS
 )
 
 def weightLocation(model, runName : str = ""):
@@ -238,3 +239,6 @@ def getPrdWeightsPath(ticker : str, representation : str, lookForwardHorizon : i
     files = glob(f"{folder}/{file_pattern}")
     assert len(files) > 0, f"Production weight not found for specific parameters: {ticker, representation, lookForwardHorizon, labelType, extension}"
     return files[0]
+
+def saveAlgoDictLocation(ticker : str, modelName : str, horizon : int, date : str, signalPercentage : int):
+    return f"{PROJECT_ROOT}/{ALGO_RESULTS}/{ticker}/{date}/{horizon}/{signalPercentage}/{modelName}"
