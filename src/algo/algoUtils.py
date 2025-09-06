@@ -105,8 +105,9 @@ class AlgoTrading:
         dataFull = self.getBidMidAsk(ticker=self.ticker, date=self.date)
         assert dataFull is not None or len(dataFull) > 0, f"Ensure that data has been correctly loaded"
         
-        if self.rowLim is not None:
-            dataFull = dataFull[:self.rowLim]
+        self.rowLim = self.rowLim if self.rowLim is None else len(dataFull)        
+        
+        dataFull = dataFull[:self.rowLim]
         self.data = dataFull[self.windowLength : ].copy().reset_index()
         
         if self.modelClass.AlgoType == AlgoTypes.DEEPLOB:
