@@ -38,7 +38,7 @@ class LSTMModel(BaseAlgoClass):
         ])
         optimizer = adam = Adam(0.0001)
         self.model.compile(
-            optimizer=optimizer
+            optimizer=optimizer,
             loss='huber',  # More robust to outliers
             metrics=['mae']
         )
