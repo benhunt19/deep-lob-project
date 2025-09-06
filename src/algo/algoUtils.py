@@ -188,7 +188,7 @@ class AlgoTrading:
         assert self.upper_thresh is not None and self.lower_thresh is not None, f"Please ensure that the lower and upper thesholds are"
         assert self.predictions is not None, f"Pleaes ensure that there are predictions"
         
-        pnl, directions = self.predictionsToProfit()
+        pnl, directions, fees = self.predictionsToProfit()
         
         if self.plot:
             self.plotPnL(pnl=pnl, ticker=self.ticker, date=self.date)
@@ -196,6 +196,7 @@ class AlgoTrading:
         result = {
             'pnl': pnl,
             'directions': directions,
+            'fees': fees if self.tradingFees else None,
             'predictions': self.predictions,
             'upper_thresh': self.upper_thresh,
             'lower_thresh': self.lower_thresh,
@@ -296,6 +297,7 @@ class AlgoTrading:
         entryPrice = None
         pnl = np.zeros(len(self.data))
         directions = np.zeros(len(self.data))
+        fees = np.zeros(len(self.data))
         countdown = 0
         extend = False
         
@@ -306,10 +308,15 @@ class AlgoTrading:
         
         for index, row in self.data.iterrows():
             signal = self.predictions[index]
+            spread = row[ASK] - row[BID]
 
             # --- Exit if opposite signal ---
             if signal > self.upper_thresh and direction == Direction.SHORT:
-                margin = entryPrice - row[MID]
+                if self.tradingFees:
+                    margin = entryPrice - row[ASK]
+                    fees[index] = spread
+                else:
+                    margin = entryPrice - row[MID]
                 pnl[index] = pnl[index - 1] + margin
                 direction = Direction.FLAT
                 countdown = 0
@@ -317,7 +324,11 @@ class AlgoTrading:
                     print(f"[{index}] Exit SHORT, margin={margin:.5f}")
 
             elif signal < self.lower_thresh and direction == Direction.LONG:
-                margin = row[MID] - entryPrice
+                if self.tradingFees:
+                    margin = row[BID] - entryPrice
+                    fees[index] = spread
+                else:
+                    margin = row[MID] - entryPrice
                 pnl[index] = pnl[index - 1] + margin
                 direction = Direction.FLAT
                 countdown = 0
@@ -327,7 +338,11 @@ class AlgoTrading:
             # --- Enter if aligned ---
             elif signal > self.upper_thresh and direction in [Direction.FLAT, Direction.LONG]:
                 if countdown == 0:
-                    entryPrice = row[MID]
+                    if self.tradingFees:
+                        entryPrice = row[ASK]
+                        fees[index] = spread
+                    else:
+                        entryPrice = row[MID]
                     countdown = self.horizon
                     if self.verbose:
                         print(f"[{index}] Enter LONG at {row[MID]}")
@@ -337,7 +352,11 @@ class AlgoTrading:
 
             elif signal < self.lower_thresh and direction in [Direction.FLAT, Direction.SHORT]:
                 if countdown == 0:
-                    entryPrice = row[MID]
+                    if self.tradingFees:
+                        entryPrice = row[BID]
+                        fees[index] = spread
+                    else:
+                        entryPrice = row[MID]
                     countdown = self.horizon
                     if self.verbose:
                         print(f"[{index}] Enter SHORT at {row[MID]}")
@@ -348,12 +367,21 @@ class AlgoTrading:
             # --- Exit if countdown expires ---
             elif countdown == 0 and direction != Direction.FLAT:
                 if direction == Direction.LONG:
-                    margin = row[MID] - entryPrice
+                    if self.tradingFees:
+                        margin = row[BID] - entryPrice
+                        fees[index] = spread
+                    else:
+                        margin = row[MID] - entryPrice
+                        
                     pnl[index] = pnl[index - 1] + margin
                     if self.verbose:
                         print(f"[{index}] Exit LONG (countdown), margin={margin:.5f}")
                 elif direction == Direction.SHORT:
-                    margin = entryPrice - row[MID]
+                    if self.tradingFees:
+                        margin = entryPrice - row[ASK]
+                        fees[index] = spread
+                    else:
+                        margin = entryPrice - row[MID]
                     pnl[index] = pnl[index - 1] + margin
                     if self.verbose:
                         print(f"[{index}] Exit SHORT (countdown), margin={margin:.5f}")
@@ -368,7 +396,7 @@ class AlgoTrading:
                 countdown -= 1
             directions[index] = direction.value
             
-        return pnl, directions
+        return pnl, directions, fees
     
     @staticmethod
     def saveResultsDict(dic : dict, fileName : str, ticker : str, modelName : str, horizon : int, date : str, signalPercentage : int):
