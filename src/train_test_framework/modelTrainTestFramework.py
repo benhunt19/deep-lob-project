@@ -11,7 +11,7 @@ from inspect import isclass
 
 from src.core.generalUtils import runID, processedDataLocation, makeJsonSerializable, resultsLocation, getWeightPathFromID, getMetaFromRunID
 from src.routers.modelRouter import *
-from src.core.constants import TEST, ALGO, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
+from src.core.constants import TEST, TRANSFER_LEARNING, TRAIN, AUTO, GLOBAL_LOGGER, PROJECT_ROOT, RESULTS_PATH, ORDERBOOKS, ORDERFLOWS, REGRESSION, CATEGORICAL
 from src.loaders.dataLoader import CustomDataLoader
 from src.train_test_framework.metaConstants import META_DEFAULTS, REQUIRED_FIELD, DEFAULT_TEST_TRAIN_SPLIT
 from src.train_test_framework.metaMaker import ModelMetaMaker
@@ -122,11 +122,11 @@ class ModelTrainTestFramework:
                 gc.collect()
 
             
-            if ALGO in meta['steps']:
+            if TRANSFER_LEARNING in meta['steps']:
                 """
                 Special case for testing algos, uses original framework
                 """
-                print("In algo")
+                print("In TRANSFER_LEARNING")
                 
                 if TRAIN not in meta['steps']:
                     # Need to run full process as not run in above
@@ -199,7 +199,7 @@ class ModelTrainTestFramework:
     def processAllMetrics(preds : np.array, actual : np.array, labelType : str = CATEGORICAL):
         f"""
         Description:
-            Wrapper for processing any metrics, for use in {TEST} or {ALGO}
+            Wrapper for processing any metrics, for use in {TEST} or {TRANSFER_LEARNING}
         Parameters:
             preds (np.array): The model predictions
             actual (np.array): The actual labls 

@@ -18,6 +18,14 @@ from src.loaders.dataLoader import CustomDataLoader
 from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
 from src.algo.algoModels.deepLOB import DeepLOB
 from src.algo.algoModels.deepLOBREG import DeepLOBREG
+from src.routers.algoModelRouter import (
+    ArimaModel,
+    GarchModel,
+    DeepLOB,
+    DeepLOBREG,
+    LinearRegressionModel,
+    LSTMModel,
+)
 
 
 # LOCAL COL CONSTS
@@ -53,7 +61,7 @@ class AlgoTrading:
         self,
         modelClass : BaseAlgoClass,
         rowLim : int = None,
-        windowLength :int = 100,
+        windowLength: int = 100,
         horizon : int = 20,
         ticker : str = 'AAPL',
         date : str = '2025-06-04',
@@ -63,6 +71,7 @@ class AlgoTrading:
         plot : bool = False,
         verbose : bool = False,
         saveResults : bool = False,
+        tradingFees : bool = False,
         meta : dict = None
     ):
         # Initialisation params
@@ -78,6 +87,7 @@ class AlgoTrading:
         self.representation = representation
         self.verbose = verbose
         self.saveResults = saveResults
+        self.tradingFees = tradingFees
         self.meta = meta
         
         # Running params
@@ -246,7 +256,7 @@ class AlgoTrading:
         plt.show()
 
 
-    def predictionsToProfit(self, verbose : bool = False) -> np.array:
+    def predictionsToProfit(self) -> np.array:
         f"""
         Description:
             Run HFT LOB algo.
@@ -379,5 +389,35 @@ class AlgoMetaMaker:
             else:
                 for meta in modelMetas:
                     meta[key] = value
+                    
+        for meta in modelMetas:
+            meta['modelClass'] = AlgoMetaMaker.algoModelStringToClass(meta['modelClass'])
 
         return modelMetas
+
+    @staticmethod
+    def algoModelStringToClass(model : str) -> BaseAlgoClass:
+        """
+        Description:
+            Returns the model class based on the string
+        Parameters:
+            model (str): The string of the model required, case insensitive
+        """
+        assert isinstance(model, (str, BaseAlgoClass)), "Please provide either an algo model class or a string"
+
+        if isinstance(model, BaseAlgoClass):
+            return model
+        elif model.lower() == ArimaModel.name.lower():
+            return ArimaModel
+        elif model.lower() == GarchModel.name.lower():
+            return GarchModel
+        elif model.lower() == DeepLOB.name.lower():
+            return DeepLOB
+        elif model.lower() == DeepLOBREG.name.lower():
+            return DeepLOBREG
+        elif model.lower() == LinearRegressionModel.name.lower():
+            return LinearRegressionModel
+        elif model.lower() == LSTM.name.lower():
+            return LSTM
+        else:
+            raise ValueError(f"Unknown model string: {model}")

@@ -44,8 +44,9 @@ STD_DEV_ROW = 1
 # Process steps
 TEST = "TEST"
 TRAIN = "TRAIN"
-ALGO = "ALGO"
+TRANSFER_LEARNING = "TRANSFER_LEARNING" # ALGO in legacy metadata
 PROCESS_DATA = "PROCESS_DATA"
+ALGO_TRADING = "ALGO_TRADING"
 
 # Model Label Modes, also used for anything AUTOMATIC
 AUTO = 'auto'
