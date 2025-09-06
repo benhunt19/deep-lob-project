@@ -1,8 +1,4 @@
-# train.py
-import hydra
 from omegaconf import DictConfig
-
-from src.core.constants import PROJECT_ROOT, HYDRA_CONFIG_PATH, TRAIN, TEST
 from src.train_test_framework.modelTrainTestFramework import ModelTrainTestFramework
 from src.train_test_framework.metaMaker import ModelMetaMaker
 
