@@ -63,40 +63,33 @@ class LSTMModel(BaseAlgoClass):
         - X: normalized windows of length self.windowLength 
         - y: directional targets self.horizon steps ahead
         """
-        X, y = [], []
+        X, y = np.zeros((len(data) - self.windowLength, self.windowLength)), np.zeros(len(data) - self.windowLength)
         
         # Create windows: lookback windowLength, predict horizon steps ahead
-        for i in range(self.windowLength, len(data) - self.horizon):
-            # Input window: data[i-windowLength:i]
-            window = data[i - self.windowLength : i]
-            X.append(window)
+        for i in range(0, len(data) - self.windowLength - self.horizon):
+                    # Input window: data[i:i+windowLength]
+            X[i] = data[i : i + self.windowLength]
             
             # Target: percentage change after horizon steps (directional signal)
-            current_price = data[i]
-            future_price = data[i + self.horizon]
-            target = (future_price - current_price) / current_price  # Percentage return
-            y.append(target)
+            current_price = data[i + self.windowLength - 1]  # Last price in window
+            future_price = data[i + self.windowLength + self.horizon - 1]
+            target = future_price - current_price  # Percentage return
+            y[i] = target
         
-        # Convert to numpy arrays
-        X = np.array(X)
-        y = np.array(y)
-        
-        # Use StandardScaler for each window (fit and transform each window independently)
+        # Normalize the entire dataset consistently
+        # Option 1: Normalize each feature across all samples (recommended)
         scaler = StandardScaler()
-        X_normalized = np.zeros_like(X)
-        
-        for i in range(X.shape[0]):
-            window = X[i].reshape(-1, 1)  # Reshape for scaler
-            X_normalized[i] = scaler.fit_transform(window).flatten()
+        X_normalized = scaler.fit_transform(X.reshape(-1, 1)).reshape(X.shape)
         
         # Reshape X for LSTM input (samples, timesteps, features)
         X_normalized = X_normalized.reshape(X_normalized.shape[0], X_normalized.shape[1], 1)
         
-        # StandardScaler for targets too
+        # Don't normalize targets - keep them as percentage returns for interpretability
+        # If you must normalize targets, save the scaler for inverse transform later
         y_scaler = StandardScaler()
-        y = y_scaler.fit_transform(np.array(y).reshape(-1, 1)).flatten()
+        y_normalized = y_scaler.fit_transform(y.reshape(-1, 1)).flatten()
         
-        return X_normalized, y
+        return X_normalized, y_normalized  # Return scaler for consistent inference
     
     def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 3, validation_split = 1/10):
         
