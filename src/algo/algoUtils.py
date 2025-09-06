@@ -153,6 +153,27 @@ class AlgoTrading:
             
         elif self.modelClass.AlgoType == AlgoTypes.PRE_TRAINED:
             print(f"Model type: {self.modelClass.AlgoType}")
+            print("Training...")
+            trainSplit = 0.75
+            self.model = self.modelClass(windowLength=self.windowLength, horizon=self.horizon, **self.modelKwargs)
+            x_train, y_train = self.model.transformDataToWindows(dataFull[MID].values[:int(len(dataFull) * trainSplit)])
+            self.model.train(x=x_train, y=y_train)
+            # currently incorrect ML methodology, will change
+            x_test, _ = self.model.transformDataToWindows(dataFull[MID].values)
+            print(f"x_test.shape: {x_test.shape}")
+            self.predictions = self.model.predict(x=x_test)
+            print(self.predictions)
+            print(self.predictions.shape)
+            # After training, check:
+            print(f"Unique predictions: {len(np.unique(self.predictions))}")
+            print(f"Prediction range: {np.min(self.predictions)} to {np.max(self.predictions)}")
+            print(f"Prediction std: {np.std(self.predictions)}")
+            
+            # Check training targets:
+            print(f"Training target range: {np.min(y_train)} to {np.max(y_train)}")
+            print(f"Training target std: {np.std(y_train)}")
+            input("Pausing...")
+            self.upper_thresh, self.lower_thresh = self.predictionsToThresolds(predictions=self.predictions, signalPercentage=self.signalPercentage)
         
         elif self.modelClass.AlgoType == AlgoTypes.FIT_ON_THE_GO:
 
@@ -417,7 +438,7 @@ class AlgoMetaMaker:
             return DeepLOBREG
         elif model.lower() == LinearRegressionModel.name.lower():
             return LinearRegressionModel
-        elif model.lower() == LSTM.name.lower():
-            return LSTM
+        elif model.lower() == LSTMModel.name.lower():
+            return LSTMModel
         else:
             raise ValueError(f"Unknown model string: {model}")

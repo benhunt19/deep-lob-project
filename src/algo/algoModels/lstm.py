@@ -1,11 +1,11 @@
 from src.algo.algoModels.baseAlgoModel import BaseAlgoClass, AlgoTypes
-
 from typing import Tuple
 import tensorflow as tf
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 from src.core.generalUtils import weightLocation, nameModelRun, exportLocation
 from torch import tensor
@@ -16,19 +16,32 @@ class LSTMModel(BaseAlgoClass):
     AlgoType = AlgoTypes.PRE_TRAINED
     name = 'LSTMModel'
     
-    def __init__(self,  windowLength : int = 100, horizon : int = 20,):
+    def __init__(self,  windowLength : int = 100, horizon : int = 20, patience : int = 3):
         super().__init__()
         
         self.windowLength = windowLength
         self.horizon = horizon
+        self.patience = patience
+        self.earlyStoppingMonitor = "val_mse"
         
         # Build LSTM model - simplified for speed
         self.model = Sequential([
-            LSTM(25, activation='relu', input_shape=(self.lookback, 1), return_sequences=False),
-            Dense(10, activation='relu'),
-            Dense(1)
+            LSTM(128, return_sequences=True, input_shape=(self.windowLength, 1)),
+            Dropout(0.2),
+            LSTM(128, return_sequences=True),  # Additional layer
+            Dropout(0.2),
+            LSTM(64, return_sequences=False),
+            Dropout(0.3),  # Slightly higher dropout before dense layers
+            Dense(32, activation='relu'),
+            Dropout(0.2),
+            Dense(1, activation='tanh')
         ])
-        self.model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+        
+        self.model.compile(
+            optimizer=Adam(learning_rate=0.001, clipnorm=1.0),  # Gradient clipping
+            loss='huber',  # More robust to outliers
+            metrics=['mae']
+        )
 
         # Early stopping for better generalization - more aggressive for speed
         es = EarlyStopping(monitor='loss', patience=1, restore_best_weights=True, verbose=0)
@@ -38,8 +51,8 @@ class LSTMModel(BaseAlgoClass):
         return EarlyStopping(
             monitor=self.earlyStoppingMonitor,
             patience=self.patience,
-            mode="min" if self.earlyStoppingMonitor == "val_mse" else "max",
-            min_delta=0.001,
+            mode="min",
+            min_delta=0.0025,
             restore_best_weights=True
         )
     
@@ -47,8 +60,8 @@ class LSTMModel(BaseAlgoClass):
         """
         Transform time series data into windowed format for LSTM training
         Returns (X, y) where:
-        - X: windows of length self.windowLength 
-        - y: targets self.horizon steps ahead
+        - X: normalized windows of length self.windowLength 
+        - y: directional targets self.horizon steps ahead
         """
         X, y = [], []
         
@@ -58,21 +71,35 @@ class LSTMModel(BaseAlgoClass):
             window = data[i - self.windowLength : i]
             X.append(window)
             
-            # Target: data point horizon steps ahead
-            target = data[i + self.horizon]
+            # Target: percentage change after horizon steps (directional signal)
+            current_price = data[i]
+            future_price = data[i + self.horizon]
+            target = (future_price - current_price) / current_price  # Percentage return
             y.append(target)
         
-        # Convert to numpy arrays and reshape for LSTM
+        # Convert to numpy arrays
         X = np.array(X)
         y = np.array(y)
         
-        # Reshape X to (samples, timesteps, features) for LSTM input
-        X = X.reshape(X.shape[0], X.shape[1], 1)
+        # Use StandardScaler for each window (fit and transform each window independently)
+        scaler = StandardScaler()
+        X_normalized = np.zeros_like(X)
         
-        return X, y
+        for i in range(X.shape[0]):
+            window = X[i].reshape(-1, 1)  # Reshape for scaler
+            X_normalized[i] = scaler.fit_transform(window).flatten()
+        
+        # Reshape X for LSTM input (samples, timesteps, features)
+        X_normalized = X_normalized.reshape(X_normalized.shape[0], X_normalized.shape[1], 1)
+        
+        # StandardScaler for targets too
+        y_scaler = StandardScaler()
+        y = y_scaler.fit_transform(np.array(y).reshape(-1, 1)).flatten()
+        
+        return X_normalized, y
     
-    def train(self, x : tensor, y: tensor, batchSize : int, numEpoch : int, validation_split = 1/10):
-
+    def train(self, x : tensor, y: tensor, batchSize : int = 64, numEpoch : int = 3, validation_split = 1/10):
+        
         self.model.fit(
             x=x,
             y=y,
@@ -84,6 +111,7 @@ class LSTMModel(BaseAlgoClass):
 
 
     def predict(self, x : tensor, y : tensor = None, verbose : int = 0):
+        # x_trans, _ = self.transformDataToWindows(x)
         res = self.model.predict(x=x, verbose=verbose)
         return res
         
@@ -98,3 +126,7 @@ class LSTMModel(BaseAlgoClass):
     
     def loadFromWeights(self, weightsPath) -> None:
         self.model.load_weights(weightsPath)
+        
+
+if __name__ == "__main__":
+    pass
