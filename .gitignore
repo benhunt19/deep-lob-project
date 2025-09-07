@@ -10,3 +10,4 @@ __pycache__/
 venv/*
 outputs/*
 weights/*
+results/csv_outputs/
