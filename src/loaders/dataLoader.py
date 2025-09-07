@@ -171,7 +171,6 @@ class CustomDataLoader:
         windows = sliding_window_view(arr, window_shape=(self.horizon), axis=0)  # (total_rows-horizon+1, horizon, features)
 
         # Select only up to rowLim
-        print(f"Row lim here {self.rowLim}")
         datasetX = windows[:self.rowLim, :, :]  # (batchSize, horizon, features)
 
         # Add the last dimension for channel

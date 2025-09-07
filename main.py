@@ -54,11 +54,12 @@ def main(config: DictConfig):
             ++date=2025-06-05
             ++signalPercentage=15
             ++plot=False
-            ++modelClass= ['LinearRegressionModel'],
-            ++representation': ORDERFLOWS,
-            ++verbose': False,
-            ++saveResults': False,
-            ++tradingFees': False
+            ++modelClass= ['LinearRegressionModel']
+            ++representation'= 'ORDERFLOWS'
+            ++verbose= False
+            ++saveResults= False
+            ++tradingFees= False
+            ++slippage= False
         """
         runAlgoFramework(base=config)
 
