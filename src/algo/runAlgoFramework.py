@@ -16,7 +16,8 @@ OPTIONAL_KEYS = [
     'plot',
     'verbose',
     'saveResults',
-    'tradingFees'
+    'tradingFees',
+    'slippage'
 ]
 
 ALL_KEYS = list(set(REQUIRED_KEYS).union(set(OPTIONAL_KEYS)))

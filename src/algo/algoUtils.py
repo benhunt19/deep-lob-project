@@ -30,8 +30,9 @@ from src.routers.algoModelRouter import (
 
 # LOCAL COL CONSTS
 TIME_COL = 1; ASK_PRICE_COL_1 = 2; BID_PRICE_COL_1 = 4
-TIME = 'time'; ASK = 'ask'; BID = 'bid'; MID = 'mid' 
+TIME = 'time'; ASK = 'ask'; BID = 'bid'; MID = 'mid' ; SLIPPAGE = 'slippage'
 LOBSTER_DIVISOR = 10_000
+INFERENCE_TIME = 0.00484
 IGNORE_KEYS = []
 
 class Direction(Enum):
@@ -54,6 +55,7 @@ class AlgoTrading:
         signalPercentage (int, optional): Percentile threshold for trading signals. Defaults to 25.
         representation (str): Representation required for deeplob and deeplobreg {ORDERBOOKS, ORDERFIXEDVOL, ORDERFLOWS, ORDERVOL}
         labelType (str): labelType required for deeplob and deeplobreg {CATEGORICAL, REGRESSION}
+        tradingFees (bool): Enable fees from the "spread"...
         modelKwargs (dict, optional): Additional keyword arguments for model initialization. Defaults to {{}}.
     """
     
@@ -72,6 +74,7 @@ class AlgoTrading:
         verbose : bool = False,
         saveResults : bool = False,
         tradingFees : bool = False,
+        slippage : bool = False,
         meta : dict = None
     ):
         # Initialisation params
@@ -88,6 +91,7 @@ class AlgoTrading:
         self.verbose = verbose
         self.saveResults = saveResults
         self.tradingFees = tradingFees
+        self.slippage = slippage
         self.meta = meta
         
         # Running params
@@ -120,6 +124,10 @@ class AlgoTrading:
         dataFull = dataFull[:self.rowLim]
         self.data = dataFull[self.windowLength : ].copy().reset_index()
         
+        if self.slippage:
+            print("Adding inference slippage")
+            self.addInferenceSlippage(inferenceTime=INFERENCE_TIME)
+            
         if self.modelClass.AlgoType == AlgoTypes.DEEPLOB:
             
             print(f"Model type: {self.modelClass.AlgoType}")
@@ -188,7 +196,7 @@ class AlgoTrading:
         assert self.upper_thresh is not None and self.lower_thresh is not None, f"Please ensure that the lower and upper thesholds are"
         assert self.predictions is not None, f"Pleaes ensure that there are predictions"
         
-        pnl, directions, fees = self.predictionsToProfit()
+        pnl, directions, fees, slippageValues = self.predictionsToProfit()
         
         if self.plot:
             self.plotPnL(pnl=pnl, ticker=self.ticker, date=self.date)
@@ -197,6 +205,7 @@ class AlgoTrading:
             'pnl': pnl,
             'directions': directions,
             'fees': fees if self.tradingFees else None,
+            'slippageValues': slippageValues if self.slippage else None,
             'predictions': self.predictions,
             'upper_thresh': self.upper_thresh,
             'lower_thresh': self.lower_thresh,
@@ -213,7 +222,8 @@ class AlgoTrading:
                 ticker=self.ticker,
                 horizon=self.horizon,
                 signalPercentage=self.signalPercentage,
-                date=self.date
+                date=self.date,
+                slippage=self.slippage
             )
         
         return result
@@ -298,6 +308,7 @@ class AlgoTrading:
         pnl = np.zeros(len(self.data))
         directions = np.zeros(len(self.data))
         fees = np.zeros(len(self.data))
+        slippageValues = np.zeros(len(self.data))
         countdown = 0
         extend = False
         
@@ -338,11 +349,7 @@ class AlgoTrading:
             # --- Enter if aligned ---
             elif signal > self.upper_thresh and direction in [Direction.FLAT, Direction.LONG]:
                 if countdown == 0:
-                    if self.tradingFees:
-                        entryPrice = row[ASK]
-                        fees[index] = spread
-                    else:
-                        entryPrice = row[MID]
+                    entryPrice = self.handleEntryPrice(slippage=self.slippage, direction=Direction.LONG, row=row, spread=spread, index=index, slippageValues=slippageValues, fees=fees)
                     countdown = self.horizon
                     if self.verbose:
                         print(f"[{index}] Enter LONG at {row[MID]}")
@@ -352,11 +359,7 @@ class AlgoTrading:
 
             elif signal < self.lower_thresh and direction in [Direction.FLAT, Direction.SHORT]:
                 if countdown == 0:
-                    if self.tradingFees:
-                        entryPrice = row[BID]
-                        fees[index] = spread
-                    else:
-                        entryPrice = row[MID]
+                    entryPrice = self.handleEntryPrice(slippage=self.slippage, direction=Direction.SHORT, row=row, spread=spread, index=index, slippageValues=slippageValues, fees=fees)
                     countdown = self.horizon
                     if self.verbose:
                         print(f"[{index}] Enter SHORT at {row[MID]}")
@@ -396,10 +399,10 @@ class AlgoTrading:
                 countdown -= 1
             directions[index] = direction.value
             
-        return pnl, directions, fees
+        return pnl, directions, fees, slippageValues
     
     @staticmethod
-    def saveResultsDict(dic : dict, fileName : str, ticker : str, modelName : str, horizon : int, date : str, signalPercentage : int):
+    def saveResultsDict(dic : dict, fileName : str, ticker : str, modelName : str, horizon : int, date : str, signalPercentage : int, slippage = False):
         """
         Save dict data to a file using joblib.
             fileName (str): Name of the file to save (without extension)
@@ -408,11 +411,63 @@ class AlgoTrading:
             horizon (int): Time horizon for the model
             date (str): Date string for the data
             signalPercentage (int): Signal percentage threshold
+            slippage (bool): Save in special slippage folder, default False
         """
         
-        location = saveAlgoDictLocation(ticker=ticker, modelName=modelName, horizon=horizon, date=date, signalPercentage=signalPercentage )
+        location = saveAlgoDictLocation(ticker=ticker, modelName=modelName, horizon=horizon, date=date, signalPercentage=signalPercentage, slippage=slippage)
         os.makedirs(location, exist_ok=True)
         dump(dic, f"{location}/{fileName}.joblib")
+      
+    def handleEntryPrice(self, slippage: bool, direction : Direction, row, spread : float, index : int, slippageValues : np.array, fees : np.array) -> float:
+        """
+        Definition:
+            Handle entry price based on slippage
+        """
+        if slippage:
+            # compute offset using the original row's SLIPPAGE (default 0)
+            offset = int(row.get(SLIPPAGE, 0)) if hasattr(row, "get") else 0
+            # don't step past the end of the dataframe or past the horizon
+            offset = min(offset, self.horizon, len(self.data) - 1 - index)
+            # select the target row as a pandas Series (indexable by column name)
+            slippageValues[index] = self.data.iloc[index + offset][MID] - self.data.iloc[index][MID]
+            row = self.data.iloc[index + offset]
+        
+        if direction == Direction.LONG and self.tradingFees:
+            entryPrice = row[ASK]
+            fees[index] = spread
+        elif direction == Direction.SHORT and self.tradingFees:
+            entryPrice = row[BID]
+            fees[index] = spread
+        else:
+            entryPrice = row[MID]
+            
+        return entryPrice
+    
+    def addInferenceSlippage(self, inferenceTime):
+        """
+        Definition:
+            Add slippage column showing how many rows to slip forward for inference time
+        """
+        
+        # Calculate target times
+        target_times = self.data[TIME] + inferenceTime
+        
+        # Vectorized search for slippage indices
+        slippage = np.zeros(len(self.data), dtype=int)
+        
+        for i in range(len(self.data)):
+            # Find first row where time >= target_time within horizon
+            end_idx = min(i + self.horizon, len(self.data))
+            search_mask = (self.data[TIME].iloc[i:end_idx] >= target_times.iloc[i])
+            
+            if search_mask.any():
+                # Get relative index within search window
+                slippage[i] = search_mask.idxmax() - i - 1
+            else:
+                # Default to horizon if no match found
+                slippage[i] = min(self.horizon - 1, len(self.data) - i - 1)
+        
+        self.data[SLIPPAGE] = slippage
 
 class AlgoMetaMaker:
     f"""

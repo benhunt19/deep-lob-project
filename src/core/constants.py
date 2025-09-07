@@ -30,6 +30,7 @@ RESULTS_PATH = 'results'
 RESULTS_CSVS = 'results/csv_outputs'
 FINAl_RESULTS_PATH = 'results/final'
 ALGO_RESULTS = 'results/algo'
+ALGO_SLIPPAGE_RESULTS = 'results/algoSlippage'
 
 # Lobster Constants
 LOBSTER_PRICE_SCALE_FACTOR = 10_000
