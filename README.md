@@ -1,7 +1,13 @@
 # Deep LOB
-![Horizon Analysis Results](assets/Results/Horizon/horizons_3d_barplot_all_tickers_accuracy_blank.png)
+<p align="center"><img src="assets/Results/Horizon/horizons_3d_barplot_all_tickers_accuracy_blank.png" alt="Horizon Analysis Results" width="500" /></p>
 
-This repository provides a comprehensive framework for limit order book (LOB) analysis, including data processing, model training/testing, transfer learning, and algorithmic trading capabilities.
+This repository provides a comprehensive framework for limit order book (LOB) analysis, including data processing, model training/testing, transfer learning, and algorithmic trading capabilities.This repository was created for academic research purposes.
+
+## Preliminaries
+
+To install the required python packages, please run the following command before attempting to run any scripts.
+
+```pip install -r requirements_windows.txt```
 
 ## Usage
 
@@ -10,7 +16,7 @@ The main entry point is `main.py`, which uses Hydra for configuration management
 
 ### Data Processing
 
-Process raw data from the `data/raw` folder into different representations:
+Process raw data from the `data/raw` folder into different representations. The raw files need to be directly from lobster.com, both the orderbook and the message files are required for each day you are processing.
 
 ```bash
 # Basic data processing
@@ -113,3 +119,8 @@ python main.py ++lookForwardHorizon=[5,10,20,50,100,200] ++ticker='["MSFT","AAPL
 # Algo trading simulation
 python main.py ++steps=["ALGO_TRADING"] ++horizon='[20,40,60]' ++ticker='["AAPL","NVDA"]' ++date="2025-06-05" ++tradingFees=True ++saveResults=True
 ```
+
+### Code Sources
+1. https://github.com/FinancialComputingUCL/LOBFrame
+2. https://github.com/lorenzolucchese/deepOBs
+3. https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books
